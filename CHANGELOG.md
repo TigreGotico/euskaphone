@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0a3](https://github.com/TigreGotico/euskaphone/tree/0.2.0a3) (2026-07-16)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.0a2...0.2.0a3)
+
+**Merged pull requests:**
+
+- docs: add espyak to the measured WikiPron comparison [\#12](https://github.com/TigreGotico/euskaphone/pull/12) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.0a2](https://github.com/TigreGotico/euskaphone/tree/0.2.0a2) (2026-07-16)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.0a1...0.2.0a2)
