@@ -1,44 +1,12 @@
 # Changelog
 
-## [0.2.0a3](https://github.com/TigreGotico/euskaphone/tree/0.2.0a3) (2026-07-16)
+## [0.2.1a1](https://github.com/TigreGotico/euskaphone/tree/0.2.1a1) (2026-07-16)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.0a2...0.2.0a3)
-
-**Merged pull requests:**
-
-- docs: add espyak to the measured WikiPron comparison [\#12](https://github.com/TigreGotico/euskaphone/pull/12) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.2.0a2](https://github.com/TigreGotico/euskaphone/tree/0.2.0a2) (2026-07-16)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.0a1...0.2.0a2)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.0...0.2.1a1)
 
 **Merged pull requests:**
 
-- docs: measured full-WikiPron comparison against espeak-ng and ahotts-g2p [\#11](https://github.com/TigreGotico/euskaphone/pull/11) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.2.0a1](https://github.com/TigreGotico/euskaphone/tree/0.2.0a1) (2026-07-16)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.1.0a2...0.2.0a1)
-
-**Merged pull requests:**
-
-- feat: expand Northern Bizkaian pitch-accent lexicon with Lekeitio attestations [\#10](https://github.com/TigreGotico/euskaphone/pull/10) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.1.0a2](https://github.com/TigreGotico/euskaphone/tree/0.1.0a2) (2026-07-16)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/df5fb8c15dcf66baa0ffd0b163a4e37b70759812...0.1.0a2)
-
-**Merged pull requests:**
-
-- chore: wire org CI workflows, refresh benchmark figures [\#9](https://github.com/TigreGotico/euskaphone/pull/9) ([JarbasAl](https://github.com/JarbasAl))
-- test: align negation-sandhi expectations with current engine notation [\#8](https://github.com/TigreGotico/euskaphone/pull/8) ([JarbasAl](https://github.com/JarbasAl))
-- fix: duplicate package-data keys in pyproject [\#7](https://github.com/TigreGotico/euskaphone/pull/7) ([JarbasAl](https://github.com/JarbasAl))
-- feat: English code-switch route + Euskaltzaindia toponym & HiTZ lexicons [\#6](https://github.com/TigreGotico/euskaphone/pull/6) ([JarbasAl](https://github.com/JarbasAl))
-- feat: orthographic normalization — Roman numerals, abbreviations, units, dates [\#5](https://github.com/TigreGotico/euskaphone/pull/5) ([JarbasAl](https://github.com/JarbasAl))
-- feat: Northern Bizkaian pitch accent and verification-gated accent forcing [\#4](https://github.com/TigreGotico/euskaphone/pull/4) ([JarbasAl](https://github.com/JarbasAl))
-- feat: char-Markov word-level language detector for code-switch routing [\#3](https://github.com/TigreGotico/euskaphone/pull/3) ([JarbasAl](https://github.com/JarbasAl))
-- feat: normalize numbers on the ovos-number-parser stack [\#2](https://github.com/TigreGotico/euskaphone/pull/2) ([JarbasAl](https://github.com/JarbasAl))
-- test\(sandhi\): Basque ez negative-particle contraction round-trips + docs [\#1](https://github.com/TigreGotico/euskaphone/pull/1) ([JarbasAl](https://github.com/JarbasAl))
+- docs: complete the feature map and correct stale claims [\#13](https://github.com/TigreGotico/euskaphone/pull/13) ([JarbasAl](https://github.com/JarbasAl))
 
 
 
