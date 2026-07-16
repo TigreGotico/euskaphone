@@ -1,0 +1,35 @@
+# Basque abbreviations (laburdurak) -> spoken expansion.
+# Curated from Euskaltzaindia Araua 196 (EBO I, "Laburtzapenak: laburdurak eta
+# siglak") and the EIMA "Ortotipografia" style guide (J. R. Zubimendi, Eusko
+# Jaurlaritza 2004), "Laburdurak" section. The exhaustive reference is Euskalterm's
+# "Laburtzapenen Hiztegia" (Gasteiz 2010). Three TAB-separated columns:
+#   abbreviation<TAB>expansion<TAB>gloss (English, for reviewers)
+# Norm: a laburdura carries a period and is read as the FULL word (Araua 196;
+# Ortotipografia s9); "etab." is a fixed exception meaning "eta abar". The lemma
+# (uninflected) form is used here; running-text case is not re-derived.
+# Matching is case-insensitive on the written form; the trailing period is part
+# of the abbreviation and is stripped before lookup (see abbreviations.py).
+# This file is data, not code: add a cited row to extend coverage.
+etab.	eta abar	et cetera ("and the rest")
+e.a.	eta abar	et cetera (spaced-dot variant)
+adib.	adibidez	for example ("e.g.")
+ad.	adibidez	for example (variant)
+h.d.	hau da	that is ("i.e.")
+ik.	ikus	see ("cf.")
+id.	idem	idem
+zk.	zenbakia	number ("no.")
+zenb.	zenbakia	number (variant)
+or.	orrialdea	page
+orr.	orrialdeak	pages
+lib.	liburua	book
+kap.	kapitulua	chapter
+at.	atala	section
+K.a.	Kristo aurretik	BC ("before Christ")
+K.o.	Kristo ondoren	AD ("after Christ")
+jn.	jauna	Mr. ("sir/lord")
+and.	andrea	Mrs./Ms. ("madam")
+k.	kalea	street
+pl.	plaza	square
+etorb.	etorbidea	avenue
+tel.	telefonoa	telephone
+hurr.	hurrengoa	following

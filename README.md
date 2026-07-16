@@ -109,6 +109,31 @@ See [`docs/codeswitch.md`](docs/codeswitch.md).
 table (the orthography2ipa lexicon contract: a `word<TAB>ipa` path, URL or
 `hf://` id). Empty by default; a covered word bypasses the lattice.
 
+### 4. Orthographic normalization
+
+Before the lattice runs, everything written as a symbol, abbreviation, Roman
+numeral or numeric date is spelled into Basque words
+(`euskaphone.normalize.normalize_text`, wired in as the orthography2ipa
+`normalize` stage):
+
+```python
+from euskaphone.normalize import normalize_text
+
+normalize_text("XX. mendean %20 igo da", "eu")
+# 'hogeigarren mendean ehuneko hogei igo da'
+normalize_text("Luis XIV.a errege zen", "eu")     # '… hamalaugarrena …'
+normalize_text("Sarrera €5eko da", "eu")          # '… bost euroko …'
+normalize_text("15/01/2024", "eu")   # 'bi mila eta hogeita lauko urtarrilaren hamabostean'
+```
+
+Roman-numeral ordinals (`XX.` → `hogeigarren`) and monarch numerals
+(`Luis XIV.a` → `hamalaugarrena`), a cited abbreviation list
+(`etab.` → `eta abar`), unit/currency/percent symbols with Basque word order and
+declension (`%5` and `5%` both → `ehuneko bost`), and numeric dates — each cited
+to Euskaltzaindia (Araua 18/37/196/197) and the EIMA *Ortotipografia* guide. The
+abbreviation and unit tables are expandable data files
+(`euskaphone/data/*.tsv`). See [`docs/normalization.md`](docs/normalization.md).
+
 ### No homograph subsystem — by design
 
 Basque orthography is near-phonemic: a grapheme's reading is essentially fixed

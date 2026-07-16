@@ -1,0 +1,25 @@
+# Unit / currency symbols -> spoken Basque word (singular stem).
+# The stem is the form a declension suffix attaches to (kilometro -> kilometroko).
+# Curated from the EIMA "Ortotipografia" style guide (Basque Government) symbol
+# list and Euskaltzaindia usage. Two TAB-separated columns:
+#   symbol<TAB>word
+# The percent sign is handled specially (ehuneko precedes the number) and is not
+# listed here. This file is data, not code: add a cited row to extend coverage.
+km	kilometro
+m	metro
+cm	zentimetro
+mm	milimetro
+dm	dezimetro
+kg	kilogramo
+g	gramo
+mg	miligramo
+t	tona
+l	litro
+ml	mililitro
+cl	zentilitro
+h	ordu
+min	minutu
+s	segundo
+€	euro
+$	dolar
+£	libera
