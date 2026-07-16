@@ -65,10 +65,29 @@ contains an overlay key, then reports the drop:
 Enabling the overlay therefore trades a small proper-noun gain for the loss of
 those rows as an independent signal — documented, never silent.
 
-## Comparable tools
+## Comparable tools — measured
 
-- **AhoTTS** (EHU) — the established Basque TTS front end; Standard Batua only.
-- **espeak-ng** `eu` — single-dialect, rule-thin.
+All three engines scored on the full WikiPron `eus_latn` broad set (20,115
+words) under one protocol: Levenshtein over IPA segments (base + combining
+marks as one unit), stress and boundary marks stripped, per-word PER averaged
+over words. The `0.0749` above uses a different unit and average
+(character-level distance, micro-averaged over total characters), which is why
+the two euskaphone figures differ; within *this* table all engines are scored
+identically.
+
+```
+euskaphone     PER = 0.1009   word accuracy = 0.4298
+espeak-ng eu   PER = 0.1704   word accuracy = 0.1750
+ahotts-g2p     PER = 0.3360   word accuracy = 0.0003
+```
+
+- **[ahotts-g2p](https://github.com/TigreGotico/ahotts-g2p)** (from AhoTTS, the
+  EHU TTS front end) — Standard Batua only. Its output keeps AhoTTS's own
+  symbol conventions rather than WikiPron-style IPA, so a large share of its
+  distance here is notation, not phonology; read its row as "convention
+  mismatch dominates", not as a 3× error rate.
+- **espeak-ng** `eu` — single-dialect, rule-thin; no laminal/apical sibilant
+  contrast.
 
 euskaphone's contribution is eight-lect coverage, sourced vigesimal numerals, and
 code-switch nativization, over a lattice shared across the Iberian family.
