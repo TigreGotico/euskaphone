@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1a2](https://github.com/TigreGotico/euskaphone/tree/0.2.1a2) (2026-07-16)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a1...0.2.1a2)
+
+**Merged pull requests:**
+
+- fix\(benchmark\): full-set by default; publish the full-set HiTZ figure [\#15](https://github.com/TigreGotico/euskaphone/pull/15) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.1a1](https://github.com/TigreGotico/euskaphone/tree/0.2.1a1) (2026-07-16)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.0...0.2.1a1)
