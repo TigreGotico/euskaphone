@@ -47,7 +47,7 @@ Eight lects, selectable by BCP-47 code or by a human-readable alias:
 | `eu-x-zuberera` | Souletin | `souletin`, `xiberotarra` |
 | `eu-x-erronkariera` | Roncalese (†) | `roncalese` |
 
-## The three things euskaphone adds
+## What euskaphone adds
 
 ### 1. Vigesimal number normalization (the flagship)
 
@@ -144,6 +144,35 @@ declension (`%5` and `5%` both → `ehuneko bost`), and numeric dates — each c
 to Euskaltzaindia (Araua 18/37/196/197) and the EIMA *Ortotipografia* guide. The
 abbreviation and unit tables are expandable data files
 (`euskaphone/data/*.tsv`). See [`docs/normalization.md`](docs/normalization.md).
+
+### 5. Northern Bizkaian pitch accent (opt-in)
+
+The Getxo–Gernika and Lekeitio–Ondarroa varieties of Biscayan draw a *lexical*
+accented/unaccented contrast — a system typologically close to Japanese, and a
+landmark in the prosodic-typology literature. `pitch_accent=True` (Biscayan
+only) marks the lexically accented syllable of every attested word from a
+76-entry lexicon cited to Hualde; Egurtzegi & Elordieta; and Hualde, Elordieta
+& Elordieta (1994). Unknown words stay unmarked and are reported as a distinct
+class — "not in the lexicon" never masquerades as "known unaccented".
+
+```python
+ph.phonemize_sentence("Amuma etxean dago.", "biscayan",
+                      contact="none", pitch_accent=True)
+# 'aˈmuma etʃean daɡo'
+```
+
+See [`docs/pitch_accent.md`](docs/pitch_accent.md).
+
+### 6. Accent forcing
+
+`force_accent(text, dialect)` returns a target lect's own IPA for Batua text
+(`mode="ipa"`), or a **verification-gated respelling** (`mode="respell"`) that
+rewrites Batua orthography toward the target pronunciation and keeps an edit
+only if the respelled text, read through the Batua lattice, measurably
+approaches the target lect's IPA. Features Batua spelling cannot carry
+(continental aspiration, Souletin front rounding) are rejected by the gate and
+reported as a measured ceiling. See
+[`docs/accent_forcing.md`](docs/accent_forcing.md).
 
 ### No homograph subsystem — by design
 

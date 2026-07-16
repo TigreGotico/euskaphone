@@ -68,7 +68,11 @@ lexical accent per word.
 
 ## Coverage
 
-Honest and small: the shipped lexicon documents only the attested, cited words
-of the Northern Bizkaian sub-area (10 accented, 4 unaccented). Everything else
-is unmarked-by-default and reported as `UNKNOWN`. The lexicon is a seed to be
-extended from the primary sources, not a claim of full coverage.
+Honest and bounded: the shipped lexicon documents only attested, cited words of
+the Northern Bizkaian sub-area — 76 entries (62 accented, 14 unaccented), each
+naming its source: the Getxo–Gernika items from Egurtzegi & Elordieta and
+Hualde (1997, 1999), and the Lekeitio items from Hualde, Elordieta & Elordieta
+(1994) §2.8.1 (loanword accent, compounds, and the singular/plural minimal
+pairs). Everything else is unmarked-by-default and reported as `UNKNOWN`. The
+lexicon is a seed to be extended from the primary sources, not a claim of full
+coverage.
