@@ -27,7 +27,7 @@ classifiers = [
     "Topic :: Multimedia :: Sound/Audio :: Speech",
 ]
 dependencies = [
-    "orthography2ipa>=7.19.2a1",
+    "orthography2ipa>=7.28.0a1",
 ]
 
 [project.optional-dependencies]
