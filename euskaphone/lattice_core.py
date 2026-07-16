@@ -40,7 +40,7 @@ from euskaphone.codeswitch import split_runs, transcribe_contact
 from euskaphone.normalize import normalize_text
 from euskaphone.registry import default_contact, resolve_lect
 
-_VALID_CONTACT = ("auto", "es", "fr", "none")
+_VALID_CONTACT = ("auto", "es", "fr", "en", "none")
 
 
 def _normalizer(lect: str):
@@ -65,13 +65,10 @@ def engine(lect: str) -> G2P:
     return G2P(lect, normalizer=_normalizer(lect))
 
 
-def _resolve_contact(contact: str, lect: str) -> str:
+def _validate_contact(contact: str) -> None:
     if contact not in _VALID_CONTACT:
         raise ValueError(
             f"unknown contact {contact!r}; expected one of {_VALID_CONTACT}")
-    if contact == "auto":
-        return default_contact(lect)
-    return contact
 
 
 def phonemize(text: str, dialect: str = "eu", contact: str = "auto") -> str:
@@ -79,17 +76,20 @@ def phonemize(text: str, dialect: str = "eu", contact: str = "auto") -> str:
 
     Basque tokens are transcribed by the eu lattice (numbers verbalized by the
     normalizer, cross-word sandhi preserved within contiguous Basque runs);
-    detected contact-language tokens are transcribed through the ``es``/``fr``
-    lattice and nativized onto the Basque inventory. ``contact`` is one of
-    ``auto`` (per-dialect side), ``es``, ``fr`` or ``none`` (disable switching).
+    detected contact-language tokens are transcribed through the
+    ``es``/``fr``/``en`` lattice and nativized onto the Basque inventory.
+    ``contact`` is one of ``auto`` (detect and classify each contact word among
+    es/fr/en, unclassified words falling to the dialect's side), ``es``, ``fr``,
+    ``en`` or ``none`` (disable switching).
     """
+    _validate_contact(contact)
     lect = resolve_lect(dialect)
     if contact == "none":
         return engine(lect).transcribe(text)
-    contact_lang = _resolve_contact(contact, lect)
     keep_y = lect == "eu-x-zuberera"
+    side = default_contact(lect)
 
-    runs = split_runs(text, contact_lang)
+    runs = split_runs(text, contact, default_side=side)
     out: List[str] = []
     # transcribe contiguous Basque tokens as one phrase to preserve sandhi;
     # nativize each contact token individually.
@@ -101,8 +101,8 @@ def phonemize(text: str, dialect: str = "eu", contact: str = "auto") -> str:
             out.append(engine(lect).transcribe(phrase))
             basque_buffer.clear()
 
-    for is_contact, token in runs:
-        if is_contact:
+    for contact_lang, token in runs:
+        if contact_lang is not None:
             flush()
             out.append(transcribe_contact(token, contact_lang, keep_y=keep_y))
         else:

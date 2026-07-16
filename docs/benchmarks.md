@@ -1,6 +1,10 @@
 # Benchmarks
 
-Run: `python scripts/benchmark.py [--wikipron PATH] [--hitz] [--sample N]`.
+Run: `python scripts/benchmark.py [--wikipron PATH] [--hitz] [--hitz-overlay] [--sample N]`.
+
+The benchmarks run against the **pure lattice** — the built-in toponym lexicon is
+turned off (`EuskaPhonemizer(toponyms=False)`) so every figure stays a
+lattice-only floor, not a lexicon-inflated number.
 
 euskaphone drives the shared orthography2ipa lattice, so every figure measures
 that lattice — labelled honestly by what it can and cannot claim.
@@ -44,6 +48,22 @@ n = 2000 (seed-0 sample)   PER (folded) = 0.138
 Agreement between two independent Basque G2P engines on raw Wikipedia. Much of
 the residual is genuine convention difference (spirantization, embedded-Spanish
 handling), not error.
+
+### The HiTZ overlay split (circularity guard)
+
+The opt-in HiTZ proper-noun overlay lexicon (`docs/lexicons.md`) draws its keys
+from *this* set, so grading it here would be circular. With `--hitz-overlay` the
+harness activates the overlay **and** excludes every reference row whose text
+contains an overlay key, then reports the drop:
+
+```
+== HiTZ/EHU wikipedia_basque_ipa (… OVERLAY ACTIVE — split) ==
+  n = …   PER (folded) = …
+  excluded N row(s) containing an overlay key (circularity guard)
+```
+
+Enabling the overlay therefore trades a small proper-noun gain for the loss of
+those rows as an independent signal — documented, never silent.
 
 ## Comparable tools
 

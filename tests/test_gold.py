@@ -45,7 +45,10 @@ _gold_files = sorted(glob.glob(os.path.join(_GOLD_DIR, "eu*.tsv")))
                          ids=[os.path.basename(p)[:-4] for p in _gold_files])
 def test_dialect_gold_regression(path):
     code = os.path.basename(path)[:-4]
-    ph = EuskaPhonemizer()
+    # The regression measures the *pure* lattice, so the built-in toponym
+    # lexicon must be off: a pinned isolated-word IPA could otherwise diverge
+    # from the in-context (sandhi) reading and perturb the fixture.
+    ph = EuskaPhonemizer(toponyms=False)
     rows = list(csv.DictReader(open(path, encoding="utf-8"), delimiter="\t"))
     assert rows, f"empty gold: {path}"
     total = sum(

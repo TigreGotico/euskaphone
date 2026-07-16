@@ -1,48 +1,71 @@
 # Code-switch handling
 
-Real Basque text is bilingual: peninsular (Hegoalde) writing embeds Spanish,
-continental (Iparralde) writing embeds French — proper names, loans, quoted
-fragments. euskaphone detects that material at the word level, transcribes it
-through the orthography2ipa `es-ES`/`fr-FR` lattice, and **nativizes** the result
-onto the Basque phoneme inventory.
+Real Basque text is bilingual, and increasingly trilingual: peninsular
+(Hegoalde) writing embeds Spanish, continental (Iparralde) writing embeds French,
+and the modern tech/music/media register on both sides embeds English — proper
+names, loans, quoted fragments, product and band names. euskaphone detects that
+material at the word level, classifies each contact word among `es`/`fr`/`en`,
+transcribes it through the orthography2ipa `es-ES`/`fr-FR`/`en-US` lattice, and
+**nativizes** the result onto the Basque phoneme inventory.
 
 ## Total nativization
 
 Following arbtok's principle — *never drop a segment, always project it* — every
-foreign phone maps to its nearest Basque phone rather than being deleted:
+foreign phone maps to its nearest Basque phone rather than being deleted.
+
+Romance (Spanish/French):
 
 ```
 θ → s̻    v → b    z → s̻    ʒ → ʃ    ɔ → o    ɛ → e    y → i (kept in Souletin)
 ʁ,ʀ → r   χ → x    ø,œ,ə → e   nasal vowels → their oral counterpart
 ```
 
-Stress marks and liaison are stripped, so a contact word comes out in the same
-notation as the surrounding Basque.
+English (adapted through the same five-vowel, no-interdental phonology; the
+mapping follows the documented loanword-adaptation pattern for Basque anglicisms
+and, where the literature is silent, is stated as a convention):
+
+```
+θ → t    ð → d    w → u̯    ɫ → l    ɹ,ɻ → r    ŋ → n    dʒ → tʃ
+æ,ʌ → a  ɒ → o    ɪ → i    ʊ → u    ɜ,ɝ,ə → e   eɪ→ei aɪ→ai aʊ→au oʊ→o
+```
+
+Length marks, stress and liaison are stripped, so a contact word comes out in the
+same notation as the surrounding Basque.
 
 ## The `contact` parameter
 
 | value | behaviour |
 |-------|-----------|
-| `"auto"` (default) | detect contact words, route through the dialect's side (peninsular→`es`, continental→`fr`) |
-| `"es"` / `"fr"` | force that contact lattice for detected words |
+| `"auto"` (default) | detect contact words and classify each **per word** among `es`/`fr`/`en`; unclassified words fall to the dialect's side (peninsular→`es`, continental→`fr`) |
+| `"es"` / `"fr"` / `"en"` | force that contact lattice for detected words |
 | `"none"` | disable switching; transcribe everything as Basque |
 
 ```python
-ph.phonemize_sentence("Madrilen Plaza Mayor ikusi dut.", "eu")     # es
-ph.phonemize_sentence("Maison Rouge etxean.", "souletin")          # fr (auto)
-ph.phonemize_sentence("Plaza Mayor.", "eu", contact="none")        # all Basque
+ph.phonemize_sentence("Madrilen Plaza Mayor ikusi dut.", "eu")       # es
+ph.phonemize_sentence("Streaming plataforma berria erabili dugu.")   # en (auto)
+ph.phonemize_sentence("Plaza Mayor eta le weekend.", "eu")           # es + fr + en
+ph.phonemize_sentence("Maison Rouge etxean.", "souletin")            # fr (auto)
+ph.phonemize_sentence("Plaza Mayor.", "eu", contact="none")          # all Basque
 ```
 
 ## The detection heuristic (and its limits)
 
 A token is treated as contact-language if it carries a letter Basque does not use
-natively (`c q v w y ñ ç` or a Romance accented vowel) or is one of a small set
-of very common Spanish/French function words. This is deliberately shallow and
-kept far simpler than arbtok: it catches the proper names and loans that actually
-break a Basque TTS voice. It is **not** a language identifier — a Spanish loan
-spelled with only Basque-legal letters (e.g. `plaza`) is not flagged and falls
-through to the Basque lattice, which would project it onto the same inventory
-anyway. Nothing is ever dropped.
+natively (`c q v w y ñ ç` or a Romance accented vowel), an English digraph absent
+from native spelling (`th sh wh ck gh oo ee aw`), or is one of a small set of
+common Spanish/French/English function words. Per-word classification then routes
+it (English signals first, then the Spanish/French accent split, then the
+dialect's side). Sequences that occur natively in Basque (`ea` in *etxean*, `ing`
+in *inguru*) are deliberately excluded so the signal never fires on a Basque word.
+This is deliberately shallow and kept far simpler than arbtok. It is **not** a
+language identifier — a loan spelled with only Basque-legal letters (e.g. `plaza`)
+is not flagged and falls through to the Basque lattice, which would project it
+onto the same inventory anyway. Nothing is ever dropped.
+
+When the statistical detector below is active it drives the per-word language
+choice; the orthographic classifier is the backstop, and for **short** tokens
+(under six letters) the detector's foreign verdict needs orthographic
+corroboration, so native forms like `jan` or `bada` are never misrouted.
 
 The heuristic remains the fallback. When the statistical detector below is
 available it takes over the routing decision, and the heuristic is used only if
