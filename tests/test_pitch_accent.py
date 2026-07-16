@@ -43,6 +43,50 @@ def test_unaccented_words(lex, word):
     assert lex.lookup(word).accent_class is AccentClass.UNACCENTED
 
 
+def test_lexicon_covers_the_lekeitio_monograph_expansion(lex):
+    assert len(lex) >= 70
+
+
+@pytest.mark.parametrize("word,syllable", [
+    # Hualde, Elordieta & Elordieta 1994 (Lekeitio), §2.8.1 ex.(117):
+    # lexical accent on the penultimate syllable.
+    ("eskola", 2),      # eskóla, old borrowing
+    ("denpora", 2),     # denpóra < Lat. tempora
+    ("alkondara", 3),   # alkondára
+    ("dutxa", 1),       # dútxa < Sp. ducha
+    ("gasolina", 3),    # gasolína
+    ("amaika", 2),      # amáika 'eleven'
+    ("euskera", 2),     # euskéra
+    ("intxaur", 1),     # íntxaur 'walnut'
+    ("lapiko", 2),      # lapíko 'cooking pot'
+    ("beste", 1),       # béste 'other'
+    ("ugesaba", 3),     # ugesába 'boss'
+    ("mai", 1),         # exceptional accented monosyllable /mai*/
+])
+def test_lekeitio_accented_words(lex, word, syllable):
+    entry = lex.lookup(word)
+    assert entry.accent_class is AccentClass.ACCENTED
+    assert entry.accent_syllable == syllable
+
+
+@pytest.mark.parametrize("word", [
+    # HEE 1994 §2.8.1 ex.(115): phrases of only unaccented words; p.53:
+    # perfective participles are all unaccented in Lekeitio.
+    "abade", "iru", "itturri", "eder", "barri", "erri", "sutondo",
+    "gixon", "bota", "eruan",
+])
+def test_lekeitio_unaccented_words(lex, word):
+    entry = lex.lookup(word)
+    assert entry.accent_class is AccentClass.UNACCENTED
+    assert entry.accent_syllable is None
+
+
+def test_lekeitio_entries_annotate_ipa(lex):
+    assert annotate("eskola", "eskola", lex) == "e" + ACCENT_MARK + "skola"
+    assert annotate("dutxa", "dutʃa", lex) == ACCENT_MARK + "dutʃa"
+    assert ACCENT_MARK not in annotate("abade", "aβaðe", lex)
+
+
 def test_unknown_is_distinct_from_unaccented(lex):
     entry = lex.lookup("mahaia")  # a real Batua word, simply not attested here
     assert entry.accent_class is AccentClass.UNKNOWN
