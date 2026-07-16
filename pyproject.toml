@@ -31,9 +31,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Statistical char-Markov code-switch detector. Optional: without it, the
+# orthographic heuristic is used. The bundled models are scored by markovonnx.
+langdetect = [
+    "markovonnx>=1.0.1",
+]
 test = [
     "pytest",
     "pytest-cov",
+    "markovonnx>=1.0.1",
 ]
 
 [project.entry-points."opm.g2p"]
@@ -45,6 +51,9 @@ Repository = "https://github.com/TigreGotico/euskaphone"
 
 [tool.setuptools]
 packages = ["euskaphone"]
+
+[tool.setuptools.package-data]
+euskaphone = ["data/langdetect/*.json.gz"]
 
 [tool.setuptools.dynamic]
 version = { attr = "euskaphone.version.__version__" }

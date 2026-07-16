@@ -43,3 +43,78 @@ break a Basque TTS voice. It is **not** a language identifier — a Spanish loan
 spelled with only Basque-legal letters (e.g. `plaza`) is not flagged and falls
 through to the Basque lattice, which would project it onto the same inventory
 anyway. Nothing is ever dropped.
+
+The heuristic remains the fallback. When the statistical detector below is
+available it takes over the routing decision, and the heuristic is used only if
+the detector cannot load.
+
+## The statistical detector (default when models are present)
+
+The orthographic heuristic misses the loans and internationalisms spelled with
+Basque-legal letters (`plaza`, `general`, `estazio`) and cannot tell Spanish
+embedding from French. euskaphone therefore ships a small statistical detector:
+four **character-level Markov models** — one each for Basque, Spanish, French and
+English — trained on Wikipedia and stored gzip-compressed under
+`euskaphone/data/langdetect/` (about 40–50 KB each, ~180 KB for all four). A word
+is scored under all four models and the model that assigns the lowest perplexity
+wins. The detector is scored by [`markovonnx`](https://github.com/TigreGotico/markovonnx);
+it is an optional dependency (`pip install euskaphone[langdetect]`). Without it,
+the code falls back to the orthographic heuristic — the routing decision behind
+`contact="auto"`/`"es"`/`"fr"` is unchanged, so there is no API break.
+
+### Threshold policy — in-language default (null beats wrong)
+
+Basque is the surrounding language, so it is the default. A word is routed **out**
+of Basque only when a foreign model beats the Basque model by at least a fixed
+margin (`DEFAULT_MARGIN = 0.25` nats-per-character of log-perplexity). Below that
+margin the word stays `eu`: a weak, ambiguous signal never misroutes a native
+word. Two extra guards keep the default honest:
+
+* a short **allowlist of high-frequency Basque grammar words** (`dut`, `ditut`,
+  `da`, `ez`, `kaixo`, …) is always kept Basque — encyclopedic training text
+  underrepresents conversational grammar, so a char-model can misjudge a short
+  function word on its letter shape alone;
+* an empty or all-punctuation token is Basque by default.
+
+The genuinely ambiguous shared-alphabet internationalisms (`hotel`, `general`,
+`radio`, `hospital`) sit near the Basque boundary. Some fall inside the margin
+band and stay Basque (`radio`); others are orthographically more Romance/English
+and route to a contact language — where **total nativization** projects them back
+onto the Basque inventory anyway, so either outcome is safe. The margin only
+guarantees the decision is never taken on a weak signal.
+
+```python
+from euskaphone.langdetect import get_detector
+d = get_detector()                 # None if markovonnx/models unavailable
+d.detect("ayuntamiento")           # ('es', {...})  -> routed and nativized
+d.detect("dut")                    # ('eu', {})     -> native grammar word, kept
+d.detect("radio")                  # ('eu', {...})  -> inside the margin band
+d.is_contact("monsieur")           # True
+```
+
+### How the models were built, and how they measure up
+
+The models are character n-gram chains of **order 2** (evaluated against order 3;
+order 2 both classifies better on this word-level task and is 5–8× smaller).
+Training text is one Wikipedia shard per language (~3 M characters each),
+normalized to NFC, lower-cased and stripped to alphabetic words wrapped with
+word-boundary sentinels. `scripts/train_langdetect.py` reproduces them.
+
+On a held-out set of 800 words per language (from Wikipedia articles disjoint
+from training, each word absent from that language's training vocabulary), the
+Basque-vs-contact routing decision compares as follows:
+
+| detector | precision | recall | F1 | accuracy |
+|----------|-----------|--------|----|----------|
+| char-Markov (order 2, margin 0.20) | 0.919 | 0.690 | 0.788 | 0.722 |
+| char-Markov (order 2, margin 0.30) | 0.922 | 0.618 | 0.740 | 0.674 |
+| orthographic heuristic | 0.878 | 0.575 | 0.695 | 0.621 |
+
+The detector's default margin (0.25) sits between the two Markov rows; the Basque
+function-word guard lifts native retention further on conversational text than
+this encyclopedic set shows. The Markov detector roughly halves the heuristic's
+missed contact words (recall 0.69 vs 0.58) while keeping contact precision higher
+(0.92 vs 0.88) — i.e. it catches many more real loans **and** misroutes fewer
+native words. The four-way confusion is dominated by the expected
+Spanish/French/English overlap (shared Romance/Latin alphabet); Basque separates
+cleanly from all three.

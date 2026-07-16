@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Code-switch: statistical char-Markov word-level language detector (Basque,
+  Spanish, French, English), bundled as ~180 KB gzip-compressed models and used
+  by default behind the unchanged `contact` API; the orthographic heuristic
+  remains the fallback when the models or `markovonnx` are unavailable. Basque is
+  the in-language default (margin threshold plus a high-frequency Basque
+  function-word guard) so a weak signal never misroutes a native word.
+  `scripts/train_langdetect.py` reproduces the models.
+
 ## 0.1.0a1
 
 Initial release. Dialect-aware Basque (Euskara) text-to-IPA phonemizer over the
