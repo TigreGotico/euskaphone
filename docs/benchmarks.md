@@ -1,6 +1,8 @@
 # Benchmarks
 
-Run: `python scripts/benchmark.py [--wikipron PATH] [--hitz] [--hitz-overlay] [--sample N]`.
+Run: `python scripts/benchmark.py [--wikipron PATH] [--hitz] [--hitz-overlay]`.
+Every documented figure is a full-set run; `--sample N` scores a fixed-seed
+subset instead, for a quick check.
 
 The benchmarks run against the **pure lattice** — the built-in toponym lexicon is
 turned off (`EuskaPhonemizer(toponyms=False)`) so every figure stays a
@@ -42,7 +44,7 @@ apostrophe stress), so the comparison folds `{s̺,s̻,ʂ}→s`, `{ts̺,ts̻,tʂ}
 strips stress before scoring.
 
 ```
-n = 3000 (seed-0 sample)   PER (folded) = 0.1384
+n = 836491 (full set)   PER (folded) = 0.1474
 ```
 
 Agreement between two independent Basque G2P engines on raw Wikipedia. Much of
