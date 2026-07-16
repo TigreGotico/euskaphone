@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0a2](https://github.com/TigreGotico/euskaphone/tree/0.2.0a2) (2026-07-16)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.0a1...0.2.0a2)
+
+**Merged pull requests:**
+
+- docs: measured full-WikiPron comparison against espeak-ng and ahotts-g2p [\#11](https://github.com/TigreGotico/euskaphone/pull/11) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.0a1](https://github.com/TigreGotico/euskaphone/tree/0.2.0a1) (2026-07-16)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.1.0a2...0.2.0a1)
