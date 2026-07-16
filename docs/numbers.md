@@ -59,14 +59,24 @@ Batua `bost` for every coded lect by default and offers the `bortz` series
 (`hamabortz`, `bortzehun`) for **Lapurdian only**. An unattested dialect swap is
 worse than the attested standard form.
 
-## Provenance
+## Separators
 
-`euskaphone.number_utils.ATTESTED` / `DERIVED` tag every base word:
+The written form of a digit token is mapped onto an integer or decimal by the
+European/Basque convention: the **comma is the decimal separator** and the
+**period and space are thousands separators**. So `2,5` is 2.5, `1.000.000` and
+`1 000 000` are one million, and the ambiguous `2.500` (period + exactly three
+digits) reads as the thousands grouping 2500 rather than 2.5. A period that does
+not form a 1–3 + 3-digit grouping (`2.5`, `2.53`) falls back to a decimal point.
 
-- **Attested** — spelled verbatim in Euskaltzaindia **Araua 7** ("Zenbakien
-  idazkeraz", cardinals) or **Araua 18** ("Ordinalen … idazkera", ordinals).
-- **Derived** — composed by the attested vigesimal + `eta` rule, or a
-  reading-convention word (`minus`, `bilioi`).
+## Where the composition lives
+
+The vigesimal cardinal/ordinal composition is delegated to `ovos-number-parser`
+(`pronounce_number` / `pronounce_ordinal`, `lang="eu"`), which carries the
+Euskaltzaindia **Araua 7** ("Zenbakien idazkeraz", cardinals: the `-ehun`
+hundreds, the `eta`-drop rule) and **Araua 18** ("Ordinalen … idazkera",
+ordinals: the `-garren` suffix, the `bost` → `bos` drop) tables. euskaphone
+keeps only the layer that needs orthographic context — separator handling,
+case-suffix attachment, clock times, and the Lapurdian `bortz` substitution.
 
 Both arauak are deposited in the papers library
 (`papers/iberian/euskaltzaindia_araua07_*.pdf`, `…araua18_*.pdf`).

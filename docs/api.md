@@ -33,7 +33,12 @@ Whether `dialect` names a Basque lect (not merely the Batua fallback).
 `BasqueNumberParser(dialect="eu")` with `.cardinal(n)`, `.ordinal(n)`,
 `.decimal(whole, frac)`, `.year(n)`, `.clock(hour, minute)`.
 `normalize_numbers(text, dialect="eu")` rewrites every numeric token in running
-text. `ATTESTED` / `DERIVED` are the provenance sets.
+text.
+
+Vigesimal cardinal/ordinal composition is delegated to `ovos-number-parser`
+(`pronounce_number` / `pronounce_ordinal`, `lang="eu"`); euskaphone keeps only
+the orthographic layer — written-separator handling, case-suffix attachment,
+clock times, and the Lapurdian `bortz` substitution.
 
 ## Code-switch — `euskaphone.codeswitch`
 
