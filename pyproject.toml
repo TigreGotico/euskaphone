@@ -55,9 +55,7 @@ Repository = "https://github.com/TigreGotico/euskaphone"
 packages = ["euskaphone"]
 
 [tool.setuptools.package-data]
-euskaphone = ["data/langdetect/*.json.gz"]
-euskaphone = ["data/**/*.tsv"]
-euskaphone = ["data/*.tsv"]
+euskaphone = ["data/langdetect/*.json.gz", "data/**/*.tsv", "data/*.tsv"]
 
 [tool.setuptools.dynamic]
 version = { attr = "euskaphone.version.__version__" }
