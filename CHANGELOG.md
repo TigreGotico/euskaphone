@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0a1](https://github.com/TigreGotico/euskaphone/tree/0.2.0a1) (2026-07-16)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.1.0a2...0.2.0a1)
+
+**Merged pull requests:**
+
+- feat: expand Northern Bizkaian pitch-accent lexicon with Lekeitio attestations [\#10](https://github.com/TigreGotico/euskaphone/pull/10) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.1.0a2](https://github.com/TigreGotico/euskaphone/tree/0.1.0a2) (2026-07-16)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/df5fb8c15dcf66baa0ffd0b163a4e37b70759812...0.1.0a2)
