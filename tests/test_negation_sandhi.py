@@ -24,14 +24,14 @@ _EZ_CASES = [
     ("ez dakit", "es̻ takit", "ez+d -> ezt"),
     ("ez zen", "e ts̻en", "ez+z -> etz"),         # sibilant->affricate coalescence
     ("ez zara", "e ts̻aɾa", "ez+z -> etz"),
-    ("ez naiz", "e nais̻", "ez+n -> en"),         # deletion before nasal
-    ("ez nator", "e natoɾ", "ez+n -> en"),
+    ("ez naiz", "e nai̯s̻", "ez+n -> en"),         # deletion before nasal
+    ("ez nator", "e nator", "ez+n -> en"),
     ("ez luke", "e luke", "ez+l -> el"),          # deletion before lateral
     ("ez litzateke", "e lits̻ateke", "ez+l -> el"),
     ("ez balitz", "es̻ palits̻", "ez+b -> ezp"),  # onset devoicing, sibilant kept
     ("ez bada", "es̻ pada", "ez+b -> ezp"),
     ("ez gara", "es̻ kaɾa", "ez+g -> ezk"),       # onset devoicing, sibilant kept
-    ("ez gaitu", "es̻ kaitu", "ez+g -> ezk"),
+    ("ez gaitu", "es̻ kai̯tu", "ez+g -> ezk"),
 ]
 
 
@@ -44,15 +44,15 @@ def test_ez_contraction_roundtrip(ph, text, expected, label):
 def test_ez_contraction_inside_a_full_sentence(ph):
     # the contraction fires mid-phrase, not only in a bare two-word input
     assert ph.phonemize_sentence("Gaur ez dut ezer jan.") == \
-        "ɡauɾ es̻ tut es̻eɾ jan"
+        "ɡau̯r es̻ tut es̻er jan"
     assert ph.phonemize_sentence("Ni ez naiz berandu iritsi.") == \
-        "ni e nais̻ beɾandu iɾits̺i"
+        "ni e nai̯s̻ beɾandu iɾits̺i"
 
 
 def test_only_the_negator_contracts(ph):
     # 'naiz' ends in the same laminal sibilant but is not the negator, so a
     # following voiced onset is NOT devoiced: no spurious contraction.
-    assert ph.phonemize_sentence("naiz da") == "nais̻ da"
+    assert ph.phonemize_sentence("naiz da") == "nai̯s̻ da"
 
 
 def test_contraction_inherited_by_eastern_dialects(ph):
