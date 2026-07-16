@@ -132,13 +132,33 @@ def transcribe_contact(word: str, contact: str, keep_y: bool = False) -> str:
     return _nativize(ipa, keep_y=keep_y)
 
 
-def split_runs(text: str, contact: str) -> List[tuple]:
-    """Split *text* into ``(is_contact, token)`` pairs by the word heuristic.
+def detect_contact_word(token: str) -> bool:
+    """Whether *token* is embedded contact-language material.
 
+    Prefers the statistical char-Markov detector
+    (:mod:`euskaphone.langdetect`) when its bundled models are available, and
+    falls back to the orthographic :func:`is_contact_word` heuristic otherwise.
+    The detector catches Basque-legal-letter loans the heuristic misses while
+    keeping Basque the in-language default, so a weak margin never misroutes a
+    native word.
+    """
+    from euskaphone.langdetect import get_detector
+
+    detector = get_detector()
+    if detector is not None:
+        return detector.is_contact(token)
+    return is_contact_word(token)
+
+
+def split_runs(text: str, contact: str) -> List[tuple]:
+    """Split *text* into ``(is_contact, token)`` pairs, one per whitespace token.
+
+    Detection prefers the char-Markov language detector and falls back to the
+    orthographic heuristic (see :func:`detect_contact_word`).
     ``contact == "none"`` marks every token as Basque.
     """
     runs = []
     for token in text.split():
-        native = contact != "none" and is_contact_word(token)
+        native = contact != "none" and detect_contact_word(token)
         runs.append((native, token))
     return runs

@@ -79,12 +79,19 @@ See [`docs/numbers.md`](docs/numbers.md).
 
 ### 2. Code-switch handling
 
-Real Basque text embeds Spanish (Hegoalde) or French (Iparralde). A word-level
-heuristic detects the embedded material, routes it through the orthography2ipa
+Real Basque text embeds Spanish (Hegoalde) or French (Iparralde). Word-level
+detection identifies the embedded material, routes it through the orthography2ipa
 `es-ES`/`fr-FR` lattice, and **nativizes** the result onto the Basque inventory
 (project every foreign phone onto its nearest Basque phone — never drop, always
 project). The `contact` parameter is `auto` (per-dialect side), `es`, `fr`, or
 `none`.
+
+Detection prefers a small bundled **char-Markov language detector** (Basque /
+Spanish / French / English, ~180 KB total, scored by `markovonnx`; install with
+`euskaphone[langdetect]`) and falls back to an orthographic heuristic when the
+models are unavailable. Basque is the in-language default: a word is routed out
+of Basque only when a foreign model beats the Basque model by a clear margin, so
+a weak signal never misroutes a native word.
 
 ```python
 ph.phonemize_sentence("Madrilen Plaza Mayor ikusi dut.", "eu")
