@@ -78,6 +78,7 @@ identically.
 ```
 euskaphone     PER = 0.1009   word accuracy = 0.4298
 espeak-ng eu   PER = 0.1704   word accuracy = 0.1750
+espyak eu      PER = 0.1704   word accuracy = 0.1750
 ahotts-g2p     PER = 0.3360   word accuracy = 0.0003
 ```
 
@@ -88,6 +89,10 @@ ahotts-g2p     PER = 0.3360   word accuracy = 0.0003
   mismatch dominates", not as a 3× error rate.
 - **espeak-ng** `eu` — single-dialect, rule-thin; no laminal/apical sibilant
   contrast.
+- **[espyak](https://github.com/TigreGotico/espyak)** — pure-Python port of
+  espeak-ng's rule engine; scores identically to espeak-ng here (to four
+  decimals on all 20,115 words), so its row doubles as a parity check of the
+  port.
 
 euskaphone's contribution is eight-lect coverage, sourced vigesimal numerals, and
 code-switch nativization, over a lattice shared across the Iberian family.
