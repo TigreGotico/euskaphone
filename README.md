@@ -177,8 +177,8 @@ The WikiPron and HiTZ figures are the honest ones: a pure lattice with no
 lexicon, on proper-name-heavy and raw-Wikipedia text, where transcription
 conventions and multiple valid pronunciations account for much of the gap. That
 gap is exactly what the lexicon hook exists to close. Measured against the
-comparable open tools on the same full WikiPron set (raw notation, stress
-stripped — see `docs/benchmarks.md`): euskaphone PER `0.1009` / word-acc
+comparable open tools on the same full WikiPron set (segment-level protocol,
+stress stripped — see `docs/benchmarks.md`): euskaphone PER `0.1009` / word-acc
 `0.4298`, espeak-ng `eu` `0.1704` / `0.1750`, ahotts-g2p `0.3360` / `0.0003`
 (ahotts's figure is dominated by its non-IPA symbol conventions). **AhoTTS**
 covers Standard Batua only; **espeak-ng**'s

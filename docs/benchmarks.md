@@ -68,9 +68,12 @@ those rows as an independent signal — documented, never silent.
 ## Comparable tools — measured
 
 All three engines scored on the full WikiPron `eus_latn` broad set (20,115
-words) under one protocol: segment-level Levenshtein on IPA segments, stress
-and boundary marks stripped, no sibilant folding (raw notation — which is why
-euskaphone's figure here is higher than the folded `0.0749` above).
+words) under one protocol: Levenshtein over IPA segments (base + combining
+marks as one unit), stress and boundary marks stripped, per-word PER averaged
+over words. The `0.0749` above uses a different unit and average
+(character-level distance, micro-averaged over total characters), which is why
+the two euskaphone figures differ; within *this* table all engines are scored
+identically.
 
 ```
 euskaphone     PER = 0.1009   word accuracy = 0.4298
