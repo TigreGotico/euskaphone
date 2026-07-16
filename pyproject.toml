@@ -57,6 +57,7 @@ packages = ["euskaphone"]
 [tool.setuptools.package-data]
 euskaphone = ["data/langdetect/*.json.gz"]
 euskaphone = ["data/**/*.tsv"]
+euskaphone = ["data/*.tsv"]
 
 [tool.setuptools.dynamic]
 version = { attr = "euskaphone.version.__version__" }

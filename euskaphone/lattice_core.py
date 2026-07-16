@@ -37,7 +37,7 @@ from typing import List, Optional
 from orthography2ipa import G2P, register_lexicon as _o2i_register_lexicon
 
 from euskaphone.codeswitch import split_runs, transcribe_contact
-from euskaphone.number_utils import normalize_numbers
+from euskaphone.normalize import normalize_text
 from euskaphone.registry import default_contact, resolve_lect
 
 _VALID_CONTACT = ("auto", "es", "fr", "none")
@@ -46,12 +46,15 @@ _VALID_CONTACT = ("auto", "es", "fr", "none")
 def _normalizer(lect: str):
     """The orthography2ipa ``normalize`` callable euskaphone supplies for ``lect``.
 
-    Vigesimal numbers/ordinals are verbalized before the lattice runs; this is a
-    purely orthographic, pre-lattice transformation.
+    The full pre-lattice orthographic normalization runs here: abbreviations,
+    numeric dates, unit/currency/percent symbols, Roman-numeral ordinals and
+    monarch numerals, and finally vigesimal cardinal/ordinal verbalization
+    (:func:`euskaphone.normalize.normalize_text`). It is a purely orthographic,
+    pre-lattice transformation that leaves the text as Basque words.
     """
 
     def normalize(text: str) -> str:
-        return normalize_numbers(text, lect)
+        return normalize_text(text, lect)
 
     return normalize
 
