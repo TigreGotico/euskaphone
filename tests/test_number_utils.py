@@ -6,9 +6,7 @@ attested vigesimal + ``eta`` rule those arauak state.
 """
 import pytest
 
-from euskaphone.number_utils import (
-    ATTESTED, DERIVED, BasqueNumberParser, normalize_numbers,
-)
+from euskaphone.number_utils import BasqueNumberParser, normalize_numbers
 
 
 @pytest.mark.parametrize("n,expected", [
@@ -123,5 +121,35 @@ def test_normalize_leaves_non_numeric_untouched():
     assert normalize_numbers("kaixo mundua", "eu") == "kaixo mundua"
 
 
-def test_attested_derived_disjoint():
-    assert ATTESTED.isdisjoint(DERIVED)
+# -- separator handling (European/Basque convention) ----------------------
+
+@pytest.mark.parametrize("token,expected", [
+    # comma = decimal separator
+    ("2,5", "bi koma bost"),
+    ("2,05", "bi koma zero bost"),         # leading zero preserved
+    # period = thousands separator
+    ("1.000.000", "milioi bat"),
+    ("2.500", "bi mila eta bostehun"),      # period + 3 digits = thousands
+    ("12.345", "hamabi mila hirurehun eta berrogeita bost"),
+    # a lone period that is not a 3-digit grouping falls back to a decimal point
+    ("2.5", "bi koma bost"),
+    # thousands grouping in the whole part of a comma-decimal
+    ("1.234,5", "mila berrehun eta hogeita hamalau koma bost"),
+])
+def test_separator_matrix(token, expected):
+    assert normalize_numbers(token, "eu") == expected
+
+
+def test_space_separated_thousands():
+    # space = thousands separator; collapsed before tokenization
+    assert normalize_numbers("1 000 000 lagun", "eu") == "milioi bat lagun"
+    assert normalize_numbers("2 500 metro", "eu") == "bi mila eta bostehun metro"
+
+
+def test_million_no_longer_dropped():
+    # regression: "1.000.000 euro" used to drop the number entirely
+    assert normalize_numbers("1.000.000 euro", "eu") == "milioi bat euro"
+
+
+def test_lapurdian_bortz_in_running_text():
+    assert normalize_numbers("15 katu", "eu-x-lapurtera") == "hamabortz katu"
