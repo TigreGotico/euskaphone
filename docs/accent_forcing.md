@@ -16,8 +16,8 @@ force_accent("Zazpi katu zuri", "biscayan", mode="ipa")
 
 ## `mode="respell"` — the verification-gated respeller
 
-Ported from tugaphone's accent-forcing architecture. It rewrites the **Batua
-orthography** using Basque spelling conventions that push a *Batua reader* toward
+The same verification-gated respeller architecture tugaphone uses for
+Portuguese. It rewrites the **Batua orthography** using Basque spelling conventions that push a *Batua reader* toward
 the target pronunciation (`z`→`s` for the peninsular seseo merger, `il`→`ill` for
 palatalisation, `h`-insertion for continental aspiration, `u`→`ü` for Souletin
 front rounding). Every candidate edit is **verification-gated**:

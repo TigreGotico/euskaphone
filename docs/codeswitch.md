@@ -62,14 +62,11 @@ language identifier — a loan spelled with only Basque-legal letters (e.g. `pla
 is not flagged and falls through to the Basque lattice, which would project it
 onto the same inventory anyway. Nothing is ever dropped.
 
-When the statistical detector below is active it drives the per-word language
-choice; the orthographic classifier is the backstop, and for **short** tokens
+When the statistical detector below is available it drives the per-word
+language choice and the heuristic serves as its backstop: for **short** tokens
 (under six letters) the detector's foreign verdict needs orthographic
-corroboration, so native forms like `jan` or `bada` are never misrouted.
-
-The heuristic remains the fallback. When the statistical detector below is
-available it takes over the routing decision, and the heuristic is used only if
-the detector cannot load.
+corroboration, so native forms like `jan` or `bada` are never misrouted. If
+the detector cannot load, the heuristic alone routes.
 
 ## The statistical detector (default when models are present)
 
