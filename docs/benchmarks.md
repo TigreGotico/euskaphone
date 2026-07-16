@@ -27,7 +27,7 @@ about closeness to human speech — an engine-pinned gold is circular.
 Wiktionary-derived pronunciations, ~20k entries.
 
 ```
-n = 3000 (seed-0 sample)   PER = 0.101   word accuracy = 0.316
+n = 20115 (full set)   PER = 0.0749   word accuracy = 0.4563
 ```
 
 Honest floor for the pure lattice with no lexicon: WikiPron is proper-name- and
@@ -42,7 +42,7 @@ apostrophe stress), so the comparison folds `{s̺,s̻,ʂ}→s`, `{ts̺,ts̻,tʂ}
 strips stress before scoring.
 
 ```
-n = 2000 (seed-0 sample)   PER (folded) = 0.138
+n = 3000 (seed-0 sample)   PER (folded) = 0.1384
 ```
 
 Agreement between two independent Basque G2P engines on raw Wikipedia. Much of
