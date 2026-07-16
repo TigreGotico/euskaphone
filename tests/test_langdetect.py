@@ -87,11 +87,23 @@ def test_internationalisms_are_handled_by_the_margin_band():
 
 def test_split_runs_uses_detector():
     from euskaphone.codeswitch import split_runs
+    # split_runs returns the per-word contact language (or None for Basque).
     runs = split_runs("Madrilen ayuntamiento ikusi dut", "es")
-    routing = {tok: is_c for is_c, tok in runs}
-    assert routing["ayuntamiento"] is True   # Spanish -> contact
-    assert routing["ikusi"] is False          # Basque -> native
-    assert routing["dut"] is False
+    routing = {tok: lang for lang, tok in runs}
+    assert routing["ayuntamiento"] == "es"    # Spanish -> contact (forced es)
+    assert routing["ikusi"] is None           # Basque -> native
+    assert routing["dut"] is None
+
+
+def test_auto_routes_detected_language_per_word():
+    from euskaphone.codeswitch import split_runs
+    # in auto mode the detector's own per-word language is used
+    runs = dict((tok, lang) for lang, tok in split_runs(
+        "ayuntamiento monsieur streaming ikusi", "auto", "es"))
+    assert runs["ayuntamiento"] == "es"
+    assert runs["monsieur"] == "fr"
+    assert runs["streaming"] == "en"
+    assert runs["ikusi"] is None
 
 
 def test_split_runs_none_disables_detection():

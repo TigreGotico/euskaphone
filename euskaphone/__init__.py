@@ -13,6 +13,9 @@ from typing import Optional
 
 from euskaphone.version import __version__
 from euskaphone.lattice_core import phonemize as _phonemize, register_lexicon
+from euskaphone.lexicons import (
+    apply_builtins, register_hitz_overlay, register_toponyms,
+)
 from euskaphone.pitch_accent import (
     AccentClass, PitchAccentLexicon, annotate_sentence as _annotate_pitch,
     default_lexicon,
@@ -34,7 +37,17 @@ class EuskaPhonemizer:
     codes ("eu", "eu-x-bizkaiera", "eu-x-zuberera", …) or by a human-readable
     alias ("batua", "biscayan", "souletin"); the full list comes from
     :func:`euskaphone.list_dialects`.
+
+    Built-in lexicons (:mod:`euskaphone.lexicons`) are wired at construction:
+    the Euskaltzaindia toponym seed is registered by default (``toponyms=True``,
+    opt-out) unless a caller already registered a lexicon for ``eu``; the HiTZ
+    proper-noun overlay is opt-in (``lexicon="hitz"``) and carries a benchmark
+    circularity caveat.
     """
+
+    def __init__(self, toponyms: bool = True,
+                 lexicon: Optional[str] = None) -> None:
+        apply_builtins(toponyms=toponyms, lexicon=lexicon)
 
     def phonemize_sentence(self, sentence: str, dialect: str = DEFAULT_DIALECT,
                            contact: str = "auto",
@@ -46,8 +59,9 @@ class EuskaPhonemizer:
             dialect: A lect code or human-readable alias (see
                 :func:`euskaphone.list_dialects` /
                 :func:`euskaphone.dialect_aliases`). Defaults to Standard Batua.
-            contact: Embedded-language policy — ``"auto"`` (per-dialect side,
-                peninsular→Spanish / continental→French), ``"es"``, ``"fr"`` or
+            contact: Embedded-language policy — ``"auto"`` (detect and classify
+                each contact word per-word among es/fr/en, unclassified words
+                falling to the dialect's side), ``"es"``, ``"fr"``, ``"en"`` or
                 ``"none"`` (no code-switching).
             pitch_accent: When ``True``, annotate lexical Northern Bizkaian pitch
                 accent (:mod:`euskaphone.pitch_accent`) — a mark on the accented
@@ -82,6 +96,8 @@ class EuskaPhonemizer:
 __all__ = [
     "EuskaPhonemizer",
     "register_lexicon",
+    "register_toponyms",
+    "register_hitz_overlay",
     "list_dialects",
     "dialect_aliases",
     "resolve_lect",

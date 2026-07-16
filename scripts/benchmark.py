@@ -93,10 +93,16 @@ def _fold(s: str) -> str:
     return unicodedata.normalize("NFC", s)
 
 
-def run_hitz(ph: EuskaPhonemizer, sample: int) -> None:
+def run_hitz(ph: EuskaPhonemizer, sample: int, overlay: bool = False) -> None:
     """Cross-engine agreement with the HiTZ/EHU (University of the Basque
     Country) Wikipedia G2P gold — an *independent* reference, not human gold.
-    Divergence is notation-folded (see :func:`_fold`)."""
+    Divergence is notation-folded (see :func:`_fold`).
+
+    ``overlay`` reflects whether the HiTZ proper-noun overlay lexicon is active.
+    That overlay's keys are drawn from this very set, so grading it here would be
+    circular: when ``overlay`` is set, every reference row whose text contains an
+    overlay word is **excluded** from the benchmark, and the drop is reported.
+    """
     try:
         from huggingface_hub import hf_hub_download
         import pyarrow.parquet as pq
@@ -111,14 +117,33 @@ def run_hitz(ph: EuskaPhonemizer, sample: int) -> None:
     random.seed(0)
     random.shuffle(rows)
     rows = rows[:sample] if sample else rows
+
+    excluded = 0
+    if overlay:
+        from euskaphone.lexicons import hitz_overlay_words
+        words = hitz_overlay_words()
+        kept = []
+        for r in rows:
+            toks = {t.strip(".,;:()\"'«»¿?!—").lower() for t in r["text"].split()}
+            if toks & words:
+                excluded += 1
+            else:
+                kept.append(r)
+        rows = kept
+
     err = tot = 0
     for r in rows:
         ref = _fold(r["phonemes"])
         hyp = _fold(ph.phonemize_sentence(r["text"], "eu", contact="none"))
         err += levenshtein(ref, hyp)
         tot += len(ref)
-    print("== HiTZ/EHU wikipedia_basque_ipa (INDEPENDENT cross-engine G2P) ==")
+    label = "OVERLAY ACTIVE — split" if overlay else "pure lattice"
+    print(f"== HiTZ/EHU wikipedia_basque_ipa (INDEPENDENT cross-engine G2P; "
+          f"{label}) ==")
     print(f"  n={len(rows)}  PER(folded)={err / tot:.4f}")
+    if overlay:
+        print(f"  excluded {excluded} row(s) containing an overlay key "
+              f"(circularity guard)")
     print("  (two independent Basque G2P engines on raw Wikipedia; sibilant "
           "notation folded, stress stripped)")
 
@@ -132,16 +157,22 @@ def main() -> None:
                     help="words/sentences to sample (0 = all)")
     ap.add_argument("--hitz", action="store_true",
                     help="also run the HiTZ/EHU cross-engine benchmark (network)")
+    ap.add_argument("--hitz-overlay", action="store_true",
+                    help="activate the HiTZ proper-noun overlay lexicon and run "
+                         "the benchmark on the excluded split (circularity guard)")
     args = ap.parse_args()
-    ph = EuskaPhonemizer()
+    # The pure-lattice runs must NOT see the built-in lexicons, or the WikiPron /
+    # HiTZ numbers stop being a pure-lattice floor.
+    ph = EuskaPhonemizer(toponyms=False,
+                         lexicon="hitz" if args.hitz_overlay else None)
     run_regression(ph)
     if os.path.exists(args.wikipron):
         run_wikipron(ph, args.wikipron, args.sample)
     else:
         print(f"WikiPron gold not found at {args.wikipron}; "
               "pass --wikipron PATH for the accuracy benchmark.")
-    if args.hitz:
-        run_hitz(ph, args.sample)
+    if args.hitz or args.hitz_overlay:
+        run_hitz(ph, args.sample, overlay=args.hitz_overlay)
 
 
 if __name__ == "__main__":

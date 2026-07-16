@@ -79,23 +79,28 @@ See [`docs/numbers.md`](docs/numbers.md).
 
 ### 2. Code-switch handling
 
-Real Basque text embeds Spanish (Hegoalde) or French (Iparralde). Word-level
-detection identifies the embedded material, routes it through the orthography2ipa
-`es-ES`/`fr-FR` lattice, and **nativizes** the result onto the Basque inventory
-(project every foreign phone onto its nearest Basque phone — never drop, always
-project). The `contact` parameter is `auto` (per-dialect side), `es`, `fr`, or
-`none`.
+Real Basque text embeds Spanish (Hegoalde), French (Iparralde) and — in the
+tech/music/media register — English. Word-level detection identifies the embedded
+material, classifies each contact word **per word** among `es`/`fr`/`en`, routes
+it through the orthography2ipa `es-ES`/`fr-FR`/`en-US` lattice, and **nativizes**
+the result onto the Basque inventory (project every foreign phone onto its
+nearest Basque phone — never drop, always project). The `contact` parameter is
+`auto` (per-word detection), `es`, `fr`, `en`, or `none`.
 
 Detection prefers a small bundled **char-Markov language detector** (Basque /
 Spanish / French / English, ~180 KB total, scored by `markovonnx`; install with
 `euskaphone[langdetect]`) and falls back to an orthographic heuristic when the
 models are unavailable. Basque is the in-language default: a word is routed out
-of Basque only when a foreign model beats the Basque model by a clear margin, so
-a weak signal never misroutes a native word.
+of Basque only when a foreign model beats the Basque model by a clear margin (and
+short, plausibly-native words need orthographic corroboration), so a weak signal
+never misroutes a native word.
 
 ```python
 ph.phonemize_sentence("Madrilen Plaza Mayor ikusi dut.", "eu")
 # '… plas̻a majoɾ …'  (Spanish routed + nativized: no θ, no stress)
+
+ph.phonemize_sentence("Streaming plataforma berria erabili dugu.")
+# 'strimin platafoɾma …'  (English routed + nativized onto the 5-vowel system)
 
 ph.phonemize_sentence("Maison Rouge etxean.", "souletin")
 # continental dialect → French contact by default
@@ -103,11 +108,17 @@ ph.phonemize_sentence("Maison Rouge etxean.", "souletin")
 
 See [`docs/codeswitch.md`](docs/codeswitch.md).
 
-### 3. Lexicon hook
+### 3. Lexicon hook + shipped lexicons
 
 `register_lexicon(dialect, source)` registers a proper-name/loan pronunciation
 table (the orthography2ipa lexicon contract: a `word<TAB>ipa` path, URL or
-`hf://` id). Empty by default; a covered word bypasses the lattice.
+`hf://` id); a covered word bypasses the lattice.
+
+Two lexicons ship built-in: a curated **Euskaltzaindia toponym seed** (on by
+default, `EuskaPhonemizer(toponyms=False)` to opt out) and an opt-in **HiTZ
+proper-noun overlay** (`EuskaPhonemizer(lexicon="hitz")`) that carries a
+benchmark circularity caveat. A caller's own lexicon always wins.
+See [`docs/lexicons.md`](docs/lexicons.md).
 
 ### 4. Orthographic normalization
 
