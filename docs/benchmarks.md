@@ -1,0 +1,54 @@
+# Benchmarks
+
+Run: `python scripts/benchmark.py [--wikipron PATH] [--hitz] [--sample N]`.
+
+euskaphone drives the shared orthography2ipa lattice, so every figure measures
+that lattice — labelled honestly by what it can and cannot claim.
+
+## 1. orthography2ipa eu gold — regression fixture (NOT accuracy)
+
+The 160-row Basque gold (8 lects × 20 sentences) orthography2ipa ships was made
+by the same lattice euskaphone drives, so a pure-lattice transcription
+reproduces it exactly.
+
+```
+eu, eu-x-bizkaiera, … , eu-x-zuberera    PER = 0.0000  (all eight)
+```
+
+This proves euskaphone has not perturbed the shared lattice. It says nothing
+about closeness to human speech — an engine-pinned gold is circular.
+
+## 2. WikiPron `eus_latn` (broad) — independent word gold
+
+Wiktionary-derived pronunciations, ~20k entries.
+
+```
+n = 3000 (seed-0 sample)   PER = 0.101   word accuracy = 0.316
+```
+
+Honest floor for the pure lattice with no lexicon: WikiPron is proper-name- and
+loan-heavy and lists multiple valid pronunciations per entry (only one is
+matched). This is what the lexicon hook exists to raise.
+
+## 3. HiTZ/EHU `wikipedia_basque_ipa` — independent cross-engine
+
+The University of the Basque Country (HiTZ) Wikipedia G2P gold, 836k sentences.
+The two engines use different conventions (HiTZ `ʂ` for the coronal sibilants,
+apostrophe stress), so the comparison folds `{s̺,s̻,ʂ}→s`, `{ts̺,ts̻,tʂ}→ts` and
+strips stress before scoring.
+
+```
+n = 2000 (seed-0 sample)   PER (folded) = 0.138
+```
+
+Agreement between two independent Basque G2P engines on raw Wikipedia. Much of
+the residual is genuine convention difference (spirantization, embedded-Spanish
+handling), not error.
+
+## Comparable tools
+
+- **AhoTTS** (EHU) — the established Basque TTS front end; Standard Batua only.
+- **espeak-ng** `eu` — single-dialect, rule-thin.
+
+euskaphone's contribution is eight-lect coverage, sourced vigesimal numerals, and
+code-switch nativization, over a lattice shared across the Iberian family.

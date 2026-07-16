@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "euskaphone"
+dynamic = ["version"]
+description = "Dialect-aware Basque (Euskara) text-to-IPA phonemizer over the orthography2ipa lattice"
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.9"
+authors = [
+    { name = "JarbasAi", email = "jarbasai@mailfence.com" },
+]
+keywords = ["basque", "euskara", "phonemizer", "g2p", "ipa", "phonetics", "tts", "nlp"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: Basque",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Text Processing :: Linguistic",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+dependencies = [
+    "orthography2ipa>=7.19.2a1",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+
+[project.entry-points."opm.g2p"]
+euskaphone = "euskaphone.plugin:EuskaphoneG2PPlugin"
+
+[project.urls]
+Homepage = "https://github.com/TigreGotico/euskaphone"
+Repository = "https://github.com/TigreGotico/euskaphone"
+
+[tool.setuptools]
+packages = ["euskaphone"]
+
+[tool.setuptools.dynamic]
+version = { attr = "euskaphone.version.__version__" }
