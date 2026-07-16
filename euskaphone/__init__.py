@@ -13,10 +13,18 @@ from typing import Optional
 
 from euskaphone.version import __version__
 from euskaphone.lattice_core import phonemize as _phonemize, register_lexicon
+from euskaphone.pitch_accent import (
+    AccentClass, PitchAccentLexicon, annotate_sentence as _annotate_pitch,
+    default_lexicon,
+)
 from euskaphone.registry import (
     DEFAULT_DIALECT, dialect_aliases, is_supported as _is_supported,
     list_dialects, resolve_lect,
 )
+
+#: The lects whose lexical pitch accent euskaphone can annotate. The shipped
+#: cited lexicon documents the Northern Bizkaian sub-area of Biscayan.
+_PITCH_ACCENT_LECTS = ("eu-x-bizkaiera",)
 
 
 class EuskaPhonemizer:
@@ -29,7 +37,8 @@ class EuskaPhonemizer:
     """
 
     def phonemize_sentence(self, sentence: str, dialect: str = DEFAULT_DIALECT,
-                           contact: str = "auto") -> str:
+                           contact: str = "auto",
+                           pitch_accent: bool = False) -> str:
         """Phonemize ``sentence`` for the ``dialect`` lect.
 
         Parameters:
@@ -40,10 +49,28 @@ class EuskaPhonemizer:
             contact: Embedded-language policy — ``"auto"`` (per-dialect side,
                 peninsular→Spanish / continental→French), ``"es"``, ``"fr"`` or
                 ``"none"`` (no code-switching).
+            pitch_accent: When ``True``, annotate lexical Northern Bizkaian pitch
+                accent (:mod:`euskaphone.pitch_accent`) — a mark on the accented
+                syllable of each lexically accented word, nothing on unaccented
+                or unknown words. Opt-in and only defined for Biscayan
+                (``eu-x-bizkaiera`` / ``biscayan``); a ``ValueError`` is raised
+                for any other lect. Annotation is word-level, so cross-word
+                sandhi is not applied in this mode.
 
         Returns:
             Space-separated IPA for each word.
         """
+        if pitch_accent:
+            lect = resolve_lect(dialect)
+            if lect not in _PITCH_ACCENT_LECTS:
+                raise ValueError(
+                    f"pitch_accent is only defined for Biscayan "
+                    f"({', '.join(_PITCH_ACCENT_LECTS)}); got {dialect!r} "
+                    f"({lect}). Coverage is scoped to the Northern Bizkaian "
+                    f"sub-area Hualde documents.")
+            return _annotate_pitch(
+                sentence,
+                lambda tok: _phonemize(tok, dialect, contact))
         return _phonemize(sentence, dialect, contact)
 
     @staticmethod
@@ -58,6 +85,9 @@ __all__ = [
     "list_dialects",
     "dialect_aliases",
     "resolve_lect",
+    "AccentClass",
+    "PitchAccentLexicon",
+    "default_lexicon",
     "__version__",
 ]
 
