@@ -28,7 +28,9 @@ classifiers = [
 ]
 dependencies = [
     "orthography2ipa>=7.28.0a1",
-    "orthography2ipa>=7.19.2a1",
+    # Basque vigesimal core, large numbers, ordinals and Araua-correct
+    # hundreds land in OpenVoiceOS/ovos-number-parser#51; bump this floor to
+    # the first release that contains it.
     "ovos-number-parser>=0.6.0a1",
 ]
 
