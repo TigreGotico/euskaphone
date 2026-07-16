@@ -200,7 +200,7 @@ with `python scripts/benchmark.py [--hitz]`.
 |------|------|--------|
 | orthography2ipa eu gold (166 rows, 8 lects) | **regression fixture** (same lattice made it) | PER `0.0000` — proves the lattice is untouched, *not* accuracy |
 | [WikiPron](https://github.com/CUNY-CL/wikipron) `eus_latn` broad | independent word gold | PER `0.0749`, word-acc `0.4563` (full set, 20,115 words) |
-| [HiTZ/EHU](https://huggingface.co/datasets/HiTZ/wikipedia_basque_ipa) Wikipedia G2P | independent cross-engine (Univ. of the Basque Country) | PER `0.1384` folded (3k-sentence sample) |
+| [HiTZ/EHU](https://huggingface.co/datasets/HiTZ/wikipedia_basque_ipa) Wikipedia G2P | independent cross-engine (Univ. of the Basque Country) | PER `0.1474` folded (full set, 836,491 sentences) |
 
 The WikiPron and HiTZ figures are the honest ones: a pure lattice with no
 lexicon, on proper-name-heavy and raw-Wikipedia text, where transcription
