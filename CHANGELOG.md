@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1a3](https://github.com/TigreGotico/euskaphone/tree/0.2.1a3) (2026-07-30)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a2...0.2.1a3)
+
+**Merged pull requests:**
+
+- docs: rewrite README in Simplified Technical English [\#17](https://github.com/TigreGotico/euskaphone/pull/17) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.1a2](https://github.com/TigreGotico/euskaphone/tree/0.2.1a2) (2026-07-16)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a1...0.2.1a2)
