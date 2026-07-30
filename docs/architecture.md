@@ -1,7 +1,8 @@
 # Architecture
 
 euskaphone phonemizes by driving the shared **orthography2ipa** candidate
-lattice and layering on only the concerns orthography2ipa leaves to the caller.
+lattice and layering on only the concerns orthography2ipa leaves to the
+caller.
 
 ```
 text
@@ -24,19 +25,20 @@ text
   └─ IPA
 ```
 
-**A dialect is a lect spec.** There is no euskaphone-side accent transform: the
-apical/laminal sibilants, affricates, Souletin aspiration and `/y/` are produced
-by the `eu-x-*` specs orthography2ipa ships.
+**A dialect is a lect spec.** There is no euskaphone-side accent transform.
+The apical/laminal sibilants, affricates, Souletin aspiration, and `/y/` are
+produced by the `eu-x-*` specs orthography2ipa ships.
 
-**Sandhi preservation.** Contiguous Basque tokens are transcribed as one phrase
-so cross-word sandhi is preserved; only detected contact tokens are transcribed
-in isolation and nativized.
+**Sandhi preservation.** Contiguous Basque tokens are transcribed as one
+phrase so cross-word sandhi is preserved. Only detected contact tokens are
+transcribed in isolation and nativized.
 
 **Negative-particle contraction.** The most audible Basque sandhi is the
 categorical contraction of the negative particle *ez* /es̻/ with a following
-auxiliary/verb onset — a connected-speech process every speaker applies. It is
-carried by the shared `eu` lect spec's `sandhi_rules`, so euskaphone gets it for
-free whenever a Basque run keeps *ez* and its verb in the same phrase:
+auxiliary/verb onset, a connected-speech process every speaker applies. It
+is carried by the shared `eu` lect spec's `sandhi_rules`, so euskaphone gets
+it for free whenever a Basque run keeps *ez* and its verb in the same
+phrase:
 
 | written | rule | IPA | process |
 |---------|------|-----|---------|
@@ -48,20 +50,21 @@ free whenever a Basque run keeps *ez* and its verb in the same phrase:
 | ez balitz  | ez + b → ezp | `es̻ palits̻`  | onset /b/ devoices to [p], sibilant kept |
 | ez gara    | ez + g → ezk | `es̻ kaɾa`     | onset /ɡ/ devoices to [k], sibilant kept |
 
-The rules are keyed to the negator alone (a lone *ez* word), so an unrelated
-`z`-final word before a voiced onset (`naiz da` → `nai̯s̻ da`) is untouched. The
-contractions are pan-Basque and inherited by every `eu-x-*` dialect spec; the
-*degree* varies, and where a dialect merges the laminal sibilant to apical (the
-western/Biscayan `⟨z⟩` → [s̺] merger) the standard laminal-keyed rule does not
-fire — `ez dut` surfaces there as `es̺ dut`, the honest "null beats a wrong
-contraction" outcome rather than a forced standard form. Grounding:
-Hualde & Ortiz de Urbina (2003), Hualde "Segmental phonology" §2; Hualde (1991),
-*Basque Phonology*.
+The rules are keyed to the negator alone (a lone *ez* word), so an
+unrelated `z`-final word before a voiced onset (`naiz da` → `nai̯s̻ da`) stays
+untouched. The contractions are pan-Basque and inherited by every `eu-x-*`
+dialect spec. The *degree* varies, and where a dialect merges the laminal
+sibilant to apical (the western/Biscayan `⟨z⟩` → [s̺] merger) the standard
+laminal-keyed rule does not fire: `ez dut` surfaces there as `es̺ dut`, the
+honest "null beats a wrong contraction" outcome rather than a forced
+standard form. Grounding: Hualde & Ortiz de Urbina (2003), Hualde
+"Segmental phonology" section 2, and Hualde (1991), *Basque Phonology*.
 
-**No homograph subsystem — by design.** Basque orthography is near-phonemic, so
-grapheme readings are essentially fixed and sense-independent. Where tugaphone
-needs `bifonia` for Portuguese heterophones, euskaphone ships nothing — a scope
-decision, not an omission.
+**No homograph subsystem, by design.** Basque orthography is
+near-phonemic, so grapheme readings are essentially fixed and
+sense-independent. Where tugaphone needs `bifonia` for Portuguese
+heterophones, euskaphone ships nothing. This is a scope decision, not an
+omission.
 
 ## Module map
 
@@ -77,3 +80,6 @@ decision, not an omission.
 | `euskaphone.accent` | accent forcing: IPA delta + gated respelling |
 | `euskaphone.registry` | dialect codes, aliases, contact sides |
 | `euskaphone.plugin` | OVOS `opm.g2p` plugin wrapper |
+
+---
+[← API](api.md) · [Home](../README.md) · [Benchmarks →](benchmarks.md)

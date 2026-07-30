@@ -30,3 +30,6 @@ See [dialects.md](dialects.md), [numbers.md](numbers.md),
 [lexicons.md](lexicons.md), [pitch_accent.md](pitch_accent.md),
 [accent_forcing.md](accent_forcing.md), [api.md](api.md),
 [architecture.md](architecture.md), [benchmarks.md](benchmarks.md).
+
+---
+[Home](../README.md) · [Dialects →](dialects.md)
