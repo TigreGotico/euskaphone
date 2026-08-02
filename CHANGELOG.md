@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1a4](https://github.com/TigreGotico/euskaphone/tree/0.2.1a4) (2026-08-02)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a3...0.2.1a4)
+
+**Merged pull requests:**
+
+- build: raise orthography2ipa floor to 7.44.0a4 [\#19](https://github.com/TigreGotico/euskaphone/pull/19) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.1a3](https://github.com/TigreGotico/euskaphone/tree/0.2.1a3) (2026-07-30)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a2...0.2.1a3)
