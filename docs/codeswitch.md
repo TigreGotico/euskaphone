@@ -99,10 +99,15 @@ log-perplexity). Below that margin the word stays `eu`: a weak, ambiguous
 signal never misroutes a native word. Two extra guards keep the default
 honest:
 
-* a short **allowlist of high-frequency Basque grammar words** (`dut`,
-  `ditut`, `da`, `ez`, `kaixo`, and others) is always kept Basque, because
-  encyclopedic training text underrepresents conversational grammar and a
-  char-model can misjudge a short function word on its letter shape alone;
+* a **keep-list of high-frequency Basque wordforms**
+  (`euskaphone.langdetect.BASQUE_KEEP`: the auxiliary paradigms, determiners,
+  pronouns, postpositions, question words and particles) is always kept
+  Basque, because encyclopedic training text underrepresents conversational
+  grammar and a char-model can misjudge a short function word on its letter
+  shape alone. Basque is the matrix language, so the keep-list is
+  authoritative for **both** classifiers: the orthographic backstop checks it
+  before its own contact stopword lists, so a homograph such as `du`
+  (Basque transitive auxiliary, also a French article) stays Basque;
 * an empty or all-punctuation token is Basque by default.
 
 The genuinely ambiguous shared-alphabet internationalisms (`hotel`,
