@@ -59,6 +59,8 @@ from __future__ import annotations
 import functools
 from typing import List, Optional, Tuple
 
+from euskaphone.langdetect import is_keep_word
+
 # ---------------------------------------------------------------------------
 # Orthographic detection (backstop when the char-Markov detector is absent).
 # ---------------------------------------------------------------------------
@@ -76,6 +78,13 @@ _FRENCH_LETTERS = set("çàâèêëîïôùûœ")
 #: sequences that occur natively in Basque — ``ea`` (etxean), ``ou``, ``au`` and
 #: ``ing`` (inguru) — so the signal never fires on a Basque word.
 _ENGLISH_DIGRAPHS = ("th", "sh", "wh", "ck", "gh", "ght", "oo", "ee", "aw")
+
+# Basque is the matrix language, so it wins every homograph: a token that is a
+# Basque wordform (:data:`euskaphone.langdetect.BASQUE_KEEP`) stays Basque no
+# matter which contact list below also claims it. The lists stay complete for
+# the language they document — ``du`` really is a French function word and
+# ``on`` an English one — because a whole-word test cannot disambiguate a
+# homograph on its own.
 
 #: Very common Spanish function words (no non-Basque letter of their own).
 _SPANISH_STOPWORDS = {
@@ -124,9 +133,15 @@ def _has_english_signal(core: str) -> bool:
 
 
 def is_contact_word(token: str) -> bool:
-    """Heuristically decide whether *token* is embedded contact-language text."""
+    """Heuristically decide whether *token* is embedded contact-language text.
+
+    A Basque keep-list wordform is never contact material, whichever contact
+    stopword list also lists it.
+    """
     core = _strip(token)
     if not core:
+        return False
+    if is_keep_word(core):
         return False
     if any(ch in _NON_BASQUE_LETTERS for ch in core):
         return True
