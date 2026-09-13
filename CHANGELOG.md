@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1a5](https://github.com/TigreGotico/euskaphone/tree/0.2.1a5) (2026-09-13)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a4...0.2.1a5)
+
+**Merged pull requests:**
+
+- test: ez bada keeps intervocalic spirantization \[es̻ paða\] [\#22](https://github.com/TigreGotico/euskaphone/pull/22) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.2.1a4](https://github.com/TigreGotico/euskaphone/tree/0.2.1a4) (2026-08-02)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a3...0.2.1a4)
