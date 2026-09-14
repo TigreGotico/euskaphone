@@ -52,15 +52,33 @@ _BOS, _EOS = "\x02", "\x03"
 #: keeps more words Basque.
 DEFAULT_MARGIN: float = 0.25
 
-#: High-frequency Basque grammatical words that are always kept Basque,
-#: regardless of the models. Encyclopedic training text underrepresents
-#: conversational grammar, so a char-model can rate a short function word like
-#: ``dut`` or ``ditut`` as English on its letter shape alone. These words are
-#: unambiguously native and must never be routed to a contact lattice — the
-#: statistical decision is bypassed for them entirely. (Deliberately limited to
-#: closed-class grammar and a few fixed greetings; open-class words still go
-#: through the models.)
-_BASQUE_KEEP = frozenset("""
+#: High-frequency Basque wordforms that are always kept Basque, regardless of
+#: the models. Encyclopedic training text underrepresents conversational
+#: grammar, so a char-model can rate a short function word like ``dut`` or
+#: ``ditut`` as English on its letter shape alone — and the auxiliary paradigms
+#: are exactly the forms a Spanish or French model also fits well. They are
+#: unambiguously native here and must never be routed to a contact lattice, so
+#: the statistical decision is bypassed for them entirely. Both code-switch
+#: classifiers consult this set: the orthographic backstop in
+#: :mod:`euskaphone.codeswitch` checks it before its own contact stopword lists,
+#: so the invariant holds whether or not the detector is installed.
+#:
+#: Membership criterion: a Basque closed-class form — determiner, demonstrative,
+#: pronoun, postposition, question word, conjunction, particle — or a finite
+#: form of the auxiliaries and high-frequency irregular verbs belongs here
+#: regardless of what a model scores it. Open-class vocabulary still goes
+#: through the models. The paradigms of *izan, ukan/edun, egon, joan, etorri,
+#: egin, ibili, eraman* and the *nor* / *nork-nor* / *nork-nori-nor* auxiliary
+#: series are listed by paradigm cell: a whole cell goes in as soon as any of
+#: its members is one a foreign model outscores Basque on (the transitive
+#: auxiliary ``du``, which French claims, is the motivating case). A cell no
+#: foreign model claims anywhere is left out rather than padding the set.
+#:
+#: The familiar second-person pronoun ``hi`` is deliberately absent: it is
+#: marked in standard usage and collides with the English greeting, which does
+#: occur as embedded material. Its verb forms (``haiz``, ``hago``, ``habil``)
+#: carry no such ambiguity and are listed.
+BASQUE_KEEP = frozenset("""
 da dira den dena dute du dut ditut ditu dituzte dizu diot dio zaio zait
 zen zuen ziren zituen naiz gara zara zarete dira dago daude nago nengoen
 izan izango izaten egin egiten egingo eman eta edo ez ezta bai baina baino
@@ -70,6 +88,23 @@ orain gero lehen oso asko gutxi ere are gehiago dagoeneko honela horrela
 guztia guztiak denak elkar norbait zerbait inor ezer beti inoiz batzuetan
 kaixo agur eskerrik mesedez barkatu bai ez
 nire zure bere gure zuen haien niri zuri hari guri honi horri
+haiz zaizu zaigu zaizue zaie duzu dugu duzue dituzu ditugu dituzue
+nau gaitu zaitu naute gaituzte zaituzte zaituztet nuen zenuen genuen
+zenuten zuten diozu diogu diozue diote dit didazu digu didazue didate
+dizut dizugu dizuet nion zenion zion genion zenioten zioten zidan zizun
+zigun zidaten ziguten nizun hago gaude zaude zaudete hengoen zegoen
+geunden zeunden zeundeten zeuden noa hoa doa goaz zoaz zoazte doaz joan
+joaten joango nator hator dator gatoz zatoz zatozte datoz eginda eginik
+egitea egiteko nabil habil dabil gabiltza zabiltza dabiltza daramat
+daramazu darama daramate behar nahi ahal ari ohi omen ote bide honek
+horrek hark hauei horiei haiei honen horren haren hauen horien haietan
+honetan horretan hartan hauetan horietan hala ni gu zu zuek nik hik guk
+zuk zuei neu heu geu zeu geuk zeuk hire beren neure heure geure zeure
+noren zertan zertaz nortzuk zeintzuk edota beraz halere hain hainbeste
+gainera ordea alegia baizik gainean azpian aurrean atzean ondoan artean
+barruan kanpoan aldean inguruan arte gabe bidez buruz kontra ordez aurka
+alde ostean aldera berriz agian akaso apika noski ba ezin inon deus
+nonbait noizbait aupa egun on arratsalde gabon
 """.split())
 
 #: Where the bundled JSON models live.
@@ -97,6 +132,12 @@ def _normalize(word: str) -> str:
     """NFC + lowercase + keep only alphabetic characters (training parity)."""
     word = unicodedata.normalize("NFC", word).lower()
     return "".join(ch for ch in word if ch.isalpha())
+
+
+def is_keep_word(word: str) -> bool:
+    """Whether *word* is a Basque wordform on :data:`BASQUE_KEEP`."""
+    core = _normalize(word)
+    return bool(core) and core in BASQUE_KEEP
 
 
 def _wrap(word: str) -> List[str]:
@@ -161,8 +202,8 @@ class MarkovLangDetector:
         core = _normalize(word)
         if not core:
             return "eu", {}
-        if core in _BASQUE_KEEP:
-            # Unambiguously native grammar word: never route out of Basque.
+        if is_keep_word(core):
+            # Unambiguously native wordform: never route out of Basque.
             return "eu", {}
         scores = self.score(word)
         best = min(scores, key=scores.get)
