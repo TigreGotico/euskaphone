@@ -29,7 +29,8 @@ _EZ_CASES = [
     ("ez luke", "e luke", "ez+l -> el"),          # deletion before lateral
     ("ez litzateke", "e lits̻ateke", "ez+l -> el"),
     ("ez balitz", "es̻ palits̻", "ez+b -> ezp"),  # onset devoicing, sibilant kept
-    ("ez bada", "es̻ pada", "ez+b -> ezp"),
+    # word-internal intervocalic /d/ still spirantizes: bada [baða]
+    ("ez bada", "es̻ paða", "ez+b -> ezp"),
     ("ez gara", "es̻ kaɾa", "ez+g -> ezk"),       # onset devoicing, sibilant kept
     ("ez gaitu", "es̻ kai̯tu", "ez+g -> ezk"),
 ]
