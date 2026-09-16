@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.2a1](https://github.com/TigreGotico/euskaphone/tree/0.2.2a1) (2026-09-16)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a5...0.2.2a1)
+
+**Merged pull requests:**
+
+- fix: never route a keep-list word to a contact lattice [\#21](https://github.com/TigreGotico/euskaphone/pull/21) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.1a5](https://github.com/TigreGotico/euskaphone/tree/0.2.1a5) (2026-09-13)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a4...0.2.1a5)
