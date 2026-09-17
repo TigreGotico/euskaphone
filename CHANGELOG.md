@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.2a2](https://github.com/TigreGotico/euskaphone/tree/0.2.2a2) (2026-09-17)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.2a1...0.2.2a2)
+
+**Merged pull requests:**
+
+- test: close the gold files that test\_gold opens [\#23](https://github.com/TigreGotico/euskaphone/pull/23) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.2.2a1](https://github.com/TigreGotico/euskaphone/tree/0.2.2a1) (2026-09-16)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a5...0.2.2a1)
