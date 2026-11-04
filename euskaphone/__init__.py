@@ -11,6 +11,8 @@ homograph subsystem. See :mod:`euskaphone.lattice_core`.
 """
 from typing import Optional
 
+from orthography2ipa import resolve
+
 from euskaphone.version import __version__
 from euskaphone.lattice_core import phonemize as _phonemize, register_lexicon
 from euskaphone.lexicons import (
@@ -27,7 +29,7 @@ from euskaphone.registry import (
 
 #: The lects whose lexical pitch accent euskaphone can annotate. The shipped
 #: cited lexicon documents the Northern Bizkaian sub-area of Biscayan.
-_PITCH_ACCENT_LECTS = ("eu-x-bizkaiera",)
+_PITCH_ACCENT_LECTS = (resolve("eu-x-bizkaiera"),)
 
 
 class EuskaPhonemizer:

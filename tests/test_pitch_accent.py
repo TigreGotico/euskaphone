@@ -1,5 +1,6 @@
 """Northern Bizkaian pitch-accent lexicon and annotation."""
 import pytest
+from orthography2ipa import resolve
 
 from euskaphone import EuskaPhonemizer, AccentClass, default_lexicon
 from euskaphone.pitch_accent import (
@@ -121,6 +122,15 @@ def test_phonemize_sentence_pitch_accent_marks_accented_words():
         "Amuma etxean dago.", "biscayan", contact="none", pitch_accent=True)
     assert ACCENT_MARK in out
     # the accented word is amúma -> aˈmuma
+    assert "aˈmuma" in out
+
+
+def test_pitch_accent_accepts_the_registered_biscayan_key():
+    # list_dialects() names Biscayan by the key orthography2ipa registers,
+    # which is not the documented code once orthography2ipa renames the spec.
+    out = EuskaPhonemizer().phonemize_sentence(
+        "Amuma etxean dago.", resolve("eu-x-bizkaiera"), contact="none",
+        pitch_accent=True)
     assert "aˈmuma" in out
 
 
