@@ -44,10 +44,13 @@ falls back to being read as a decimal point.
 from typing import List, Optional, Tuple
 import re
 
+from orthography2ipa import resolve
 from ovos_number_parser import pronounce_number, pronounce_ordinal
 
-#: Basque spec codes this module verbalizes for (all eight eu lects).
-DIALECTS = (
+#: The eight eu lects, by the codes this package documents, each mapped to the
+#: key orthography2ipa registers the spec under. orthography2ipa keeps the old
+#: key of a renamed spec as an exact alias, so both keys name the same lect.
+_SPEC_KEYS = {code: resolve(code) for code in (
     "eu",
     "eu-x-bizkaiera",
     "eu-x-gipuzkera",
@@ -56,7 +59,12 @@ DIALECTS = (
     "eu-x-nafarra-beherea",
     "eu-x-zuberera",
     "eu-x-erronkariera",
-)
+)}
+
+#: Basque spec codes this module verbalizes for (all eight eu lects).
+DIALECTS = tuple(_SPEC_KEYS.values())
+
+_LAPURDIAN = _SPEC_KEYS["eu-x-lapurtera"]
 
 #: Copulative conjunction ("and") joining a clock hour and minute.
 _AND = "eta"
@@ -92,7 +100,7 @@ _SPACE_THOUSANDS = re.compile(r"\b\d{1,3}(?: \d{3})+\b")
 
 def _apply_dialect(spelled: str, dialect: str) -> str:
     """Apply per-dialect word substitutions to a spelled numeral."""
-    if dialect != "eu-x-lapurtera":
+    if dialect != _LAPURDIAN:
         return spelled
     return " ".join(_LAPURDIAN_SUBST.get(w, w) for w in spelled.split())
 
@@ -106,6 +114,7 @@ class BasqueNumberParser:
     """
 
     def __init__(self, dialect: str = "eu"):
+        dialect = _SPEC_KEYS.get(dialect, dialect)
         if dialect not in DIALECTS:
             raise ValueError(
                 f"unknown dialect {dialect!r}; expected one of {DIALECTS}")
@@ -259,6 +268,7 @@ def normalize_numbers(text: str, dialect: str = "eu",
     :param dialect: an eu spec code (see :data:`DIALECTS`).
     :param strict: when true, re-raise a token that fails to verbalize.
     """
+    dialect = _SPEC_KEYS.get(dialect, dialect)
     if dialect not in DIALECTS:
         dialect = "eu"
     parser = BasqueNumberParser(dialect)
