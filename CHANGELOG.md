@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.4a1](https://github.com/TigreGotico/euskaphone/tree/0.2.4a1) (2026-11-04)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.3a1...0.2.4a1)
+
+**Merged pull requests:**
+
+- fix: score the respell gate on segments, now that eu marks stress [\#32](https://github.com/TigreGotico/euskaphone/pull/32) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.3a1](https://github.com/TigreGotico/euskaphone/tree/0.2.3a1) (2026-11-04)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.2a2...0.2.3a1)
