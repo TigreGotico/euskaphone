@@ -41,8 +41,10 @@ def test_toponym_seed_has_a_meaningful_size():
 
 def test_toponyms_registered_by_default():
     ph = EuskaPhonemizer()  # toponyms=True (opt-out default)
-    # an explicit foreign-spelled entry is only produced via the lexicon
-    assert ph.phonemize_sentence("hollywood", "eu", contact="none") == "oliu̯ud"
+    # an explicit foreign-spelled entry is only produced via the lexicon; the
+    # lexicon writes no stress, and the eu spec marks the accent on its own
+    out = ph.phonemize_sentence("hollywood", "eu", contact="none")
+    assert out.replace("ˈ", "") == "oliu̯ud"
 
 
 def test_toponyms_opt_out():
