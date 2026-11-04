@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.4a2](https://github.com/TigreGotico/euskaphone/tree/0.2.4a2) (2026-11-04)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.4a1...0.2.4a2)
+
+**Merged pull requests:**
+
+- test: check the ez sandhi on segments only [\#34](https://github.com/TigreGotico/euskaphone/pull/34) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.4a1](https://github.com/TigreGotico/euskaphone/tree/0.2.4a1) (2026-11-04)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.3a1...0.2.4a1)
