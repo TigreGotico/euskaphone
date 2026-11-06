@@ -5,7 +5,7 @@ read, so they are spelled out into Basque words *before* the pronunciation
 lattice runs. :func:`normalize_numbers` rewrites every numeric token in running
 text, leaving non-numeric tokens untouched;
 :class:`~euskaphone.EuskaPhonemizer` wires it as the orthography2ipa
-``normalizer``, so the spelled-out words then flow through the eu lattice's
+``Pipeline(expand=...)``, so the spelled-out words then flow through the eu lattice's
 allophony, sandhi and stress like any other word.
 
 Where the work lives
