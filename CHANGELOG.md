@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.4a3](https://github.com/TigreGotico/euskaphone/tree/0.2.4a3) (2026-11-06)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.4a2...0.2.4a3)
+
+**Merged pull requests:**
+
+- refactor: pass the text expansion as Pipeline\(expand=...\) [\#36](https://github.com/TigreGotico/euskaphone/pull/36) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.4a2](https://github.com/TigreGotico/euskaphone/tree/0.2.4a2) (2026-11-04)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.4a1...0.2.4a2)
