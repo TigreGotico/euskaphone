@@ -13,8 +13,8 @@ What euskaphone adds sits in the stages orthography2ipa leaves to the caller,
 wired through orthography2ipa's own extension points:
 
 * **number normalization** — vigesimal (base-20) cardinal/ordinal verbalization
-  (:mod:`euskaphone.number_utils`) runs as the engine's ``normalizer``, i.e.
-  before the lattice sees the text (orthography2ipa's ``normalize`` stage);
+  (:mod:`euskaphone.number_utils`) runs as the pipeline's ``expand``, before
+  the lattice sees the text;
 * **code-switch handling** — embedded Spanish/French words are detected, routed
   through the ``es-ES``/``fr-FR`` lattice and nativized onto the Basque
   inventory (:mod:`euskaphone.codeswitch`), *outside* the engine, so a contact
@@ -34,7 +34,7 @@ from __future__ import annotations
 import functools
 from typing import List, Optional
 
-from orthography2ipa import G2P, register_lexicon as _o2i_register_lexicon
+from orthography2ipa import G2P, Pipeline, register_lexicon as _o2i_register_lexicon
 
 from euskaphone.codeswitch import split_runs, transcribe_contact
 from euskaphone.normalize import normalize_text
@@ -43,8 +43,8 @@ from euskaphone.registry import default_contact, resolve_lect
 _VALID_CONTACT = ("auto", "es", "fr", "en", "none")
 
 
-def _normalizer(lect: str):
-    """The orthography2ipa ``normalize`` callable euskaphone supplies for ``lect``.
+def _expander(lect: str):
+    """The orthography2ipa ``expand`` callable euskaphone supplies for ``lect``.
 
     The full pre-lattice orthographic normalization runs here: abbreviations,
     numeric dates, unit/currency/percent symbols, Roman-numeral ordinals and
@@ -53,16 +53,16 @@ def _normalizer(lect: str):
     pre-lattice transformation that leaves the text as Basque words.
     """
 
-    def normalize(text: str) -> str:
+    def expand(text: str) -> str:
         return normalize_text(text, lect)
 
-    return normalize
+    return expand
 
 
 @functools.lru_cache(maxsize=None)
 def engine(lect: str) -> G2P:
-    """A cached orthography2ipa engine for ``lect`` with euskaphone's normalizer."""
-    return G2P(lect, normalizer=_normalizer(lect))
+    """A cached orthography2ipa engine for ``lect`` with euskaphone's expansion."""
+    return G2P(lect, pipeline=Pipeline(expand=_expander(lect)))
 
 
 def _validate_contact(contact: str) -> None:
@@ -75,7 +75,7 @@ def phonemize(text: str, dialect: str = "eu", contact: str = "auto") -> str:
     """Phonemize ``text`` for ``dialect`` through the orthography2ipa lattice.
 
     Basque tokens are transcribed by the eu lattice (numbers verbalized by the
-    normalizer, cross-word sandhi preserved within contiguous Basque runs);
+    expansion, cross-word sandhi preserved within contiguous Basque runs);
     detected contact-language tokens are transcribed through the
     ``es``/``fr``/``en`` lattice and nativized onto the Basque inventory.
     ``contact`` is one of ``auto`` (detect and classify each contact word among
