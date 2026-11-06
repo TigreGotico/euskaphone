@@ -11,9 +11,16 @@
    word accuracy is a floor, not a ceiling — it is what the lexicon hook exists
    to raise.
 
-Run: ``python scripts/benchmark.py [--wikipron PATH] [--sample N]``. The WikiPron
-TSV is not vendored; point ``--wikipron`` at a ``word<TAB>space-phones`` file
-(e.g. orthography2ipa's ``.benchmark_cache/eus_latn_broad.tsv``).
+3. **HiTZ/EHU** ``wikipedia_basque_ipa`` (``--hitz``) — an *independent
+   cross-engine* reference from the University of the Basque Country;
+   divergence is notation-folded before scoring.
+
+Run: ``python scripts/benchmark.py [--wikipron PATH] [--hitz]``. Every run
+scores the FULL set — the figures in ``docs/benchmarks.md`` are full-set runs
+and reproduce here; ``--sample N`` scores a fixed-seed subset for a quick
+check. The WikiPron TSV is not vendored; point ``--wikipron`` at a
+``word<TAB>space-phones`` file (e.g. orthography2ipa's
+``.benchmark_cache/eus_latn_broad.tsv``).
 """
 import argparse
 import csv
@@ -61,9 +68,10 @@ def run_regression(ph: EuskaPhonemizer) -> None:
 def run_wikipron(ph: EuskaPhonemizer, path: str, sample: int) -> None:
     rows = [r for r in csv.reader(open(path, encoding="utf-8"), delimiter="\t")
             if len(r) == 2]
-    random.seed(0)
-    random.shuffle(rows)
-    rows = rows[:sample] if sample else rows
+    if sample:
+        random.seed(0)
+        random.shuffle(rows)
+        rows = rows[:sample]
     err = tot = exact = 0
     for word, ipa in rows:
         ref = ipa.replace(" ", "")
@@ -106,17 +114,21 @@ def run_hitz(ph: EuskaPhonemizer, sample: int, overlay: bool = False) -> None:
     try:
         from huggingface_hub import hf_hub_download
         import pyarrow.parquet as pq
-        path = hf_hub_download("HiTZ/wikipedia_basque_ipa",
-                               "data/train-00000-of-00002.parquet",
-                               repo_type="dataset")
+        rows = []
+        for shard in range(2):
+            path = hf_hub_download(
+                "HiTZ/wikipedia_basque_ipa",
+                f"data/train-0000{shard}-of-00002.parquet",
+                repo_type="dataset")
+            rows.extend(pq.read_table(path).to_pylist())
     except Exception as exc:  # network / optional deps
         print(f"HiTZ gold unavailable ({exc}); skipping cross-engine benchmark.")
         return
     import random
-    rows = pq.read_table(path).slice(0, 60000).to_pylist()
-    random.seed(0)
-    random.shuffle(rows)
-    rows = rows[:sample] if sample else rows
+    if sample:
+        random.seed(0)
+        random.shuffle(rows)
+        rows = rows[:sample]
 
     excluded = 0
     if overlay:
@@ -153,8 +165,9 @@ def main() -> None:
     ap.add_argument("--wikipron", default=os.path.join(
         os.path.dirname(o2i.__file__), "..",
         ".benchmark_cache", "eus_latn_broad.tsv"))
-    ap.add_argument("--sample", type=int, default=3000,
-                    help="words/sentences to sample (0 = all)")
+    ap.add_argument("--sample", type=int, default=0,
+                    help="words/sentences to sample (0 = the full set, and what "
+                         "the documented figures report)")
     ap.add_argument("--hitz", action="store_true",
                     help="also run the HiTZ/EHU cross-engine benchmark (network)")
     ap.add_argument("--hitz-overlay", action="store_true",

@@ -6,8 +6,9 @@ from euskaphone import (
 )
 
 
-def test_version_is_semver_alpha():
-    assert euskaphone.__version__.startswith("0.1.0")
+def test_version_is_semver():
+    import re
+    assert re.fullmatch(r"\d+\.\d+\.\d+(a\d+)?", euskaphone.__version__)
 
 
 def test_exports():

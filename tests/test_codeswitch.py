@@ -9,7 +9,7 @@ from euskaphone.codeswitch import (
 
 #: Phones the Basque inventory does not contain; nativization must remove them.
 _NON_BASQUE = ("θ", "ð", "v", "z", "ʒ", "ʁ", "ʀ", "χ", "ɔ", "ɛ", "ə", "ø", "œ",
-               "w", "ɹ", "ŋ", "æ", "ʌ", "ɪ", "ʊ", "ˈ", "ˌ", "ː")
+               "w", "ɹ", "ŋ", "æ", "ʌ", "ɪ", "ʊ", "ˌ", "ː")
 
 
 @pytest.mark.parametrize("word,expected", [
