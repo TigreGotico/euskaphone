@@ -1,8 +1,9 @@
 # Lexicons
 
-A euskaphone lexicon is a word-keyed `word<TAB>ipa` table registered through
-the orthography2ipa lexicon contract (one sidecar source per language
-code). A covered word folds into the same override pathway as a spec
+A euskaphone lexicon is a word-keyed `word<TAB>ipa` table in the
+orthography2ipa lexicon format, registered with one source per lect code. The
+lect's engine holds it in its `Pipeline(lexicon=...)`, so another
+orthography2ipa engine in the same process does not read it. A covered word folds into the same override pathway as a spec
 exception, so stress, cross-word sandhi, and `confidence == 1.0` still
 apply, and lattice generation runs only for uncovered words. Two lexicons
 ship with euskaphone. Both are validated
@@ -19,7 +20,8 @@ register_lexicon("eu", "hf://ORG/repo/eu.tsv")          # Hugging Face
 
 A caller-registered lexicon always **wins** over the built-in toponym seed:
 the built-in only registers when no lexicon is already registered for the
-code.
+code. A lexicon set through the deprecated process-wide API of
+orthography2ipa counts as registered too.
 
 ## Toponym seed (`eu_toponyms.tsv`), opt-out, on by default
 

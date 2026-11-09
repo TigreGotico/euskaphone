@@ -20,8 +20,9 @@ wired through orthography2ipa's own extension points:
   inventory (:mod:`euskaphone.codeswitch`), *outside* the engine, so a contact
   word never reaches the Basque lattice;
 * **lexicon** — a curated pronunciation lexicon for proper names and loans is
-  registered per lect through :func:`orthography2ipa.register_lexicon`
-  (:func:`register_lexicon` here), empty by default.
+  registered per lect through :func:`register_lexicon`, empty by default. The
+  lect's engine holds it in its ``Pipeline(lexicon=...)``, so no other
+  orthography2ipa engine in the process reads it.
 
 **No homograph subsystem.** Basque orthography is near-phonemic: a grapheme's
 reading is essentially fixed and sense-independent, so — unlike tugaphone's
@@ -32,15 +33,19 @@ decision, not an omission.
 from __future__ import annotations
 
 import functools
-from typing import List, Optional
+from typing import Dict, List, Optional, Tuple
 
-from orthography2ipa import G2P, Pipeline, register_lexicon as _o2i_register_lexicon
+from orthography2ipa import G2P, Pipeline, load_lexicon
 
 from euskaphone.codeswitch import split_runs, transcribe_contact
 from euskaphone.normalize import normalize_text
 from euskaphone.registry import default_contact, resolve_lect
 
 _VALID_CONTACT = ("auto", "es", "fr", "en", "none")
+
+#: lect code -> the lexicon source registered for it (path, URL or ``hf://`` id)
+#: and the entries read from it
+_LEXICONS: Dict[str, Tuple[str, Dict[str, str]]] = {}
 
 
 def _expander(lect: str):
@@ -61,8 +66,16 @@ def _expander(lect: str):
 
 @functools.lru_cache(maxsize=None)
 def engine(lect: str) -> G2P:
-    """A cached orthography2ipa engine for ``lect`` with euskaphone's expansion."""
-    return G2P(lect, pipeline=Pipeline(expand=_expander(lect)))
+    """A cached orthography2ipa engine for ``lect`` with euskaphone's expansion.
+
+    The engine holds the lexicon registered for ``lect``. With none registered,
+    the engine reads the process-wide lexicon of orthography2ipa's deprecated
+    API, if the caller set one, and the rules otherwise.
+    """
+    registered = _LEXICONS.get(lect)
+    return G2P(lect, pipeline=Pipeline(
+        lexicon=None if registered is None else registered[1],
+        expand=_expander(lect)))
 
 
 def _validate_contact(contact: str) -> None:
@@ -118,9 +131,20 @@ def register_lexicon(dialect: str, source: str) -> None:
     ``hf://`` id to a two-column ``word<TAB>ipa`` table. The lexicon is empty by
     default; a covered word folds into the same override path as a spec
     exception, so lattice generation runs only for uncovered words. euskaphone
-    resolves the human-readable ``dialect`` alias to its lect code first.
+    resolves the human-readable ``dialect`` alias to its lect code first. A
+    later registration for the same lect replaces the earlier one.
+
+    The lexicon is read here, so a local ``source`` that does not exist raises
+    :class:`FileNotFoundError`.
     """
-    _o2i_register_lexicon(resolve_lect(dialect), source)
+    _LEXICONS[resolve_lect(dialect)] = (source, load_lexicon(source))
+    engine.cache_clear()
+
+
+def lexicon_source(dialect: str) -> Optional[str]:
+    """The lexicon source registered for ``dialect``, or ``None``."""
+    registered = _LEXICONS.get(resolve_lect(dialect))
+    return None if registered is None else registered[0]
 
 
 def clear_caches() -> None:
