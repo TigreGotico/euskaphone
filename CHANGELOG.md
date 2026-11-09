@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.5a1](https://github.com/TigreGotico/euskaphone/tree/0.2.5a1) (2026-11-09)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.4a3...0.2.5a1)
+
+**Merged pull requests:**
+
+- fix: hold the registered lexicon in the lect engine, not the process registry [\#38](https://github.com/TigreGotico/euskaphone/pull/38) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.4a3](https://github.com/TigreGotico/euskaphone/tree/0.2.4a3) (2026-11-06)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.4a2...0.2.4a3)
