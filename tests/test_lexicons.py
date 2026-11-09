@@ -1,22 +1,34 @@
 """Shipped toponym seed (opt-out) and HiTZ overlay (opt-in) lexicons."""
 import os
+import warnings
 
 import pytest
 
 import orthography2ipa.lexicon as _lex
-from euskaphone import EuskaPhonemizer, register_lexicon
+from euskaphone import EuskaPhonemizer, lattice_core, register_lexicon
+from euskaphone.lattice_core import engine, lexicon_source
 from euskaphone.lexicons import (
     HITZ_OVERLAY_LEXICON, TOPONYM_LEXICON, hitz_overlay_words,
     register_hitz_overlay, register_toponyms,
 )
-from orthography2ipa.lexicon import parse_lexicon_text, validate_lexicon_text
+from orthography2ipa import G2P
+from orthography2ipa.lexicon import load_lexicon, parse_lexicon_text, validate_lexicon_text
+
+
+def _clear_process_lexicons():
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        _lex.clear_lexicons()
 
 
 @pytest.fixture(autouse=True)
-def _clean_lexicons():
-    _lex.clear_lexicons()
+def _clean_lexicons(monkeypatch):
+    monkeypatch.setattr(lattice_core, "_LEXICONS", {})
+    engine.cache_clear()
+    _clear_process_lexicons()
     yield
-    _lex.clear_lexicons()
+    engine.cache_clear()
+    _clear_process_lexicons()
 
 
 def _read(path):
@@ -49,7 +61,8 @@ def test_toponyms_registered_by_default():
 
 def test_toponyms_opt_out():
     EuskaPhonemizer(toponyms=False)
-    assert "eu" not in _lex.available_lexicon_codes()
+    assert lexicon_source("eu") is None
+    assert engine("eu").pipeline.lexicon is None
 
 
 def test_toponyms_do_not_clobber_caller_lexicon(tmp_path):
@@ -58,16 +71,67 @@ def test_toponyms_do_not_clobber_caller_lexicon(tmp_path):
     register_lexicon("eu", str(mine))
     # constructing with toponyms=True must NOT overwrite the caller's lexicon
     EuskaPhonemizer(toponyms=True)
-    assert _lex.get_lexicon("eu")["gasteiz"] == "abab"
+    assert engine("eu").pipeline.lexicon["gasteiz"] == "abab"
+
+
+def test_toponyms_do_not_clobber_a_process_wide_lexicon(tmp_path):
+    """A lexicon the caller set through orthography2ipa's deprecated API wins too."""
+    mine = tmp_path / "mine.tsv"
+    mine.write_text("gasteiz\tabab\n", encoding="utf-8")
+    with pytest.warns(DeprecationWarning):
+        _lex.register_lexicon("eu", str(mine))
+    ph = EuskaPhonemizer(toponyms=True)
+    assert lexicon_source("eu") is None
+    assert ph.phonemize_sentence("gasteiz", "eu", contact="none").replace("ˈ", "") == "abab"
+
+
+def test_a_later_registration_replaces_the_engine_lexicon(tmp_path):
+    ph = EuskaPhonemizer()
+    assert ph.phonemize_sentence("gasteiz", "eu", contact="none").replace("ˈ", "") != "abab"
+    mine = tmp_path / "mine.tsv"
+    mine.write_text("gasteiz\tabab\n", encoding="utf-8")
+    register_lexicon("eu", str(mine))
+    assert ph.phonemize_sentence("gasteiz", "eu", contact="none").replace("ˈ", "") == "abab"
+
+
+def test_no_other_engine_reads_the_lexicon():
+    """The euskaphone engine holds the lexicon. An engine the caller builds for
+    the same code reads the rules, as the orthography2ipa contract requires."""
+    ph = EuskaPhonemizer()
+    assert ph.phonemize_sentence("hollywood", "eu", contact="none").replace("ˈ", "") == "oliu̯ud"
+    assert G2P("eu").pipeline.lexicon is None
+    assert G2P("eu").transcribe("hollywood").replace("ˈ", "") != "oliu̯ud"
+
+
+def test_a_missing_lexicon_file_is_an_error(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        register_lexicon("eu", str(tmp_path / "missing.tsv"))
+    assert lexicon_source("eu") is None
+
+
+def test_a_registered_lexicon_outlives_its_file(tmp_path):
+    mine = tmp_path / "mine.tsv"
+    mine.write_text("gasteiz\tabab\n", encoding="utf-8")
+    register_lexicon("eu", str(mine))
+    mine.unlink()
+    lattice_core.clear_caches()
+    assert EuskaPhonemizer().phonemize_sentence("gasteiz", "eu", contact="none").replace("ˈ", "") == "abab"
+
+
+def test_the_default_setup_uses_no_deprecated_lexicon_api():
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        EuskaPhonemizer(lexicon="hitz").phonemize_sentence("gasteiz", "eu", contact="none")
+    assert not [w for w in caught if "deprecated" in str(w.message)]
 
 
 def test_hitz_overlay_opt_in_only():
     EuskaPhonemizer()  # default: no overlay
-    reg = getattr(_lex, "_REGISTERED", {})
-    assert reg.get("eu") == TOPONYM_LEXICON
-    _lex.clear_lexicons()
+    assert lexicon_source("eu") == TOPONYM_LEXICON
+    assert engine("eu").pipeline.lexicon == load_lexicon(TOPONYM_LEXICON)
     EuskaPhonemizer(lexicon="hitz")
-    assert getattr(_lex, "_REGISTERED", {}).get("eu") == HITZ_OVERLAY_LEXICON
+    assert lexicon_source("eu") == HITZ_OVERLAY_LEXICON
+    assert engine("eu").pipeline.lexicon == load_lexicon(HITZ_OVERLAY_LEXICON)
 
 
 def test_hitz_overlay_words_match_file_keys():
@@ -83,7 +147,6 @@ def test_unknown_lexicon_name_raises():
 
 def test_register_helpers_resolve_alias():
     register_toponyms("batua")  # alias for eu
-    assert "eu" in _lex.available_lexicon_codes()
-    _lex.clear_lexicons()
+    assert lexicon_source("eu") == TOPONYM_LEXICON
     register_hitz_overlay("standard")  # alias for eu
-    assert getattr(_lex, "_REGISTERED", {}).get("eu") == HITZ_OVERLAY_LEXICON
+    assert lexicon_source("eu") == HITZ_OVERLAY_LEXICON
