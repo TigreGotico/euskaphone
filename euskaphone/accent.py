@@ -50,8 +50,13 @@ def _levenshtein(a: str, b: str) -> int:
     return d[len(b)]
 
 
+#: Stress marks. Basque spelling marks no accent, so no respelling can encode
+#: one, and the gate scores segments only.
+_STRESS = str.maketrans("", "", " ˈˌ")
+
+
 def _per(ref: str, hyp: str) -> float:
-    r, h = ref.replace(" ", ""), hyp.replace(" ", "")
+    r, h = ref.translate(_STRESS), hyp.translate(_STRESS)
     return _levenshtein(r, h) / max(1, len(r))
 
 

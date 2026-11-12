@@ -11,9 +11,19 @@
    word accuracy is a floor, not a ceiling — it is what the lexicon hook exists
    to raise.
 
-Run: ``python scripts/benchmark.py [--wikipron PATH] [--sample N]``. The WikiPron
-TSV is not vendored; point ``--wikipron`` at a ``word<TAB>space-phones`` file
-(e.g. orthography2ipa's ``.benchmark_cache/eus_latn_broad.tsv``).
+3. **HiTZ/EHU** ``wikipedia_basque_ipa`` (``--hitz``) — an *independent
+   cross-engine* reference from the University of the Basque Country;
+   divergence is notation-folded before scoring.
+
+Run: ``python scripts/benchmark.py [--wikipron PATH] [--hitz] [--contact C]``.
+``--contact`` sets the code-switch policy for the WikiPron and HiTZ runs
+(default ``none``, the library default). The WikiPron run also scores bare
+orthography2ipa ``eu`` on the same words, so the two rows compare directly. Every run
+scores the FULL set — the figures in ``docs/benchmarks.md`` are full-set runs
+and reproduce here; ``--sample N`` scores a fixed-seed subset for a quick
+check. The WikiPron TSV is not vendored; point ``--wikipron`` at a
+``word<TAB>space-phones`` file (e.g. orthography2ipa's
+``.benchmark_cache/eus_latn_broad.tsv``).
 """
 import argparse
 import csv
@@ -58,21 +68,33 @@ def run_regression(ph: EuskaPhonemizer) -> None:
         print(f"  {code:24s} n={len(rows):2d}  PER={total / len(rows):.4f}")
 
 
-def run_wikipron(ph: EuskaPhonemizer, path: str, sample: int) -> None:
+def run_wikipron(ph: EuskaPhonemizer, path: str, sample: int,
+                 contact: str) -> None:
     rows = [r for r in csv.reader(open(path, encoding="utf-8"), delimiter="\t")
             if len(r) == 2]
-    random.seed(0)
-    random.shuffle(rows)
-    rows = rows[:sample] if sample else rows
-    err = tot = exact = 0
-    for word, ipa in rows:
-        ref = ipa.replace(" ", "")
-        hyp = ph.phonemize_sentence(word, "eu", contact="none").replace(" ", "")
-        err += levenshtein(ref, hyp)
-        tot += len(ref)
-        exact += ref == hyp
+    if sample:
+        random.seed(0)
+        random.shuffle(rows)
+        rows = rows[:sample]
+    bare = o2i.G2P("eu")
     print("== WikiPron eus_latn broad (INDEPENDENT accuracy, pure lattice) ==")
-    print(f"  n={len(rows)}  PER={err / tot:.4f}  word_acc={exact / len(rows):.4f}")
+    for label, transcribe in (
+            (f"euskaphone contact={contact}",
+             lambda w: ph.phonemize_sentence(w, "eu", contact=contact)),
+            ("orthography2ipa eu (bare)", bare.transcribe)):
+        err = tot = exact = 0
+        for word, ipa in rows:
+            # WikiPron eus_latn broad carries no stress marks, and the eu
+            # spec marks stress, so stress is stripped from the hypothesis.
+            ref = ipa.replace(" ", "")
+            hyp = transcribe(word)
+            for mark in (" ", "ˈ", "ˌ"):
+                hyp = hyp.replace(mark, "")
+            err += levenshtein(ref, hyp)
+            tot += len(ref)
+            exact += ref == hyp
+        print(f"  {label:32s} n={len(rows)}  PER={err / tot:.4f}  "
+              f"word_acc={exact / len(rows):.4f}")
     print("  (proper-name/loan-heavy; multiple valid variants per entry; "
           "no lexicon -> this is a floor the lexicon hook raises)")
 
@@ -93,7 +115,8 @@ def _fold(s: str) -> str:
     return unicodedata.normalize("NFC", s)
 
 
-def run_hitz(ph: EuskaPhonemizer, sample: int, overlay: bool = False) -> None:
+def run_hitz(ph: EuskaPhonemizer, sample: int, overlay: bool = False,
+             contact: str = "none") -> None:
     """Cross-engine agreement with the HiTZ/EHU (University of the Basque
     Country) Wikipedia G2P gold — an *independent* reference, not human gold.
     Divergence is notation-folded (see :func:`_fold`).
@@ -106,17 +129,21 @@ def run_hitz(ph: EuskaPhonemizer, sample: int, overlay: bool = False) -> None:
     try:
         from huggingface_hub import hf_hub_download
         import pyarrow.parquet as pq
-        path = hf_hub_download("HiTZ/wikipedia_basque_ipa",
-                               "data/train-00000-of-00002.parquet",
-                               repo_type="dataset")
+        rows = []
+        for shard in range(2):
+            path = hf_hub_download(
+                "HiTZ/wikipedia_basque_ipa",
+                f"data/train-0000{shard}-of-00002.parquet",
+                repo_type="dataset")
+            rows.extend(pq.read_table(path).to_pylist())
     except Exception as exc:  # network / optional deps
         print(f"HiTZ gold unavailable ({exc}); skipping cross-engine benchmark.")
         return
     import random
-    rows = pq.read_table(path).slice(0, 60000).to_pylist()
-    random.seed(0)
-    random.shuffle(rows)
-    rows = rows[:sample] if sample else rows
+    if sample:
+        random.seed(0)
+        random.shuffle(rows)
+        rows = rows[:sample]
 
     excluded = 0
     if overlay:
@@ -134,7 +161,7 @@ def run_hitz(ph: EuskaPhonemizer, sample: int, overlay: bool = False) -> None:
     err = tot = 0
     for r in rows:
         ref = _fold(r["phonemes"])
-        hyp = _fold(ph.phonemize_sentence(r["text"], "eu", contact="none"))
+        hyp = _fold(ph.phonemize_sentence(r["text"], "eu", contact=contact))
         err += levenshtein(ref, hyp)
         tot += len(ref)
     label = "OVERLAY ACTIVE — split" if overlay else "pure lattice"
@@ -153,13 +180,17 @@ def main() -> None:
     ap.add_argument("--wikipron", default=os.path.join(
         os.path.dirname(o2i.__file__), "..",
         ".benchmark_cache", "eus_latn_broad.tsv"))
-    ap.add_argument("--sample", type=int, default=3000,
-                    help="words/sentences to sample (0 = all)")
+    ap.add_argument("--sample", type=int, default=0,
+                    help="words/sentences to sample (0 = the full set, and what "
+                         "the documented figures report)")
     ap.add_argument("--hitz", action="store_true",
                     help="also run the HiTZ/EHU cross-engine benchmark (network)")
     ap.add_argument("--hitz-overlay", action="store_true",
                     help="activate the HiTZ proper-noun overlay lexicon and run "
                          "the benchmark on the excluded split (circularity guard)")
+    ap.add_argument("--contact", default="none",
+                    choices=("none", "auto", "es", "fr", "en"),
+                    help="code-switch policy for the WikiPron and HiTZ runs")
     args = ap.parse_args()
     # The pure-lattice runs must NOT see the built-in lexicons, or the WikiPron /
     # HiTZ numbers stop being a pure-lattice floor.
@@ -167,12 +198,13 @@ def main() -> None:
                          lexicon="hitz" if args.hitz_overlay else None)
     run_regression(ph)
     if os.path.exists(args.wikipron):
-        run_wikipron(ph, args.wikipron, args.sample)
+        run_wikipron(ph, args.wikipron, args.sample, args.contact)
     else:
         print(f"WikiPron gold not found at {args.wikipron}; "
               "pass --wikipron PATH for the accuracy benchmark.")
     if args.hitz or args.hitz_overlay:
-        run_hitz(ph, args.sample, overlay=args.hitz_overlay)
+        run_hitz(ph, args.sample, overlay=args.hitz_overlay,
+                 contact=args.contact)
 
 
 if __name__ == "__main__":

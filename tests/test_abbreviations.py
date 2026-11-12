@@ -31,10 +31,12 @@ def test_case_insensitive():
     assert expand_token("k.a.") == "Kristo aurretik"
 
 
-def test_bare_form_without_period():
-    # a tokenizer that split the period off still resolves
-    assert expand_token("etab") == "eta abar"
-    assert expand_token("zk") == "zenbakia"
+@pytest.mark.parametrize("token", ["or", "k", "K", "etab", "zk", "at"])
+def test_no_period_is_not_an_abbreviation(token):
+    # Araua 196, section 4 (p. 12): "Punturik ez badu, ez da laburdura."
+    # The norm's own examples: "gar.", "emak.", "hur." are abbreviations, and
+    # "gar", "emak", "hur" are words. So "or" stays "or", and "k" stays "k".
+    assert expand_token(token) == token
 
 
 def test_non_abbreviation_untouched():

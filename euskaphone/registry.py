@@ -23,14 +23,14 @@ code. Resolution is case-insensitive and tolerant of trailing subtags
     'eu-x-zuberera'
     >>> resolve_lect("batua")
     'eu'
-    >>> "eu-x-bizkaiera" in list_dialects()
+    >>> resolve_lect("biscayan") in list_dialects()
     True
 """
 from __future__ import annotations
 
 from typing import Dict, List
 
-from orthography2ipa import available_codes
+from orthography2ipa import available_codes, resolve
 
 #: Basque-family lect prefixes orthography2ipa ships.
 _EU_PREFIXES = ("eu", "eu-")
@@ -49,9 +49,10 @@ def _canonical_codes() -> List[str]:
 _CANONICAL: List[str] = _canonical_codes()
 
 
-#: Human-readable aliases → orthography2ipa lect code. Basque endonyms and the
-#: common English/Spanish/French exonyms all resolve to the same spec.
-_ALIASES: Dict[str, str] = {
+#: Human-readable aliases → lect code, as this package documents the codes.
+#: Basque endonyms and the common English/Spanish/French exonyms all resolve to
+#: the same spec.
+_NAMES: Dict[str, str] = {
     # Standard Basque
     "batua": "eu",
     "euskara-batua": "eu",
@@ -95,15 +96,23 @@ _ALIASES: Dict[str, str] = {
     "roncales": "eu-x-erronkariera",
 }
 
+#: Each documented lect code → the key orthography2ipa registers its spec under.
+#: orthography2ipa keeps the old key of a renamed spec as an exact alias, so
+#: ``resolve`` maps a documented code to the spec's key in every release.
+_CODES: Dict[str, str] = {code: resolve(code) for code in _NAMES.values()}
+
+#: Human-readable aliases → the key orthography2ipa registers the spec under.
+_ALIASES: Dict[str, str] = {name: _CODES[code] for name, code in _NAMES.items()}
+
 
 #: Which geographic side of the Basque Country a dialect belongs to. Continental
 #: (Iparralde, France) dialects default their code-switch contact language to
 #: French; peninsular (Hegoalde, Spain) dialects default to Spanish. Standard
 #: Batua is peninsular-leaning in practice, so it defaults to Spanish.
 _CONTINENTAL = {
-    "eu-x-lapurtera",
-    "eu-x-nafarra-beherea",
-    "eu-x-zuberera",
+    _CODES["eu-x-lapurtera"],
+    _CODES["eu-x-nafarra-beherea"],
+    _CODES["eu-x-zuberera"],
 }
 
 
@@ -115,8 +124,8 @@ def normalize_dialect_code(name: str) -> str:
 def resolve_lect(dialect: str = DEFAULT_DIALECT) -> str:
     """Resolve ``dialect`` (a code or a human-readable alias) to an eu lect code.
 
-    Resolution order: exact canonical code (case-insensitive), then an alias,
-    then a progressive pop of trailing subtags (``eu-x-zuberera-foo`` →
+    Resolution order: exact canonical code (case-insensitive), then a code
+    this package documents, then an alias, then a progressive pop of trailing subtags (``eu-x-zuberera-foo`` →
     ``eu-x-zuberera`` → ``eu``). An unresolved name falls back to ``eu``
     (Standard Batua).
     """
@@ -125,6 +134,8 @@ def resolve_lect(dialect: str = DEFAULT_DIALECT) -> str:
         for code in _CANONICAL:
             if code.lower() == key:
                 return code
+        if key in _CODES:
+            return _CODES[key]
         if key in _ALIASES:
             return _ALIASES[key]
         if "-" not in key:

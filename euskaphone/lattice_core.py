@@ -13,15 +13,16 @@ What euskaphone adds sits in the stages orthography2ipa leaves to the caller,
 wired through orthography2ipa's own extension points:
 
 * **number normalization** — vigesimal (base-20) cardinal/ordinal verbalization
-  (:mod:`euskaphone.number_utils`) runs as the engine's ``normalizer``, i.e.
-  before the lattice sees the text (orthography2ipa's ``normalize`` stage);
+  (:mod:`euskaphone.number_utils`) runs as the pipeline's ``expand``, before
+  the lattice sees the text;
 * **code-switch handling** — embedded Spanish/French words are detected, routed
   through the ``es-ES``/``fr-FR`` lattice and nativized onto the Basque
   inventory (:mod:`euskaphone.codeswitch`), *outside* the engine, so a contact
   word never reaches the Basque lattice;
 * **lexicon** — a curated pronunciation lexicon for proper names and loans is
-  registered per lect through :func:`orthography2ipa.register_lexicon`
-  (:func:`register_lexicon` here), empty by default.
+  registered per lect through :func:`register_lexicon`, empty by default. The
+  lect's engine holds it in its ``Pipeline(lexicon=...)``, so no other
+  orthography2ipa engine in the process reads it.
 
 **No homograph subsystem.** Basque orthography is near-phonemic: a grapheme's
 reading is essentially fixed and sense-independent, so — unlike tugaphone's
@@ -32,19 +33,24 @@ decision, not an omission.
 from __future__ import annotations
 
 import functools
-from typing import List, Optional
+from difflib import SequenceMatcher
+from typing import Dict, List, Optional, Tuple
 
-from orthography2ipa import G2P, register_lexicon as _o2i_register_lexicon
+from orthography2ipa import G2P, Pipeline, load_lexicon
 
-from euskaphone.codeswitch import split_runs, transcribe_contact
+from euskaphone.codeswitch import route_token, transcribe_contact
 from euskaphone.normalize import normalize_text
 from euskaphone.registry import default_contact, resolve_lect
 
 _VALID_CONTACT = ("auto", "es", "fr", "en", "none")
 
+#: lect code -> the lexicon source registered for it (path, URL or ``hf://`` id)
+#: and the entries read from it
+_LEXICONS: Dict[str, Tuple[str, Dict[str, str]]] = {}
 
-def _normalizer(lect: str):
-    """The orthography2ipa ``normalize`` callable euskaphone supplies for ``lect``.
+
+def _expander(lect: str):
+    """The orthography2ipa ``expand`` callable euskaphone supplies for ``lect``.
 
     The full pre-lattice orthographic normalization runs here: abbreviations,
     numeric dates, unit/currency/percent symbols, Roman-numeral ordinals and
@@ -53,16 +59,25 @@ def _normalizer(lect: str):
     pre-lattice transformation that leaves the text as Basque words.
     """
 
-    def normalize(text: str) -> str:
+    def expand(text: str) -> str:
         return normalize_text(text, lect)
 
-    return normalize
+    return expand
 
 
 @functools.lru_cache(maxsize=None)
-def engine(lect: str) -> G2P:
-    """A cached orthography2ipa engine for ``lect`` with euskaphone's normalizer."""
-    return G2P(lect, normalizer=_normalizer(lect))
+def engine(lect: str, expand: bool = True) -> G2P:
+    """A cached orthography2ipa engine for ``lect`` with euskaphone's expansion.
+
+    The engine holds the lexicon registered for ``lect``. With none registered,
+    the engine reads the process-wide lexicon of orthography2ipa's deprecated
+    API, if the caller set one, and the rules otherwise. With ``expand=False``
+    the engine reads text that :func:`normalize_text` has already normalized.
+    """
+    registered = _LEXICONS.get(lect)
+    return G2P(lect, pipeline=Pipeline(
+        lexicon=None if registered is None else registered[1],
+        expand=_expander(lect) if expand else None))
 
 
 def _validate_contact(contact: str) -> None:
@@ -71,16 +86,40 @@ def _validate_contact(contact: str) -> None:
             f"unknown contact {contact!r}; expected one of {_VALID_CONTACT}")
 
 
-def phonemize(text: str, dialect: str = "eu", contact: str = "auto") -> str:
+def _route_normalized(text: str, lect: str, contact: str,
+                      side: str) -> List[Tuple[Optional[str], str]]:
+    """Normalize ``text``, then route each word the normalizer left as written.
+
+    A word the normalizer wrote, such as ``hamalaugarrena`` for ``XIV`` or
+    ``hamabost`` for ``15``, is Basque, so it never goes to the router.
+    """
+    raw, normalized = text.split(), normalize_text(text, lect).split()
+    runs: List[Tuple[Optional[str], str]] = []
+    # Constraint: a word the normalizer wrote is never routed. The detector
+    # scores some of them as foreign (hamabost as en, segundo as es).
+    matcher = SequenceMatcher(a=raw, b=normalized, autojunk=False)
+    for op, _, _, start, end in matcher.get_opcodes():
+        words = normalized[start:end]
+        if op == "equal":
+            runs += [(route_token(word, contact, side), word) for word in words]
+        else:
+            runs += [(None, word) for word in words]
+    return runs
+
+
+def phonemize(text: str, dialect: str = "eu", contact: str = "none") -> str:
     """Phonemize ``text`` for ``dialect`` through the orthography2ipa lattice.
 
     Basque tokens are transcribed by the eu lattice (numbers verbalized by the
-    normalizer, cross-word sandhi preserved within contiguous Basque runs);
+    expansion, cross-word sandhi preserved within contiguous Basque runs);
     detected contact-language tokens are transcribed through the
     ``es``/``fr``/``en`` lattice and nativized onto the Basque inventory.
-    ``contact`` is one of ``auto`` (detect and classify each contact word among
-    es/fr/en, unclassified words falling to the dialect's side), ``es``, ``fr``,
-    ``en`` or ``none`` (disable switching).
+    ``contact`` is one of ``none`` (the default: disable switching), ``auto``
+    (detect and classify each contact word among es/fr/en, unclassified words
+    falling to the dialect's side), ``es``, ``fr`` or ``en``.
+
+    The text is normalized before the router reads it (see
+    :func:`_route_normalized`).
     """
     _validate_contact(contact)
     lect = resolve_lect(dialect)
@@ -89,7 +128,7 @@ def phonemize(text: str, dialect: str = "eu", contact: str = "auto") -> str:
     keep_y = lect == "eu-x-zuberera"
     side = default_contact(lect)
 
-    runs = split_runs(text, contact, default_side=side)
+    runs = _route_normalized(text, lect, contact, side)
     out: List[str] = []
     # transcribe contiguous Basque tokens as one phrase to preserve sandhi;
     # nativize each contact token individually.
@@ -98,7 +137,7 @@ def phonemize(text: str, dialect: str = "eu", contact: str = "auto") -> str:
     def flush():
         if basque_buffer:
             phrase = " ".join(basque_buffer)
-            out.append(engine(lect).transcribe(phrase))
+            out.append(engine(lect, expand=False).transcribe(phrase))
             basque_buffer.clear()
 
     for contact_lang, token in runs:
@@ -118,9 +157,20 @@ def register_lexicon(dialect: str, source: str) -> None:
     ``hf://`` id to a two-column ``word<TAB>ipa`` table. The lexicon is empty by
     default; a covered word folds into the same override path as a spec
     exception, so lattice generation runs only for uncovered words. euskaphone
-    resolves the human-readable ``dialect`` alias to its lect code first.
+    resolves the human-readable ``dialect`` alias to its lect code first. A
+    later registration for the same lect replaces the earlier one.
+
+    The lexicon is read here, so a local ``source`` that does not exist raises
+    :class:`FileNotFoundError`.
     """
-    _o2i_register_lexicon(resolve_lect(dialect), source)
+    _LEXICONS[resolve_lect(dialect)] = (source, load_lexicon(source))
+    engine.cache_clear()
+
+
+def lexicon_source(dialect: str) -> Optional[str]:
+    """The lexicon source registered for ``dialect``, or ``None``."""
+    registered = _LEXICONS.get(resolve_lect(dialect))
+    return None if registered is None else registered[0]
 
 
 def clear_caches() -> None:
