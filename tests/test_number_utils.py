@@ -162,3 +162,44 @@ def test_lapurdian_bortz_under_the_registered_key():
     lect = resolve("eu-x-lapurtera")
     assert normalize_numbers("15 katu", lect) == "hamabortz katu"
     assert BasqueNumberParser(lect).cardinal(5) == "bortz"
+
+
+# -- a number that touches punctuation -------------------------------------
+# 2023 is "bi mila eta hogeita hiru": 23 is "hogeita hiru" (Araua 7, p. 22),
+# and "eta" joins the last group after "mila" when no hundreds follow
+# ("mila eta berrehun", Araua 7, pp. 23-24). The punctuation stays in place.
+
+@pytest.mark.parametrize("text,expected", [
+    ("Urtea 2023.", "Urtea bi mila eta hogeita hiru."),
+    ("Urtea 2023. Hurrengoa", "Urtea bi mila eta hogeita hiru. Hurrengoa"),
+    ("2023, eta", "bi mila eta hogeita hiru, eta"),
+    ("Zenbat 2023?", "Zenbat bi mila eta hogeita hiru?"),
+    ("(2023)", "(bi mila eta hogeita hiru)"),
+    ("Ez da 7, baizik 8.", "Ez da zazpi, baizik zortzi."),
+    ("1608an.", "mila seiehun eta zortzian."),
+    ("2,5.", "bi koma bost."),
+    ("2.500.", "bi mila eta bostehun."),
+])
+def test_number_before_punctuation(text, expected):
+    assert normalize_numbers(text, "eu") == expected
+
+
+# Araua 18 (pp. 115-116): a period after the digits is the ordinal mark,
+# "10. mendea" is "hamargarren mendea", "2. etxea" is "bigarren etxea", and
+# the article and case ending follow the period ("3.ak", "4.a").
+
+@pytest.mark.parametrize("text,expected", [
+    ("10. mendea", "hamargarren mendea"),
+    ("2. etxea", "bigarren etxea"),
+    ("3.ak esan du", "hirugarrenak esan du"),
+    ("Hau da 4.a", "Hau da laugarrena"),
+])
+def test_ordinal_period(text, expected):
+    assert normalize_numbers(text, "eu") == expected
+
+
+def test_number_before_full_stop_reaches_the_lattice():
+    from euskaphone import EuskaPhonemizer
+    ph = EuskaPhonemizer()
+    assert ph.phonemize_sentence("Urtea 2023.") == \
+        ph.phonemize_sentence("Urtea bi mila eta hogeita hiru.")

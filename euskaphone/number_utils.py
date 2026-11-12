@@ -220,13 +220,18 @@ def _attach_suffix(spelled: str, suffix: str) -> str:
     return " ".join(words)
 
 
-def _split_affixes(word: str) -> Tuple[str, str, str]:
-    """Split leading punctuation and a trailing letter case-suffix off a token.
+#: Punctuation that can close a numeric token: ``2023.``, ``7,``, ``5?``, ``(5)``.
+_TRAILING_PUNCT = ".,;:?!)]}»\"'…"
 
-    Returns ``(prefix, core, suffix)`` where ``core`` is the digit/colon/comma
-    body and ``suffix`` is any trailing alphabetic case ending (``1936ko`` →
-    ``("", "1936", "ko")``). Trailing non-letter punctuation stays in the
-    prefix/word passthrough.
+
+def _split_affixes(word: str) -> Tuple[str, str, str, str]:
+    """Split a token into leading punctuation, core, case suffix and trailing
+    punctuation.
+
+    Returns ``(prefix, core, suffix, trail)``: ``core`` is the digit, colon and
+    separator body, ``suffix`` is any alphabetic case ending after it and
+    ``trail`` is the punctuation that closes the token (``1608an.`` →
+    ``("", "1608", "an", ".")``; ``(5),`` → ``("(", "5", "", "),")``).
     """
     start = 0
     while start < len(word) and not (word[start].isdigit() or word[start] == "-"):
@@ -234,11 +239,30 @@ def _split_affixes(word: str) -> Tuple[str, str, str]:
     prefix = word[:start]
     rest = word[start:]
     end = len(rest)
+    while end > 0 and rest[end - 1] in _TRAILING_PUNCT:
+        end -= 1
+    trail = rest[end:]
+    rest = rest[:end]
+    end = len(rest)
     while end > 0 and rest[end - 1].isalpha():
         end -= 1
-    core = rest[:end]
-    suffix = rest[end:]
-    return prefix, core, suffix
+    return prefix, rest[:end], rest[end:], trail
+
+
+def _is_ordinal_period(core: str, suffix: str, trail: str,
+                       next_word: str) -> bool:
+    """Whether a period after the digits of a token is the ordinal mark.
+
+    Araua 18 writes an ordinal as the digits plus a period (``10. mendea``,
+    ``3.ak``). A digit-plus-period is read as an ordinal when a case ending
+    follows the period, or when the next word begins with a lower-case letter.
+    At the end of a sentence the period is a full stop, as in
+    :mod:`euskaphone.romans`.
+    """
+    if core.endswith(".") and core[:-1].isdigit():
+        return True
+    return (trail == "." and not suffix and core.isdigit()
+            and next_word[:1].islower())
 
 
 def _try_time(core: str, suffix: str, parser: "BasqueNumberParser"
@@ -275,15 +299,24 @@ def normalize_numbers(text: str, dialect: str = "eu",
     # collapse space-grouped thousands ("1 000 000" -> "1000000") before split
     text = _SPACE_THOUSANDS.sub(lambda m: m.group(0).replace(" ", ""), text)
     out: List[str] = []
-    for word in text.split():
-        prefix, core, suffix = _split_affixes(word)
+    words = text.split()
+    for i, word in enumerate(words):
+        prefix, core, suffix, trail = _split_affixes(word)
         if not core:
             out.append(word)
             continue
+        next_word = words[i + 1] if i + 1 < len(words) else ""
         try:
-            # explicit ordinal: "16garren" / "16garrena" …
-            as_ord = suffix.startswith(_ORDINAL_SUFFIX)
-            if as_ord:
+            if _is_ordinal_period(core, suffix, trail, next_word):
+                # Araua 18: "10. mendea", "3.ak"; the period is the -garren
+                if core.endswith("."):
+                    core = core[:-1]
+                else:
+                    trail = trail[:-1]
+                spelled = parser.pronounce_token(core, as_ordinal=True)
+                spelled = _attach_suffix(spelled, suffix) if spelled else None
+            elif suffix.startswith(_ORDINAL_SUFFIX):
+                # explicit ordinal: "16garren" / "16garrena" …
                 trailing = suffix[len(_ORDINAL_SUFFIX):]
                 spelled = parser.pronounce_token(core, as_ordinal=True)
                 spelled = _attach_suffix(spelled, trailing) if spelled else None
@@ -296,5 +329,6 @@ def normalize_numbers(text: str, dialect: str = "eu",
             if strict:
                 raise
             spelled = None
-        out.append(f"{prefix}{spelled}" if spelled is not None else word)
+        out.append(f"{prefix}{spelled}{trail}" if spelled is not None
+                   else word)
     return " ".join(out)
