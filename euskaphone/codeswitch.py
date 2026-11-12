@@ -25,13 +25,14 @@ detector is unavailable the orthographic heuristic decides on its own.
 
 The contact language is chosen by the ``contact`` parameter:
 
-* ``"auto"`` (default) — detect contact words and classify each *per word* as
+* ``"none"`` (default) — disable code-switching; every token is transcribed
+  as Basque;
+* ``"auto"`` — detect contact words and classify each *per word* as
   English, French or Spanish; an unclassified contact word falls to the
   dialect's default side (peninsular → Spanish, continental → French; see
   :func:`euskaphone.registry.default_contact`);
 * ``"es"`` / ``"fr"`` / ``"en"`` — force that contact lattice for detected
-  contact words;
-* ``"none"`` — disable code-switching; every token is transcribed as Basque.
+  contact words.
 
 Orthographic heuristic
 ----------------------

@@ -37,16 +37,16 @@ in the same notation as the surrounding Basque.
 
 | value | behaviour |
 |-------|-----------|
-| `"auto"` (default) | detect contact words and classify each **per word** among `es`/`fr`/`en`; unclassified words fall to the dialect's side (peninsular→`es`, continental→`fr`) |
+| `"none"` (default) | disable switching; transcribe everything as Basque |
+| `"auto"` | detect contact words and classify each **per word** among `es`/`fr`/`en`; unclassified words fall to the dialect's side (peninsular→`es`, continental→`fr`) |
 | `"es"` / `"fr"` / `"en"` | force that contact lattice for detected words |
-| `"none"` | disable switching; transcribe everything as Basque |
 
 ```python
-ph.phonemize_sentence("Madrilen Plaza Mayor ikusi dut.", "eu")       # es
-ph.phonemize_sentence("Streaming plataforma berria erabili dugu.")   # en (auto)
-ph.phonemize_sentence("Plaza Mayor eta le weekend.", "eu")           # es + fr + en
-ph.phonemize_sentence("Maison Rouge etxean.", "souletin")            # fr (auto)
-ph.phonemize_sentence("Plaza Mayor.", "eu", contact="none")          # all Basque
+ph.phonemize_sentence("Madrilen Plaza Mayor ikusi dut.", "eu", contact="auto")      # es
+ph.phonemize_sentence("Streaming plataforma berria erabili dugu.", contact="auto")  # en
+ph.phonemize_sentence("Plaza Mayor eta le weekend.", "eu", contact="auto")          # es + fr + en
+ph.phonemize_sentence("Maison Rouge etxean.", "souletin", contact="auto")           # fr
+ph.phonemize_sentence("Plaza Mayor.", "eu")                                         # all Basque
 ```
 
 ## The detection heuristic (and its limits)

@@ -84,16 +84,16 @@ def _validate_contact(contact: str) -> None:
             f"unknown contact {contact!r}; expected one of {_VALID_CONTACT}")
 
 
-def phonemize(text: str, dialect: str = "eu", contact: str = "auto") -> str:
+def phonemize(text: str, dialect: str = "eu", contact: str = "none") -> str:
     """Phonemize ``text`` for ``dialect`` through the orthography2ipa lattice.
 
     Basque tokens are transcribed by the eu lattice (numbers verbalized by the
     expansion, cross-word sandhi preserved within contiguous Basque runs);
     detected contact-language tokens are transcribed through the
     ``es``/``fr``/``en`` lattice and nativized onto the Basque inventory.
-    ``contact`` is one of ``auto`` (detect and classify each contact word among
-    es/fr/en, unclassified words falling to the dialect's side), ``es``, ``fr``,
-    ``en`` or ``none`` (disable switching).
+    ``contact`` is one of ``none`` (the default: disable switching), ``auto``
+    (detect and classify each contact word among es/fr/en, unclassified words
+    falling to the dialect's side), ``es``, ``fr`` or ``en``.
     """
     _validate_contact(contact)
     lect = resolve_lect(dialect)

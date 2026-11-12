@@ -63,3 +63,14 @@ def test_keep_list_covers_the_transitive_auxiliary(classifier):
     for word in ["du", "dut", "duzu", "dugu", "duzue", "dute"]:
         assert is_keep_word(word), word
         assert route_token(word, "auto") is None, word
+
+
+@pytest.mark.parametrize("word", ["urteetan", "Erregeen", "lankideek"])
+def test_default_contact_reads_basque_as_basque(word):
+    # Code-switching is opt-in. With no contact argument, a Basque word is
+    # read by the Basque lattice alone, as bare orthography2ipa reads it.
+    from orthography2ipa import G2P
+    from euskaphone.plugin import EuskaphoneG2PPlugin
+    expected = G2P("eu").transcribe(word)
+    assert EuskaPhonemizer(toponyms=False).phonemize_sentence(word) == expected
+    assert EuskaphoneG2PPlugin("eu").transcribe(word) == expected

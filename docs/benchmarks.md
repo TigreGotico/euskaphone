@@ -1,6 +1,8 @@
 # Benchmarks
 
-Run: `python scripts/benchmark.py [--wikipron PATH] [--hitz] [--hitz-overlay]`.
+Run: `python scripts/benchmark.py [--wikipron PATH] [--hitz] [--hitz-overlay] [--contact C]`.
+`--contact` sets the code-switch policy for the WikiPron and HiTZ runs. The
+default is `none`, the library default.
 Every documented figure is a full-set run. `--sample N` scores a
 fixed-seed subset instead, for a quick check.
 
@@ -27,11 +29,20 @@ circular.
 
 ## 2. WikiPron `eus_latn` (broad), independent word gold
 
-Wiktionary-derived pronunciations, about 20k entries.
+Wiktionary-derived pronunciations, about 20k entries. WikiPron marks no
+stress, so stress is stripped from the hypothesis. The run also scores bare
+orthography2ipa `eu` on the same words.
 
 ```
-n = 20115 (full set)   PER = 0.0749   word accuracy = 0.4563
+n = 20115 (full set)
+euskaphone contact=none     PER = 0.1147   word accuracy = 0.2802
+euskaphone contact=auto     PER = 0.1271   word accuracy = 0.2656
+orthography2ipa eu (bare)   PER = 0.1146   word accuracy = 0.2802
 ```
+
+`contact="auto"` routes native words with a foreign look to the Spanish,
+French or English lattice. On this list it costs more than it gains, so the
+default is `none`.
 
 This is the honest floor for the pure lattice with no lexicon: WikiPron is
 proper-name- and loan-heavy and lists multiple valid pronunciations per

@@ -86,8 +86,10 @@ embedded material, classifies each contact word **per word** among
 `es`/`fr`/`en`, and routes it through the orthography2ipa
 `es-ES`/`fr-FR`/`en-US` lattice. It then **nativizes** the result onto the
 Basque inventory: every foreign phone projects onto its nearest Basque phone,
-never dropped, always projected. The `contact` parameter is `auto` (per-word
-detection), `es`, `fr`, `en`, or `none`.
+never dropped, always projected. The `contact` parameter is `none` (the
+default, no switching), `auto` (per-word detection), `es`, `fr` or `en`.
+Switching is opt-in: on the WikiPron Basque word list, `auto` scores PER
+0.1271 against 0.1147 for `none` (see [`docs/benchmarks.md`](docs/benchmarks.md)).
 
 Detection prefers a small bundled **char-Markov language detector** (Basque,
 Spanish, French, English, about 180 KB total, scored by `markovonnx`, install
@@ -98,13 +100,13 @@ clear margin. Short, plausibly-native words also need orthographic
 corroboration, so a weak signal never misroutes a native word.
 
 ```python
-ph.phonemize_sentence("Madrilen Plaza Mayor ikusi dut.", "eu")
+ph.phonemize_sentence("Madrilen Plaza Mayor ikusi dut.", "eu", contact="auto")
 # '… plas̻a majoɾ …'  (Spanish routed + nativized: no θ, no stress)
 
-ph.phonemize_sentence("Streaming plataforma berria erabili dugu.")
+ph.phonemize_sentence("Streaming plataforma berria erabili dugu.", contact="auto")
 # 'strimin platafoɾma …'  (English routed + nativized onto the 5-vowel system)
 
-ph.phonemize_sentence("Maison Rouge etxean.", "souletin")
+ph.phonemize_sentence("Maison Rouge etxean.", "souletin", contact="auto")
 # continental dialect → French contact by default
 ```
 
@@ -202,7 +204,7 @@ source. Run them with `python scripts/benchmark.py [--hitz]`.
 | gold | kind | figure |
 |------|------|--------|
 | orthography2ipa eu gold (166 rows, 8 lects) | **regression fixture** (same lattice made it) | PER `0.0000` (confirms the lattice is untouched, not a measure of accuracy) |
-| [WikiPron](https://github.com/CUNY-CL/wikipron) `eus_latn` broad | independent word gold | PER `0.0749`, word-acc `0.4563` (full set, 20,115 words) |
+| [WikiPron](https://github.com/CUNY-CL/wikipron) `eus_latn` broad | independent word gold | PER `0.1147`, word-acc `0.2802` (full set, 20,115 words, `contact="none"`) |
 | [HiTZ/EHU](https://huggingface.co/datasets/HiTZ/wikipedia_basque_ipa) Wikipedia G2P | independent cross-engine (Univ. of the Basque Country) | PER `0.1474` folded (full set, 836,491 sentences) |
 
 The WikiPron and HiTZ figures are the informative ones: a pure lattice with no
