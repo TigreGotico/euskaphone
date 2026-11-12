@@ -205,6 +205,13 @@ source. Run them with `python scripts/benchmark.py [--hitz]`.
 | [WikiPron](https://github.com/CUNY-CL/wikipron) `eus_latn` broad | independent word gold | PER `0.1147`, word-acc `0.2802` (full set, 20,115 words, `contact="none"`) |
 | [HiTZ/EHU](https://huggingface.co/datasets/HiTZ/wikipedia_basque_ipa) Wikipedia G2P | independent cross-engine (Univ. of the Basque Country) | PER `0.1474` folded (full set, 836,491 sentences) |
 
+Much of the WikiPron error is notation. WikiPron writes no stress and no
+spirants. The scorer strips stress, but the Basque spec writes the spirant
+allophones `β ð ɣ` of `/b d g/`, and each one counts as an error. Bare
+orthography2ipa `eu` scores PER `0.1146` and word accuracy `0.2802` on the
+20,115 rows. With `β ð ɣ` folded to `b d ɡ`, the same output scores PER
+`0.0749` and word accuracy `0.4563`.
+
 The WikiPron and HiTZ figures are the informative ones: a pure lattice with no
 lexicon, run on proper-name-heavy and raw-Wikipedia text, where transcription
 conventions and multiple valid pronunciations account for much of the gap.

@@ -37,8 +37,10 @@ The contact language is chosen by the ``contact`` parameter:
 Orthographic heuristic
 ----------------------
 Basque orthography does not natively use ``c q v w y ñ ç`` or the Romance
-accented vowels, and native spelling never carries the English digraphs
-``th sh wh ck gh oo aw``. A token carrying any of those (or a common
+accented vowels, and native spelling does not carry the English digraphs
+``sh wh ck gh oo aw``. Northern traditional spelling writes ``th`` for an
+aspirated stop (*urthe*, *üthürri*), but the heuristic still counts ``th`` as
+English, so it flags such a word. A token carrying any of those (or a common
 Spanish/French/English function word) is treated as contact material. This is a
 deliberately shallow, well-documented backstop; sequences that occur natively in
 Basque (``ea`` in *etxean*, ``ee`` in *etxeetan*, ``ing`` in *inguru*) are
@@ -75,7 +77,8 @@ _SPANISH_LETTERS = set("ñáíóú")
 #: Letters/accents that point specifically at French.
 _FRENCH_LETTERS = set("çàâèêëîïôùûœ")
 
-#: English orthographic digraphs absent from native Basque spelling. Excludes
+#: English orthographic digraphs. Only ``th`` occurs in native spelling, in
+#: Northern traditional forms such as *urthe*. Excludes
 #: sequences that occur natively in Basque — ``ea`` (etxean), ``ou``, ``au``,
 #: ``ing`` (inguru) and ``ee``, which an e-final stem makes before a suffix
 #: that starts with e (mendeetan, idazleek, irteera, daitekeen).
