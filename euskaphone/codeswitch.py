@@ -37,11 +37,11 @@ Orthographic heuristic
 ----------------------
 Basque orthography does not natively use ``c q v w y ñ ç`` or the Romance
 accented vowels, and native spelling never carries the English digraphs
-``th sh wh ck gh oo ee aw``. A token carrying any of those (or a common
+``th sh wh ck gh oo aw``. A token carrying any of those (or a common
 Spanish/French/English function word) is treated as contact material. This is a
 deliberately shallow, well-documented backstop; sequences that occur natively in
-Basque (``ea`` in *etxean*, ``ing`` in *inguru*) are excluded so it never fires
-on a Basque word, and it never *drops* a word.
+Basque (``ea`` in *etxean*, ``ee`` in *etxeetan*, ``ing`` in *inguru*) are
+excluded so it does not fire on a Basque word, and it never *drops* a word.
 
 English → Basque projection
 ---------------------------
@@ -75,9 +75,10 @@ _SPANISH_LETTERS = set("ñáíóú")
 _FRENCH_LETTERS = set("çàâèêëîïôùûœ")
 
 #: English orthographic digraphs absent from native Basque spelling. Excludes
-#: sequences that occur natively in Basque — ``ea`` (etxean), ``ou``, ``au`` and
-#: ``ing`` (inguru) — so the signal never fires on a Basque word.
-_ENGLISH_DIGRAPHS = ("th", "sh", "wh", "ck", "gh", "ght", "oo", "ee", "aw")
+#: sequences that occur natively in Basque — ``ea`` (etxean), ``ou``, ``au``,
+#: ``ing`` (inguru) and ``ee``, which an e-final stem makes before a suffix
+#: that starts with e (mendeetan, idazleek, irteera, daitekeen).
+_ENGLISH_DIGRAPHS = ("th", "sh", "wh", "ck", "gh", "ght", "oo", "aw")
 
 # Basque is the matrix language, so it wins every homograph: a token that is a
 # Basque wordform (:data:`euskaphone.langdetect.BASQUE_KEEP`) stays Basque no
