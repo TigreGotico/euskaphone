@@ -52,7 +52,7 @@ class EuskaPhonemizer:
         apply_builtins(toponyms=toponyms, lexicon=lexicon)
 
     def phonemize_sentence(self, sentence: str, dialect: str = DEFAULT_DIALECT,
-                           contact: str = "auto",
+                           contact: str = "none",
                            pitch_accent: bool = False) -> str:
         """Phonemize ``sentence`` for the ``dialect`` lect.
 
@@ -61,10 +61,11 @@ class EuskaPhonemizer:
             dialect: A lect code or human-readable alias (see
                 :func:`euskaphone.list_dialects` /
                 :func:`euskaphone.dialect_aliases`). Defaults to Standard Batua.
-            contact: Embedded-language policy — ``"auto"`` (detect and classify
-                each contact word per-word among es/fr/en, unclassified words
-                falling to the dialect's side), ``"es"``, ``"fr"``, ``"en"`` or
-                ``"none"`` (no code-switching).
+            contact: Embedded-language policy — ``"none"`` (the default: no
+                code-switching, every word read as Basque), ``"auto"`` (detect
+                and classify each contact word per-word among es/fr/en,
+                unclassified words falling to the dialect's side), ``"es"``,
+                ``"fr"`` or ``"en"``.
             pitch_accent: When ``True``, annotate lexical Northern Bizkaian pitch
                 accent (:mod:`euskaphone.pitch_accent`) — a mark on the accented
                 syllable of each lexically accented word, nothing on unaccented

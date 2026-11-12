@@ -16,7 +16,7 @@ from euskaphone.registry import list_dialects, resolve_lect
 class EuskaphoneG2PPlugin:
     """Dialect-aware Basque G2P via the euskaphone pipeline."""
 
-    def __init__(self, lang: str = "eu", contact: str = "auto") -> None:
+    def __init__(self, lang: str = "eu", contact: str = "none") -> None:
         self.lang = lang
         self.contact = contact
         self._phonemizer = None

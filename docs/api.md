@@ -7,13 +7,13 @@ from euskaphone import EuskaPhonemizer
 ph = EuskaPhonemizer()
 ```
 
-### `phonemize_sentence(sentence, dialect="eu", contact="auto", pitch_accent=False) -> str`
+### `phonemize_sentence(sentence, dialect="eu", contact="none", pitch_accent=False) -> str`
 
 Phonemize `sentence` for `dialect` (a lect code or human-readable alias).
-`contact` is the embedded-language policy: `"auto"` (per-word detection
+`contact` is the embedded-language policy: `"none"` (the default, no
+switching), `"auto"` (per-word detection
 among `es`/`fr`/`en`, undetected words falling to the dialect's side,
-peninsular→Spanish, continental→French), `"es"`, `"fr"`, `"en"`, or
-`"none"`. `pitch_accent=True` adds the Northern Bizkaian lexical accent
+peninsular→Spanish, continental→French), `"es"`, `"fr"` or `"en"`. `pitch_accent=True` adds the Northern Bizkaian lexical accent
 marks (Biscayan only, see [pitch_accent.md](pitch_accent.md)).
 
 ### `is_supported(dialect) -> bool`
