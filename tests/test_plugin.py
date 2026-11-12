@@ -1,4 +1,4 @@
-"""OVOS G2P plugin contract."""
+"""The G2P wrapper contract."""
 from euskaphone.plugin import EuskaphoneG2PPlugin
 from euskaphone.registry import list_dialects
 

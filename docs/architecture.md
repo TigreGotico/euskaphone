@@ -79,7 +79,7 @@ omission.
 | `euskaphone.pitch_accent` | Northern Bizkaian lexical-accent annotation |
 | `euskaphone.accent` | accent forcing: IPA delta + gated respelling |
 | `euskaphone.registry` | dialect codes, aliases, contact sides |
-| `euskaphone.plugin` | OVOS `opm.g2p` plugin wrapper |
+| `euskaphone.plugin` | G2P wrapper with the orthography2ipa plugin shape |
 
 ---
 [← API](api.md) · [Home](../README.md) · [Benchmarks →](benchmarks.md)

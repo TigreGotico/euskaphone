@@ -78,10 +78,9 @@ from euskaphone import register_lexicon
 register_lexicon("eu", "path/or/url/or/hf://id")   # word<TAB>ipa
 ```
 
-## OVOS plugin: `euskaphone.plugin.EuskaphoneG2PPlugin`
+## G2P wrapper: `euskaphone.plugin.EuskaphoneG2PPlugin`
 
 `.language_codes`, `.transcribe(text)`, `.transcribe_word(word, context=None)`.
-Entry-point group `opm.g2p`, name `euskaphone`.
 
 ---
 [← Accent forcing](accent_forcing.md) · [Home](../README.md) · [Architecture →](architecture.md)
