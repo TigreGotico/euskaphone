@@ -74,3 +74,12 @@ def test_default_contact_reads_basque_as_basque(word):
     expected = G2P("eu").transcribe(word)
     assert EuskaPhonemizer(toponyms=False).phonemize_sentence(word) == expected
     assert EuskaphoneG2PPlugin("eu").transcribe(word) == expected
+
+
+def test_lattice_core_default_contact_reads_basque_as_basque(classifier):
+    # Every public entry point calls lattice_core.phonemize, so its own
+    # default must be "none" too. "Andereñoak" has a ñ, which "auto" routes
+    # to the Spanish lattice; read as Basque it matches o2i gold eu-010.
+    from euskaphone.lattice_core import phonemize
+    assert phonemize("Andereñoak", contact="auto") != "anˈdeɾeɲoak"
+    assert phonemize("Andereñoak") == "anˈdeɾeɲoak"
