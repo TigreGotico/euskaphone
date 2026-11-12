@@ -1,8 +1,29 @@
 # Changelog
 
+## [0.2.9a1](https://github.com/TigreGotico/euskaphone/tree/0.2.9a1) (2026-11-12)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.8a1...0.2.9a1)
+
+**Merged pull requests:**
+
+- fix: route code-switched words after normalization [\#50](https://github.com/TigreGotico/euskaphone/pull/50) ([JarbasAl](https://github.com/JarbasAl))
+- docs: explain the WikiPron PER as spirant notation, and th in Northern spelling [\#49](https://github.com/TigreGotico/euskaphone/pull/49) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.8a1](https://github.com/TigreGotico/euskaphone/tree/0.2.8a1) (2026-11-12)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.5a1...0.2.8a1)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.7a1...0.2.8a1)
+
+## [0.2.7a1](https://github.com/TigreGotico/euskaphone/tree/0.2.7a1) (2026-11-12)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.6a1...0.2.7a1)
+
+## [0.2.6a1](https://github.com/TigreGotico/euskaphone/tree/0.2.6a1) (2026-11-12)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.5a2...0.2.6a1)
+
+## [0.2.5a2](https://github.com/TigreGotico/euskaphone/tree/0.2.5a2) (2026-11-12)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.5a1...0.2.5a2)
 
 **Merged pull requests:**
 
