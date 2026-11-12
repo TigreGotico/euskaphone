@@ -2,6 +2,7 @@
 import pytest
 
 from euskaphone import EuskaPhonemizer
+from euskaphone.langdetect import get_detector
 from euskaphone.codeswitch import (
     _nativize, contact_language, is_contact_word, split_runs,
     transcribe_contact,
@@ -171,12 +172,15 @@ def test_basque_ee_is_not_an_english_signal(word, source):
 
 #: Words the char-Markov detector still scores as English on its own, with no
 #: orthographic signal. They stay listed so that a detector fix shows here.
+#: Without the optional detector, the orthographic heuristic reads them as
+#: Basque.
 _DETECTOR_READS_AS_ENGLISH = {"kodeek", "unitateekin"}
 
 
 @pytest.mark.parametrize("word,source", [
     pytest.param(w, s, marks=pytest.mark.xfail(
-        strict=True, reason="the char-Markov detector scores it English"))
+        get_detector() is not None, strict=True,
+        reason="the char-Markov detector scores it English"))
     if w in _DETECTOR_READS_AS_ENGLISH else (w, s)
     for w, s in _BASQUE_EE])
 def test_basque_ee_is_read_as_basque_under_auto(word, source):
