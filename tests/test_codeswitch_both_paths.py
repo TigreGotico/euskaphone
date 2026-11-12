@@ -83,3 +83,24 @@ def test_lattice_core_default_contact_reads_basque_as_basque(classifier):
     from euskaphone.lattice_core import phonemize
     assert phonemize("Andereñoak", contact="auto") != "anˈdeɾeɲoak"
     assert phonemize("Andereñoak") == "anˈdeɾeɲoak"
+
+
+@pytest.mark.parametrize("text, spelled", [
+    ("Luis XIV", "Luis hamalaugarrena"),
+    ("V. kapitulua", "bosgarren kapitulua"),
+])
+def test_auto_routes_the_normalized_text(ph, classifier, text, spelled):
+    # A Roman numeral has letters (v, x) that look foreign. The router must
+    # see the Basque words the normalizer writes for it, not the numeral.
+    from orthography2ipa import G2P
+    expected = G2P("eu").transcribe(spelled)
+    assert ph.phonemize_sentence(text, contact="none") == expected
+    assert ph.phonemize_sentence(text, contact="auto") == expected
+
+
+def test_auto_keeps_a_normalizer_word_basque(ph, classifier):
+    # The normalizer writes Basque. The detector scores "hamabost" (15) as
+    # English, so a word the normalizer wrote never goes to the router.
+    from orthography2ipa import G2P
+    expected = G2P("eu").transcribe("hamabost katu")
+    assert ph.phonemize_sentence("15 katu", contact="auto") == expected

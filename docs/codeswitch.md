@@ -53,8 +53,10 @@ ph.phonemize_sentence("Plaza Mayor.", "eu")                                     
 
 A token counts as contact-language if it carries a letter Basque does not
 use natively (`c q v w y ñ ç` or a Romance accented vowel), an English
-digraph absent from native spelling (`th sh wh ck gh oo aw`), or is one
-of a small set of common Spanish/French/English function words. Per-word
+digraph (`th sh wh ck gh oo aw`), or is one of a small set of common
+Spanish/French/English function words. Of those digraphs, only `th` occurs
+in native spelling: Northern traditional spelling writes it for an aspirated
+stop (*urthe*, *üthürri*), so the heuristic flags such a word. Per-word
 classification then routes it: English signals first, then the
 Spanish/French accent split, then the dialect's side. Sequences that occur
 natively in Basque (`ea` in *etxean*, `ee` in *etxeetan*, `ing` in
