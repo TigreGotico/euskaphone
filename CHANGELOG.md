@@ -1,8 +1,20 @@
 # Changelog
 
+## [0.2.9a3](https://github.com/TigreGotico/euskaphone/tree/0.2.9a3) (2026-11-12)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.9a2...0.2.9a3)
+
+**Merged pull requests:**
+
+- test: pin the contact default of lattice\_core.phonemize to none [\#51](https://github.com/TigreGotico/euskaphone/pull/51) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.9a2](https://github.com/TigreGotico/euskaphone/tree/0.2.9a2) (2026-11-12)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.8a1...0.2.9a2)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.9a1...0.2.9a2)
+
+## [0.2.9a1](https://github.com/TigreGotico/euskaphone/tree/0.2.9a1) (2026-11-12)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.8a1...0.2.9a1)
 
 **Merged pull requests:**
 
