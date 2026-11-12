@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.5a2](https://github.com/TigreGotico/euskaphone/tree/0.2.5a2) (2026-11-12)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.5a1...0.2.5a2)
+
+**Merged pull requests:**
+
+- chore: drop the opm.g2p entry point [\#44](https://github.com/TigreGotico/euskaphone/pull/44) ([JarbasAl](https://github.com/JarbasAl))
+- fix: expand an abbreviation only with its period [\#43](https://github.com/TigreGotico/euskaphone/pull/43) ([JarbasAl](https://github.com/JarbasAl))
+- fix: drop ee from the English digraph signal [\#41](https://github.com/TigreGotico/euskaphone/pull/41) ([JarbasAl](https://github.com/JarbasAl))
+- fix: default contact to none, so code-switching is opt-in [\#40](https://github.com/TigreGotico/euskaphone/pull/40) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.5a1](https://github.com/TigreGotico/euskaphone/tree/0.2.5a1) (2026-11-09)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.4a3...0.2.5a1)
