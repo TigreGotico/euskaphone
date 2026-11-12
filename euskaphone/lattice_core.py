@@ -33,11 +33,12 @@ decision, not an omission.
 from __future__ import annotations
 
 import functools
+from difflib import SequenceMatcher
 from typing import Dict, List, Optional, Tuple
 
 from orthography2ipa import G2P, Pipeline, load_lexicon
 
-from euskaphone.codeswitch import split_runs, transcribe_contact
+from euskaphone.codeswitch import route_token, transcribe_contact
 from euskaphone.normalize import normalize_text
 from euskaphone.registry import default_contact, resolve_lect
 
@@ -65,23 +66,45 @@ def _expander(lect: str):
 
 
 @functools.lru_cache(maxsize=None)
-def engine(lect: str) -> G2P:
+def engine(lect: str, expand: bool = True) -> G2P:
     """A cached orthography2ipa engine for ``lect`` with euskaphone's expansion.
 
     The engine holds the lexicon registered for ``lect``. With none registered,
     the engine reads the process-wide lexicon of orthography2ipa's deprecated
-    API, if the caller set one, and the rules otherwise.
+    API, if the caller set one, and the rules otherwise. With ``expand=False``
+    the engine reads text that :func:`normalize_text` has already normalized.
     """
     registered = _LEXICONS.get(lect)
     return G2P(lect, pipeline=Pipeline(
         lexicon=None if registered is None else registered[1],
-        expand=_expander(lect)))
+        expand=_expander(lect) if expand else None))
 
 
 def _validate_contact(contact: str) -> None:
     if contact not in _VALID_CONTACT:
         raise ValueError(
             f"unknown contact {contact!r}; expected one of {_VALID_CONTACT}")
+
+
+def _route_normalized(text: str, lect: str, contact: str,
+                      side: str) -> List[Tuple[Optional[str], str]]:
+    """Normalize ``text``, then route each word the normalizer left as written.
+
+    A word the normalizer wrote, such as ``hamalaugarrena`` for ``XIV`` or
+    ``hamabost`` for ``15``, is Basque, so it never goes to the router.
+    """
+    raw, normalized = text.split(), normalize_text(text, lect).split()
+    runs: List[Tuple[Optional[str], str]] = []
+    # Constraint: a word the normalizer wrote is never routed. The detector
+    # scores some of them as foreign (hamabost as en, segundo as es).
+    matcher = SequenceMatcher(a=raw, b=normalized, autojunk=False)
+    for op, _, _, start, end in matcher.get_opcodes():
+        words = normalized[start:end]
+        if op == "equal":
+            runs += [(route_token(word, contact, side), word) for word in words]
+        else:
+            runs += [(None, word) for word in words]
+    return runs
 
 
 def phonemize(text: str, dialect: str = "eu", contact: str = "none") -> str:
@@ -94,6 +117,9 @@ def phonemize(text: str, dialect: str = "eu", contact: str = "none") -> str:
     ``contact`` is one of ``none`` (the default: disable switching), ``auto``
     (detect and classify each contact word among es/fr/en, unclassified words
     falling to the dialect's side), ``es``, ``fr`` or ``en``.
+
+    The text is normalized before the router reads it (see
+    :func:`_route_normalized`).
     """
     _validate_contact(contact)
     lect = resolve_lect(dialect)
@@ -102,7 +128,7 @@ def phonemize(text: str, dialect: str = "eu", contact: str = "none") -> str:
     keep_y = lect == "eu-x-zuberera"
     side = default_contact(lect)
 
-    runs = split_runs(text, contact, default_side=side)
+    runs = _route_normalized(text, lect, contact, side)
     out: List[str] = []
     # transcribe contiguous Basque tokens as one phrase to preserve sandhi;
     # nativize each contact token individually.
@@ -111,7 +137,7 @@ def phonemize(text: str, dialect: str = "eu", contact: str = "none") -> str:
     def flush():
         if basque_buffer:
             phrase = " ".join(basque_buffer)
-            out.append(engine(lect).transcribe(phrase))
+            out.append(engine(lect, expand=False).transcribe(phrase))
             basque_buffer.clear()
 
     for contact_lang, token in runs:
