@@ -2,6 +2,7 @@
 import pytest
 
 from euskaphone import EuskaPhonemizer
+from euskaphone.langdetect import get_detector
 from euskaphone.codeswitch import (
     _nativize, contact_language, is_contact_word, split_runs,
     transcribe_contact,
@@ -22,7 +23,7 @@ _NON_BASQUE = ("θ", "ð", "v", "z", "ʒ", "ʁ", "ʀ", "χ", "ɔ", "ɛ", "ə", "
     ("el", True),           # Spanish stopword
     ("les", True),          # French stopword
     ("streaming", True),    # English digraph + stopword
-    ("weekend", True),      # English (w + ee)
+    ("weekend", True),      # English (w)
     ("software", True),     # English stopword
     ("kaixo", False),
 ])
@@ -139,3 +140,50 @@ def test_en_forced_contact_is_valid():
     out = ph.phonemize_sentence("The weekend rock band.", contact="en")
     assert out
     assert not any(p in out for p in _NON_BASQUE), out
+
+
+# Basque wordforms with "ee", each quoted from Euskaltzaindia's own norm text
+# (Araua number, printed page). An e-final stem before a suffix that starts
+# with e gives "ee": mende+etan, idazle+ek, irte+era, daiteke+en.
+_BASQUE_EE = [
+    ("mendeetan", "Araua 18, p. 115"),
+    ("idazleen", "Araua 18, p. 115"),
+    ("banatzaileei", "Araua 18, p. 116"),
+    ("urteen", "Araua 7, p. 21"),
+    ("idazleek", "Araua 35, p. 182"),
+    ("irteera", "Araua 35, p. 184"),
+    ("Arratsaldeetan", "Araua 35, p. 184"),
+    ("kodeek", "Araua 197, p. 5"),
+    ("erakundeek", "Araua 197, p. 5"),
+    ("taldeen", "Araua 197, p. 5"),
+    ("unitateekin", "Araua 197, p. 16"),
+    ("elkarteetan", "Araua 196, p. 3"),
+    ("gazteek", "Araua 196, p. 5"),
+    ("lukeen", "Araua 196, p. 6"),
+    ("daitezkeela", "Araua 196, p. 7"),
+]
+
+
+@pytest.mark.parametrize("word,source", _BASQUE_EE)
+def test_basque_ee_is_not_an_english_signal(word, source):
+    assert is_contact_word(word) is False
+    assert contact_language(word, "es") == "es"
+
+
+#: Words the char-Markov detector still scores as English on its own, with no
+#: orthographic signal. They stay listed so that a detector fix shows here.
+#: Without the optional detector, the orthographic heuristic reads them as
+#: Basque.
+_DETECTOR_READS_AS_ENGLISH = {"kodeek", "unitateekin"}
+
+
+@pytest.mark.parametrize("word,source", [
+    pytest.param(w, s, marks=pytest.mark.xfail(
+        get_detector() is not None, strict=True,
+        reason="the char-Markov detector scores it English"))
+    if w in _DETECTOR_READS_AS_ENGLISH else (w, s)
+    for w, s in _BASQUE_EE])
+def test_basque_ee_is_read_as_basque_under_auto(word, source):
+    ph = EuskaPhonemizer()
+    assert ph.phonemize_sentence(word, contact="auto") == \
+        ph.phonemize_sentence(word, contact="none")
