@@ -40,6 +40,13 @@ euskaphone contact=auto     PER = 0.1271   word accuracy = 0.2656
 orthography2ipa eu (bare)   PER = 0.1146   word accuracy = 0.2802
 ```
 
+WikiPron writes no spirants either, and the scorer does not strip them.
+The eu spec writes the spirant allophones `β ð ɣ` of `/b d g/`
+(`laβes̻omoroɾik` against WikiPron `labes̻omoroɾik`), and each one counts as
+an error. With `β ð ɣ` folded to `b d ɡ` in the bare orthography2ipa output,
+the same 20,115 rows score PER = 0.0749 and word accuracy = 0.4563. The
+difference between the two figures is notation, not accuracy.
+
 `contact="auto"` routes native words with a foreign look to the Spanish,
 French or English lattice. On this list it costs more than it gains, so the
 default is `none`.
@@ -85,9 +92,9 @@ loss of those rows as an independent signal, documented, never silent.
 All three engines are scored on the full WikiPron `eus_latn` broad set
 (20,115 words) under one protocol: Levenshtein over IPA segments (base +
 combining marks as one unit), stress and boundary marks stripped, per-word
-PER averaged over words. The `0.0749` figure above uses a different unit
+PER averaged over words. The section 2 figures use a different unit
 and average (character-level distance, micro-averaged over total
-characters), which is why the two euskaphone figures differ. Within *this*
+characters), so they differ from the euskaphone row here. Within *this*
 table all engines are scored identically.
 
 ```
