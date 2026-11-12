@@ -1,4 +1,4 @@
-"""The OVOS G2P plugin wrapper."""
+"""The G2P wrapper."""
 from euskaphone.plugin import EuskaphoneG2PPlugin
 
 plug = EuskaphoneG2PPlugin("eu")

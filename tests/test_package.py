@@ -34,3 +34,12 @@ def test_register_lexicon_is_callable():
     # empty by default; the passthrough must resolve the alias without raising
     # (an empty registration is a no-op contract check, not a data load)
     assert callable(register_lexicon)
+
+
+def test_no_opm_g2p_entry_point():
+    # The wrapper does not implement the OPM Grapheme2PhonemePlugin API
+    # (config constructor, get_ipa, available_languages), so the package does
+    # not advertise it in the "opm.g2p" group.
+    from importlib.metadata import distribution
+    groups = {ep.group for ep in distribution("euskaphone").entry_points}
+    assert "opm.g2p" not in groups

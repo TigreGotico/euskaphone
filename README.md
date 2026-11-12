@@ -184,14 +184,12 @@ and sense-independent. Unlike tugaphone's Portuguese, which needs `bifonia` to
 resolve heterophonic homographs, euskaphone ships **no** homograph stage. This
 is a scope decision, documented so it is not mistaken for a gap.
 
-## OVOS plugin
+## G2P wrapper
 
 ```python
 from euskaphone.plugin import EuskaphoneG2PPlugin
 EuskaphoneG2PPlugin("souletin").transcribe("kaixo mundua")
 ```
-
-Registered under the `opm.g2p` entry-point group as `euskaphone`.
 
 ## How it measures up
 
