@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.9a5](https://github.com/TigreGotico/euskaphone/tree/0.2.9a5) (2026-11-15)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.9a4...0.2.9a5)
+
+**Merged pull requests:**
+
+- Update actions/setup-python action to v7 [\#28](https://github.com/TigreGotico/euskaphone/pull/28) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [0.2.9a4](https://github.com/TigreGotico/euskaphone/tree/0.2.9a4) (2026-11-15)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.9a3...0.2.9a4)
