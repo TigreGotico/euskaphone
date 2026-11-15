@@ -8,13 +8,17 @@ transforms.
 | code | dialect (endonym) | side | aliases |
 |------|-------------------|------|---------|
 | `eu` | Euskara Batua (Standard) | n/a | `batua`, `standard` |
-| `eu-x-bizkaiera` | Bizkaiera (Biscayan) | Hegoalde | `biscayan`, `western`, `vizcaino` |
-| `eu-x-gipuzkera` | Gipuzkera (Gipuzkoan) | Hegoalde | `guipuzcoan`, `central` |
-| `eu-x-lapurtera` | Lapurtera (Lapurdian) | Iparralde | `labourdin`, `labortano` |
+| `eu-biscayan` | Bizkaiera (Biscayan) | Hegoalde | `biscayan`, `western`, `vizcaino`, `eu-x-bizkaiera` |
+| `eu-x-gipuzkoa` | Gipuzkera (Gipuzkoan) | Hegoalde | `guipuzcoan`, `central`, `eu-x-gipuzkera` |
+| `eu-x-lapurdi` | Lapurtera (Lapurdian) | Iparralde | `labourdin`, `labortano`, `eu-x-lapurtera` |
 | `eu-x-nafarra-garaia` | Goi-nafarrera (High Navarrese) | Hegoalde | `high-navarrese`, `alto-navarro` |
 | `eu-x-nafarra-beherea` | Behe-nafarrera (Low Navarrese) | Iparralde | `low-navarrese`, `bajo-navarro` |
 | `eu-x-zuberera` | Zuberera (Souletin) | Iparralde | `souletin`, `xiberotarra` |
-| `eu-x-erronkariera` | Erronkariera (Roncalese, extinct) | Hegoalde | `roncalese` |
+| `eu-x-roncal` | Erronkariera (Roncalese, extinct) | Hegoalde | `roncalese`, `eu-x-erronkariera` |
+
+The code column is the code orthography2ipa keys each spec by, and the one
+`list_dialects()` and `resolve_lect()` return. The older `eu-x-*` codes in the
+alias column still resolve to the same spec.
 
 **Sides.** *Hegoalde* (peninsular, Spain) dialects default their code-switch
 contact language to Spanish. *Iparralde* (continental, France) dialects

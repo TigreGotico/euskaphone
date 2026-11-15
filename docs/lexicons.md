@@ -18,6 +18,9 @@ register_lexicon("eu", "/path/to/lexicon.tsv")          # local file
 register_lexicon("eu", "hf://ORG/repo/eu.tsv")          # Hugging Face
 ```
 
+An `hf://` source needs `huggingface_hub`, which euskaphone does not install.
+Install `orthography2ipa[hf]` first, or `register_lexicon` raises `ImportError`.
+
 A caller-registered lexicon always **wins** over the built-in toponym seed:
 the built-in only registers when no lexicon is already registered for the
 code. A lexicon set through the deprecated process-wide API of

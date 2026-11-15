@@ -4,8 +4,7 @@ euskaphone is a dialect-aware Basque (Euskara) text-to-IPA phonemizer. It is a
 TTS frontend built on the shared
 [orthography2ipa](https://github.com/TigreGotico/orthography2ipa) pronunciation
 lattice. euskaphone is the Basque sibling of
-[tugaphone](https://github.com/TigreGotico/tugaphone) (Portuguese) and
-[mwl_phonemizer](https://github.com/TigreGotico/mwl_phonemizer) (Mirandese). It
+[tugaphone](https://github.com/TigreGotico/tugaphone) (Portuguese). It
 is an open, inspectable, source-cited pipeline for the Basque research and
 speech-technology community.
 
@@ -27,26 +26,31 @@ from euskaphone import EuskaPhonemizer
 
 ph = EuskaPhonemizer()
 ph.phonemize_sentence("Zazpi katu zuri ikusi ditut.")          # Batua (default)
-# 's̻as̻pi katu s̻uɾi ikus̺i ditut'
+# 's̻as̻ˈpi kaˈtu s̻uˈɾi iˈkus̺i diˈtut'
 
 ph.phonemize_sentence("Hotza egiten du gaur mendian.", "souletin")
-# 'hots̻a eɡiten dy ɡauɾ mendian'   (Souletin: aspiration, /y/)
+# 'ˈhots̻a eˈɣiten ˈdu ˈɡau̯r menˈdian'   (Souletin keeps the aspirated h)
+ph.phonemize_sentence("Hotza egiten dü.", "souletin")
+# 'ˈhots̻a eˈɣiten ˈdy'   (/y/ comes from a written ü)
 ```
 
 ## Dialects
 
-Eight lects, selectable by BCP-47 code or by a human-readable alias:
+Eight lects, selectable by BCP-47 code or by a human-readable alias. The code
+column is the code orthography2ipa keys the spec by, which `list_dialects()` and
+`resolve_lect()` return. The older `eu-x-*` codes in the alias column still
+resolve.
 
 | code | dialect | aliases |
 |------|---------|---------|
 | `eu` | Standard Basque | `batua`, `standard` |
-| `eu-x-bizkaiera` | Biscayan | `biscayan`, `western` |
-| `eu-x-gipuzkera` | Gipuzkoan | `guipuzcoan`, `central` |
-| `eu-x-lapurtera` | Lapurdian | `labourdin` |
+| `eu-biscayan` | Biscayan | `biscayan`, `western`, `eu-x-bizkaiera` |
+| `eu-x-gipuzkoa` | Gipuzkoan | `guipuzcoan`, `central`, `eu-x-gipuzkera` |
+| `eu-x-lapurdi` | Lapurdian | `labourdin`, `eu-x-lapurtera` |
 | `eu-x-nafarra-garaia` | High Navarrese | `high-navarrese` |
 | `eu-x-nafarra-beherea` | Low Navarrese | `low-navarrese` |
 | `eu-x-zuberera` | Souletin | `souletin`, `xiberotarra` |
-| `eu-x-erronkariera` | Roncalese (†) | `roncalese` |
+| `eu-x-roncal` | Roncalese (†) | `roncalese`, `eu-x-erronkariera` |
 
 ## What euskaphone adds
 
@@ -101,7 +105,7 @@ corroboration, so a weak signal never misroutes a native word.
 
 ```python
 ph.phonemize_sentence("Madrilen Plaza Mayor ikusi dut.", "eu", contact="auto")
-# '… plas̻a majoɾ …'  (Spanish routed + nativized: no θ, no stress)
+# 'maˈðɾilen plaˈs̻a majoɾ iˈkus̺i ˈdut'  (Mayor routed to Spanish + nativized: no stress)
 
 ph.phonemize_sentence("Streaming plataforma berria erabili dugu.", contact="auto")
 # 'strimin platafoɾma …'  (English routed + nativized onto the 5-vowel system)
@@ -163,7 +167,7 @@ unaccented".
 ```python
 ph.phonemize_sentence("Amuma etxean dago.", "biscayan",
                       contact="none", pitch_accent=True)
-# 'aˈmuma etʃean daɡo'
+# 'aˈmuma etʃean daɣo'
 ```
 
 See [`docs/pitch_accent.md`](docs/pitch_accent.md).
@@ -190,8 +194,14 @@ is a scope decision, documented so it is not mistaken for a gap.
 
 ```python
 from euskaphone.plugin import EuskaphoneG2PPlugin
-EuskaphoneG2PPlugin("souletin").transcribe("kaixo mundua")
+EuskaphoneG2PPlugin("souletin").transcribe("kaixo mundua")   # 'ˈkai̯ʃo munˈdua'
+EuskaphoneG2PPlugin("souletin", contact="auto")              # code-switching on
 ```
+
+`EuskaphoneG2PPlugin(lang="eu", contact="none")` is a class with the
+orthography2ipa plugin shape. euskaphone declares no entry point, so neither
+orthography2ipa nor an OVOS plugin manager discovers it: import and construct it
+yourself.
 
 ## How it measures up
 

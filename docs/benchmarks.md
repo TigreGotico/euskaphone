@@ -15,12 +15,13 @@ measures that lattice, labelled by what it can and cannot claim.
 
 ## 1. orthography2ipa eu gold, regression fixture (NOT accuracy)
 
-The 160-row Basque gold (8 lects x 20 sentences) orthography2ipa ships was
+The 166-row Basque gold orthography2ipa ships (26 sentences for `eu`, 20 for
+each of the other seven lects) was
 made by the same lattice euskaphone drives, so a pure-lattice transcription
 reproduces it exactly.
 
 ```
-eu, eu-x-bizkaiera, … , eu-x-zuberera    PER = 0.0000  (all eight)
+eu, eu-biscayan, … , eu-x-zuberera    PER = 0.0000  (all eight)
 ```
 
 This proves euskaphone has not perturbed the shared lattice. It says
