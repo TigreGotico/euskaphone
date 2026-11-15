@@ -42,16 +42,16 @@ phrase:
 
 | written | rule | IPA | process |
 |---------|------|-----|---------|
-| ez dut     | ez + d → ezt | `es̻ tut`      | onset /d/ devoices to [t], sibilant kept |
-| ez da      | ez + d → ezt | `es̻ ta`       | onset /d/ devoices to [t] |
-| ez zen     | ez + z → etz | `e ts̻en`      | sibilants coalesce to the affricate [ts̻] |
-| ez naiz    | ez + n → en  | `e nai̯s̻`      | sibilant deleted before a nasal |
-| ez luke    | ez + l → el  | `e luke`       | sibilant deleted before a lateral |
-| ez balitz  | ez + b → ezp | `es̻ palits̻`  | onset /b/ devoices to [p], sibilant kept |
-| ez gara    | ez + g → ezk | `es̻ kaɾa`     | onset /ɡ/ devoices to [k], sibilant kept |
+| ez dut     | ez + d → ezt | `ˈes̻ ˈtut`    | onset /d/ devoices to [t], sibilant kept |
+| ez da      | ez + d → ezt | `ˈes̻ ˈta`     | onset /d/ devoices to [t] |
+| ez zen     | ez + z → etz | `ˈe ˈts̻en`    | sibilants coalesce to the affricate [ts̻] |
+| ez naiz    | ez + n → en  | `ˈe ˈnai̯s̻`    | sibilant deleted before a nasal |
+| ez luke    | ez + l → el  | `ˈe luˈke`     | sibilant deleted before a lateral |
+| ez balitz  | ez + b → ezp | `ˈes̻ paˈlits̻` | onset /b/ devoices to [p], sibilant kept |
+| ez gara    | ez + g → ezk | `ˈes̻ kaˈɾa`   | onset /ɡ/ devoices to [k], sibilant kept |
 
 The rules are keyed to the negator alone (a lone *ez* word), so an
-unrelated `z`-final word before a voiced onset (`naiz da` → `nai̯s̻ da`) stays
+unrelated `z`-final word before a voiced onset (`naiz da` → `ˈnai̯s̻ ˈda`) stays
 untouched. The contractions are pan-Basque and inherited by every `eu-x-*`
 dialect spec. The *degree* varies, and where a dialect merges the laminal
 sibilant to apical (the western/Biscayan `⟨z⟩` → [s̺] merger) the standard

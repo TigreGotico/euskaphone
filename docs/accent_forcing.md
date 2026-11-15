@@ -44,21 +44,22 @@ rounding are simply **not recoverable** through the Batua lattice. The gate
 rejects those edits, and the measured gain for those features is about 0.
 That is a real ceiling, reported rather than hidden.
 
-The `scripts/respell_gains.py` benchmark runs the respeller over the 20
-Batua gold sentences for every lect. A representative run:
+The `scripts/respell_gains.py` benchmark runs the respeller over the 26
+Batua gold sentences of the orthography2ipa `eu` gold for every lect. One run
+gives:
 
 | dialect | PER before | PER after | gain | surviving rules |
 |---------|-----------:|----------:|-----:|-----------------|
-| `eu-x-bizkaiera` | 0.0373 | 0.0185 | **0.0188** | `seseo_z_to_s` |
-| `eu-x-gipuzkera` | 0.0000 | 0.0000 | 0.0000 | none (identical to Batua) |
-| `eu-x-lapurtera` | 0.0212 | 0.0212 | 0.0000 | none (aspiration unrecoverable) |
-| `eu-x-nafarra-garaia` | 0.0212 | 0.0212 | 0.0000 | none |
-| `eu-x-nafarra-beherea` | 0.0212 | 0.0212 | 0.0000 | none |
-| `eu-x-zuberera` | 0.0212 | 0.0212 | 0.0000 | none (aspiration + front rounding) |
-| `eu-x-erronkariera` | 0.0212 | 0.0212 | 0.0000 | none |
+| `eu-biscayan` | 0.0522 | 0.0166 | **0.0356** | `seseo_z_to_s` |
+| `eu-x-gipuzkoa` | 0.0000 | 0.0000 | 0.0000 | none (identical to Batua) |
+| `eu-x-lapurdi` | 0.0191 | 0.0191 | 0.0000 | none (aspiration unrecoverable) |
+| `eu-x-nafarra-garaia` | 0.0191 | 0.0191 | 0.0000 | none |
+| `eu-x-nafarra-beherea` | 0.0191 | 0.0191 | 0.0000 | none |
+| `eu-x-zuberera` | 0.0191 | 0.0191 | 0.0000 | none (aspiration + front rounding) |
+| `eu-x-roncal` | 0.0191 | 0.0191 | 0.0000 | none |
 
-The one clear win is peninsular **seseo**, where respelling `z`→`s` halves
-the Batua-reading PER against Biscayan. The continental dialects sit at
+The one clear win is peninsular **seseo**, where respelling `z`→`s` cuts the
+Batua-reading PER against Biscayan to about a third. The continental dialects sit at
 their honest ceiling: the delta from Batua is aspiration and front
 rounding, neither of which the Batua orthography can carry, so the gate
 keeps nothing. Regenerate the table with:

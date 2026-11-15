@@ -55,7 +55,7 @@ from euskaphone import EuskaPhonemizer, default_lexicon, AccentClass
 ph = EuskaPhonemizer()
 ph.phonemize_sentence("Amuma etxean dago.", "biscayan",
                       contact="none", pitch_accent=True)
-# 'aˈmuma etʃean daɡo'   (amúma accented; the rest unmarked)
+# 'aˈmuma etʃean daɣo'   (amúma accented; the rest unmarked)
 
 lex = default_lexicon()
 lex.lookup("kipula").accent_class        # AccentClass.ACCENTED
@@ -64,8 +64,8 @@ lex.lookup("lagun").accent_class         # AccentClass.UNACCENTED
 lex.lookup("mahaia").accent_class        # AccentClass.UNKNOWN (not attested)
 ```
 
-`pitch_accent=True` is defined **only** for Biscayan (`eu-x-bizkaiera` /
-`biscayan`). Any other lect raises `ValueError`. Annotation is word-level,
+`pitch_accent=True` is defined **only** for Biscayan (`eu-biscayan`, also
+reached as `eu-x-bizkaiera` or `biscayan`). Any other lect raises `ValueError`. Annotation is word-level,
 so cross-word sandhi does not apply in this mode. That is the cost of
 surfacing the lexical accent per word.
 
