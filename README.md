@@ -4,8 +4,7 @@ euskaphone is a dialect-aware Basque (Euskara) text-to-IPA phonemizer. It is a
 TTS frontend built on the shared
 [orthography2ipa](https://github.com/TigreGotico/orthography2ipa) pronunciation
 lattice. euskaphone is the Basque sibling of
-[tugaphone](https://github.com/TigreGotico/tugaphone) (Portuguese) and
-[mwl_phonemizer](https://github.com/TigreGotico/mwl_phonemizer) (Mirandese). It
+[tugaphone](https://github.com/TigreGotico/tugaphone) (Portuguese). It
 is an open, inspectable, source-cited pipeline for the Basque research and
 speech-technology community.
 
