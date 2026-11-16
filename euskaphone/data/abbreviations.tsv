@@ -7,8 +7,8 @@
 # Norm: a laburdura carries a period and is read as the FULL word (Araua 196;
 # Ortotipografia s9); "etab." is a fixed exception meaning "eta abar". The lemma
 # (uninflected) form is used here; running-text case is not re-derived.
-# Matching is case-insensitive on the written form; the trailing period is part
-# of the abbreviation and is stripped before lookup (see abbreviations.py).
+# Matching is case-insensitive on the written form. The trailing period is part
+# of the abbreviation: a token without it is a word (Araua 196, section 4).
 # This file is data, not code: add a cited row to extend coverage.
 etab.	eta abar	et cetera ("and the rest")
 e.a.	eta abar	et cetera (spaced-dot variant)

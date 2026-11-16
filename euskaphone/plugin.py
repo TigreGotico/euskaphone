@@ -1,7 +1,7 @@
-"""OVOS G2P plugin wrapper for euskaphone.
+"""A G2P wrapper for euskaphone with the orthography2ipa plugin shape.
 
-Exposes the euskaphone pipeline behind the shared orthography2ipa G2P plugin
-interface, so an OVOS TTS stack can select a Basque dialect by language code.
+Exposes the euskaphone pipeline through ``transcribe``, ``transcribe_word`` and
+``language_codes``, so a caller can select a Basque dialect by language code.
 It is an engine built ON orthography2ipa, not a plugin discovered by it; the
 :class:`~euskaphone.EuskaPhonemizer` API remains the stable entry point and this
 class is the integration layer.
@@ -16,7 +16,7 @@ from euskaphone.registry import list_dialects, resolve_lect
 class EuskaphoneG2PPlugin:
     """Dialect-aware Basque G2P via the euskaphone pipeline."""
 
-    def __init__(self, lang: str = "eu", contact: str = "auto") -> None:
+    def __init__(self, lang: str = "eu", contact: str = "none") -> None:
         self.lang = lang
         self.contact = contact
         self._phonemizer = None

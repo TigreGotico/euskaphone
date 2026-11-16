@@ -5,6 +5,7 @@ Every expected string here is either spelled verbatim in Euskaltzaindia Araua 7
 attested vigesimal + ``eta`` rule those arauak state.
 """
 import pytest
+from orthography2ipa import resolve
 
 from euskaphone.number_utils import BasqueNumberParser, normalize_numbers
 
@@ -153,3 +154,11 @@ def test_million_no_longer_dropped():
 
 def test_lapurdian_bortz_in_running_text():
     assert normalize_numbers("15 katu", "eu-x-lapurtera") == "hamabortz katu"
+
+
+def test_lapurdian_bortz_under_the_registered_key():
+    # The lattice passes the key orthography2ipa registers the spec under,
+    # which is not the documented code once orthography2ipa renames the spec.
+    lect = resolve("eu-x-lapurtera")
+    assert normalize_numbers("15 katu", lect) == "hamabortz katu"
+    assert BasqueNumberParser(lect).cardinal(5) == "bortz"

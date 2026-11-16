@@ -16,6 +16,8 @@ Sources
 * **Euskaltzaindia**, **Araua 196**, EBO (I) *"Laburtzapenak: laburdurak eta
   siglak"* — the Academy's norm fixing the standard abbreviation forms and the
   rule that a laburdura is written with a period and read as the full word.
+  Section 4 (p. 12): "Punturik ez badu, ez da laburdura" — with no period, it
+  is not an abbreviation.
 * **EIMA / Basque Government**, J. R. Zubimendi, *Ortotipografia* (Eusko
   Jaurlaritza, 2004), "Laburdurak" — spells the same list plus the ``K.a.`` /
   ``K.o.`` era abbreviations.
@@ -52,25 +54,16 @@ def _load(path: str = _DATA) -> Dict[str, str]:
 #: abbreviation (as written, with its period) → full spoken expansion.
 ABBREVIATIONS: Dict[str, str] = _load()
 
-#: The bare (period-stripped) keys, for matching a token whose trailing period
-#: the tokenizer may have split off (``etab`` as well as ``etab.``).
-_BARE = {k.rstrip("."): v for k, v in ABBREVIATIONS.items()}
-
 
 def expand_token(token: str) -> str:
     """Expand one *token* if it is a known abbreviation, else return it as-is.
 
-    Both the written form with its period (``etab.``) and the bare form
-    (``etab``) resolve; multi-dot abbreviations (``K.a.``, ``h.d.``) are matched
-    whole. Matching is case-insensitive but the lookup is exact on the letters.
+    Only the written form with its period resolves (``etab.``, and the
+    multi-dot ``K.a.`` and ``h.d.`` whole). Araua 196 section 4: a token with no
+    period is not an abbreviation, so ``or`` and ``k`` stay words. Matching is
+    case-insensitive but the lookup is exact on the letters.
     """
-    key = token.lower()
-    if key in ABBREVIATIONS:
-        return ABBREVIATIONS[key]
-    bare = key.rstrip(".")
-    if bare in _BARE:
-        return _BARE[bare]
-    return token
+    return ABBREVIATIONS.get(token.lower(), token)
 
 
 def expand_abbreviations(text: str) -> str:

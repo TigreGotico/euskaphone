@@ -25,23 +25,26 @@ detector is unavailable the orthographic heuristic decides on its own.
 
 The contact language is chosen by the ``contact`` parameter:
 
-* ``"auto"`` (default) — detect contact words and classify each *per word* as
+* ``"none"`` (default) — disable code-switching; every token is transcribed
+  as Basque;
+* ``"auto"`` — detect contact words and classify each *per word* as
   English, French or Spanish; an unclassified contact word falls to the
   dialect's default side (peninsular → Spanish, continental → French; see
   :func:`euskaphone.registry.default_contact`);
 * ``"es"`` / ``"fr"`` / ``"en"`` — force that contact lattice for detected
-  contact words;
-* ``"none"`` — disable code-switching; every token is transcribed as Basque.
+  contact words.
 
 Orthographic heuristic
 ----------------------
 Basque orthography does not natively use ``c q v w y ñ ç`` or the Romance
-accented vowels, and native spelling never carries the English digraphs
-``th sh wh ck gh oo ee aw``. A token carrying any of those (or a common
+accented vowels, and native spelling does not carry the English digraphs
+``sh wh ck gh oo aw``. Northern traditional spelling writes ``th`` for an
+aspirated stop (*urthe*, *üthürri*), but the heuristic still counts ``th`` as
+English, so it flags such a word. A token carrying any of those (or a common
 Spanish/French/English function word) is treated as contact material. This is a
 deliberately shallow, well-documented backstop; sequences that occur natively in
-Basque (``ea`` in *etxean*, ``ing`` in *inguru*) are excluded so it never fires
-on a Basque word, and it never *drops* a word.
+Basque (``ea`` in *etxean*, ``ee`` in *etxeetan*, ``ing`` in *inguru*) are
+excluded so it does not fire on a Basque word, and it never *drops* a word.
 
 English → Basque projection
 ---------------------------
@@ -59,6 +62,8 @@ from __future__ import annotations
 import functools
 from typing import List, Optional, Tuple
 
+from euskaphone.langdetect import is_keep_word
+
 # ---------------------------------------------------------------------------
 # Orthographic detection (backstop when the char-Markov detector is absent).
 # ---------------------------------------------------------------------------
@@ -72,10 +77,19 @@ _SPANISH_LETTERS = set("ñáíóú")
 #: Letters/accents that point specifically at French.
 _FRENCH_LETTERS = set("çàâèêëîïôùûœ")
 
-#: English orthographic digraphs absent from native Basque spelling. Excludes
-#: sequences that occur natively in Basque — ``ea`` (etxean), ``ou``, ``au`` and
-#: ``ing`` (inguru) — so the signal never fires on a Basque word.
-_ENGLISH_DIGRAPHS = ("th", "sh", "wh", "ck", "gh", "ght", "oo", "ee", "aw")
+#: English orthographic digraphs. Only ``th`` occurs in native spelling, in
+#: Northern traditional forms such as *urthe*. Excludes
+#: sequences that occur natively in Basque — ``ea`` (etxean), ``ou``, ``au``,
+#: ``ing`` (inguru) and ``ee``, which an e-final stem makes before a suffix
+#: that starts with e (mendeetan, idazleek, irteera, daitekeen).
+_ENGLISH_DIGRAPHS = ("th", "sh", "wh", "ck", "gh", "ght", "oo", "aw")
+
+# Basque is the matrix language, so it wins every homograph: a token that is a
+# Basque wordform (:data:`euskaphone.langdetect.BASQUE_KEEP`) stays Basque no
+# matter which contact list below also claims it. The lists stay complete for
+# the language they document — ``du`` really is a French function word and
+# ``on`` an English one — because a whole-word test cannot disambiguate a
+# homograph on its own.
 
 #: Very common Spanish function words (no non-Basque letter of their own).
 _SPANISH_STOPWORDS = {
@@ -124,9 +138,15 @@ def _has_english_signal(core: str) -> bool:
 
 
 def is_contact_word(token: str) -> bool:
-    """Heuristically decide whether *token* is embedded contact-language text."""
+    """Heuristically decide whether *token* is embedded contact-language text.
+
+    A Basque keep-list wordform is never contact material, whichever contact
+    stopword list also lists it.
+    """
     core = _strip(token)
     if not core:
+        return False
+    if is_keep_word(core):
         return False
     if any(ch in _NON_BASQUE_LETTERS for ch in core):
         return True

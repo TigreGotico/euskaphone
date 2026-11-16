@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "Dialect-aware Basque (Euskara) text-to-IPA phonemizer over the orthography2ipa lattice"
 readme = "README.md"
 license = "Apache-2.0"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 authors = [
     { name = "JarbasAi", email = "jarbasai@mailfence.com" },
 ]
@@ -19,15 +19,13 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Natural Language :: Basque",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Text Processing :: Linguistic",
     "Topic :: Multimedia :: Sound/Audio :: Speech",
 ]
 dependencies = [
-    "orthography2ipa>=7.28.0a1",
+    "orthography2ipa>=7.122.0a2",
     # Basque vigesimal core, large numbers, ordinals and Araua-correct
     # hundreds land in OpenVoiceOS/ovos-number-parser#51; bump this floor to
     # the first release that contains it.
@@ -45,9 +43,6 @@ test = [
     "pytest-cov",
     "markovonnx>=1.0.1",
 ]
-
-[project.entry-points."opm.g2p"]
-euskaphone = "euskaphone.plugin:EuskaphoneG2PPlugin"
 
 [project.urls]
 Homepage = "https://github.com/TigreGotico/euskaphone"

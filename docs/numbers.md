@@ -27,12 +27,12 @@ never `*hogeitamar`):
 ```
 
 `eta` links only the last two chunks and **drops** when a lower remainder
-follows the hundreds (`mila eta berrehun` 1200 vs `mila berrehun eta bi` 1202) —
-the rule stated verbatim in Araua 7.
+follows the hundreds (`mila eta berrehun` 1200 vs `mila berrehun eta bi` 1202).
+This is the rule Araua 7 states verbatim.
 
 ## Ordinals
 
-The suffix is `-garren`, attached to the last element; 1st is suppletive
+The suffix is `-garren`, attached to the last element. 1st is suppletive
 (`lehen`/`lehenengo`), and 5th drops the `t` (`bosgarren`, not `*bostgarren`).
 
 ```
@@ -52,12 +52,12 @@ appends the surface case ending the writer wrote onto the pronounced last word
 
 ## Dialect variants and the `bost`/`bortz` correction
 
-Araua 7 (point 3) states that `bortz` (5) is used in *some* Iparralde varieties,
-but that **most of Low Navarre and Zuberoa say `bost`** — contradicting the
-common belief that Souletin is the `bortz` dialect. euskaphone therefore keeps
-Batua `bost` for every coded lect by default and offers the `bortz` series
-(`hamabortz`, `bortzehun`) for **Lapurdian only**. An unattested dialect swap is
-worse than the attested standard form.
+Araua 7 (point 3) states that `bortz` (5) is used in *some* Iparralde
+varieties, but that **most of Low Navarre and Zuberoa say `bost`**. This
+contradicts the common belief that Souletin is the `bortz` dialect. euskaphone
+therefore keeps Batua `bost` for every coded lect by default and offers the
+`bortz` series (`hamabortz`, `bortzehun`) for **Lapurdian only**. An
+unattested dialect swap is worse than the attested standard form.
 
 ## Separators
 
@@ -75,8 +75,11 @@ The vigesimal cardinal/ordinal composition is delegated to `ovos-number-parser`
 Euskaltzaindia **Araua 7** ("Zenbakien idazkeraz", cardinals: the `-ehun`
 hundreds, the `eta`-drop rule) and **Araua 18** ("Ordinalen … idazkera",
 ordinals: the `-garren` suffix, the `bost` → `bos` drop) tables. euskaphone
-keeps only the layer that needs orthographic context — separator handling,
+keeps only the layer that needs orthographic context: separator handling,
 case-suffix attachment, clock times, and the Lapurdian `bortz` substitution.
 
 Both arauak are deposited in the papers library
 (`papers/iberian/euskaltzaindia_araua07_*.pdf`, `…araua18_*.pdf`).
+
+---
+[← Dialects](dialects.md) · [Home](../README.md) · [Normalization →](normalization.md)

@@ -20,13 +20,14 @@ from __future__ import annotations
 
 from typing import Optional
 
-from euskaphone.number_utils import DIALECTS, BasqueNumberParser
+from euskaphone.number_utils import _SPEC_KEYS, DIALECTS, BasqueNumberParser
 
 _VOWELS = "aeiouAEIOU"
 
 
 def _safe(dialect: str) -> str:
     """Fold an arbitrary dialect/lect string onto a code the composer knows."""
+    dialect = _SPEC_KEYS.get(dialect, dialect)
     return dialect if dialect in DIALECTS else "eu"
 
 

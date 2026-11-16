@@ -49,7 +49,8 @@ def test_dialect_gold_regression(path):
     # lexicon must be off: a pinned isolated-word IPA could otherwise diverge
     # from the in-context (sandhi) reading and perturb the fixture.
     ph = EuskaPhonemizer(toponyms=False)
-    rows = list(csv.DictReader(open(path, encoding="utf-8"), delimiter="\t"))
+    with open(path, encoding="utf-8") as fh:
+        rows = list(csv.DictReader(fh, delimiter="\t"))
     assert rows, f"empty gold: {path}"
     total = sum(
         _per(row["ipa"], ph.phonemize_sentence(row["sentence"], code,

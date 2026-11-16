@@ -1,8 +1,8 @@
 """Shipped Basque lexicons and the hooks that (de)register them.
 
-euskaphone bundles two small, source-cited lexicons and wires them through the
-orthography2ipa lexicon contract (:func:`orthography2ipa.register_lexicon`, one
-sidecar source per language code). Both are word-keyed ``word<TAB>ipa`` tables
+euskaphone bundles two small, source-cited lexicons and registers them through
+:func:`euskaphone.register_lexicon`, one source per lect code, which the lect's
+engine holds in its ``Pipeline(lexicon=...)``. Both are word-keyed ``word<TAB>ipa`` tables
 under :data:`LEXICON_DIR`, validated at build time by
 ``scripts/build_lexicons.py``.
 
@@ -22,7 +22,8 @@ This lexicon is registered for the standard ``eu`` code by default
 (:class:`euskaphone.EuskaPhonemizer` constructs with ``toponyms=True``); pass
 ``toponyms=False`` to opt out. A caller's own :func:`euskaphone.register_lexicon`
 for ``eu`` always wins — the built-in is only registered when no lexicon is
-already registered for the code.
+already registered for the code, through euskaphone or through
+orthography2ipa's deprecated process-wide API.
 
 HiTZ overlay (``eu_hitz_overlay.tsv``) — OPT-IN, benchmark-coupled
 ------------------------------------------------------------------
@@ -53,8 +54,9 @@ BUILTIN_CODE = "eu"
 
 def _already_registered(code: str) -> bool:
     """Whether *code* already has a caller-registered lexicon (do not clobber)."""
-    from orthography2ipa import lexicon as _lex
-    return code in getattr(_lex, "_REGISTERED", {})
+    from orthography2ipa.lexicon import lexicon_path
+    from euskaphone.lattice_core import lexicon_source
+    return lexicon_source(code) is not None or lexicon_path(code) is not None
 
 
 def register_toponyms(dialect: str = "eu", *, force: bool = False) -> bool:
