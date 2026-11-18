@@ -23,6 +23,13 @@ from euskaphone.number_utils import _SPEC_KEYS, DIALECTS, BasqueNumberParser
 
 _VOWELS = "aeiouAEIOU"
 
+#: What each deprecated reader of this module names in its place.
+_REPLACEMENT = {
+    "spell_cardinal": "use euskaphone.number_utils.BasqueNumberParser(dialect).cardinal",
+    "inessive": "text2spoken declines the numerals it reads",
+    "locative_genitive": "text2spoken declines the numerals it reads",
+}
+
 
 def _safe(dialect: str) -> str:
     """Fold an arbitrary dialect/lect string onto a code the composer knows."""
@@ -44,7 +51,7 @@ def spell_cardinal(n: int, dialect: str = "eu") -> str:
 
     Spell integer *n* as a Basque cardinal (``14`` → ``hamalau``).
     """
-    warn_deprecated("numverbal.spell_cardinal", "use BasqueNumberParser(dialect).cardinal")
+    warn_deprecated("numverbal.spell_cardinal", _REPLACEMENT["spell_cardinal"])
     return _spell_cardinal(n, dialect)
 
 
@@ -64,7 +71,7 @@ def inessive(word: str) -> str:
     Vowel-final stems take ``-an`` (``mendi`` → ``mendian``); consonant-final
     stems take the epenthetic ``-ean`` (``hamabost`` → ``hamabostean``).
     """
-    warn_deprecated("numverbal.inessive", "text2spoken declines the numerals it reads")
+    warn_deprecated("numverbal.inessive", _REPLACEMENT["inessive"])
     return _inessive(word)
 
 
@@ -79,7 +86,7 @@ def locative_genitive(word: str) -> str:
     Vowel-final stems take ``-ko`` (``lau`` → ``lauko``); consonant-final stems
     take the epenthetic ``-eko`` (``bat`` → ``bateko``).
     """
-    warn_deprecated("numverbal.locative_genitive", "text2spoken declines the numerals it reads")
+    warn_deprecated("numverbal.locative_genitive", _REPLACEMENT["locative_genitive"])
     return _locative_genitive(word)
 
 

@@ -6,6 +6,7 @@ names the release that removes it. The reading tests of text2spoken and of the
 fallbacks check that the reading path calls none of them.
 """
 import importlib
+import re
 
 import pytest
 
@@ -71,3 +72,31 @@ def test_an_unknown_name_is_still_an_attribute_error(module):
 
 def test_the_removal_release_comes_after_this_one(removal_version):
     assert int(removal_version.split(".")[0]) > VERSION_MAJOR
+
+
+DEPRECATED_NAMES = sorted({f"{module}.{name}" for module, name, *_ in DEPRECATED + REEXPORTED}
+                          | {"dates.MONTHS_GENITIVE"})
+
+
+def _replacement(module, name):
+    # The text after "is deprecated:" names what to use in place of the name.
+    with pytest.warns(DeprecationWarning) as record:
+        getattr(importlib.import_module(f"euskaphone.{module}"), name)
+    return str(record[0].message).split(" is deprecated: ", 1)[1]
+
+
+@pytest.mark.parametrize("module,name,home", REEXPORTED)
+def test_a_reexported_name_points_to_a_replacement_that_is_not_deprecated(module, name, home):
+    use = _replacement(module, name)
+    # The home module holds the same deprecated reader, so it is no replacement.
+    assert re.search(rf"euskaphone\.{home}(?![.\w])", use) is None
+    assert [deprecated for deprecated in DEPRECATED_NAMES if deprecated in use] == []
+
+
+@pytest.mark.parametrize("module,name,args,result", DEPRECATED)
+def test_a_deprecated_reader_points_to_a_replacement_that_is_not_deprecated(module, name, args, result):
+    reader = getattr(importlib.import_module(f"euskaphone.{module}"), name)
+    with pytest.warns(DeprecationWarning) as record:
+        reader(*args)
+    use = str(record[0].message).split(" is deprecated: ", 1)[1]
+    assert [deprecated for deprecated in DEPRECATED_NAMES if deprecated in use] == []
