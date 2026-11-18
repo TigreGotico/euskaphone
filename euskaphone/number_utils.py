@@ -126,8 +126,9 @@ class BasqueNumberParser:
 
     ``dialect`` takes every name of a lect that
     :func:`euskaphone.registry.resolve_lect` takes (``lapurtera``,
-    ``biscayan``, ``eu-x-zuberera``). A name that is no Basque lect raises
-    :class:`ValueError`.
+    ``biscayan``, ``eu-x-zuberera``). A name outside Basque raises
+    :class:`ValueError`; an ``eu`` tag with an unknown subtag reads as Batua,
+    as ``resolve_lect`` does.
     """
 
     def __init__(self, dialect: str = "eu"):
