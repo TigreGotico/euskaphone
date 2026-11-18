@@ -90,7 +90,7 @@ def read_bare_clock_times(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     text2spoken does for a time with a case ending. text2spoken reads the hour
     with the article (``10:00ak``), so the hour reads through text2spoken, and
     the minutes follow it.
-    TODO(text2spoken issue: CLOCK_BARE)
+    https://github.com/TigreGotico/text2spoken/issues/267
     """
     def read(m: "re.Match[str]") -> str:
         hour, minute = int(m.group(1)), int(m.group(2))
@@ -117,7 +117,7 @@ def read_capitalized_abbreviations(text: str, dialect: str = DEFAULT_DIALECT) ->
     form reads as text2spoken reads the lower-case form before the same next
     word, and keeps the capital. An abbreviation that text2spoken leaves in
     lower case too (``e.a.``, ``at.``) stays as written.
-    TODO(text2spoken issue: ABBREVIATIONS)
+    https://github.com/TigreGotico/text2spoken/issues/265
     """
     parts = re.split(r"(\s+)", text)
     words = parts[::2]

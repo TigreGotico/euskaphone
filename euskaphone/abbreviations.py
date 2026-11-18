@@ -83,7 +83,7 @@ def expand_abbreviations(text: str) -> str:
 #: case: ``h.d.``, ``kap.`` and ``lib.`` (Araua 196 lists them), ``orr.`` (Araua
 #: 196 marks the writing as wrong, but its reading is clear), and ``etab.`` and
 #: ``k.a.`` in a case that text2spoken does not read (``ETAB.``).
-#: TODO(text2spoken issue: ABBREVIATIONS)
+#: https://github.com/TigreGotico/text2spoken/issues/265
 LEFT_BY_TEXT2SPOKEN = frozenset({"h.d.", "kap.", "lib.", "orr.", "etab.", "k.a."})
 
 #: Punctuation that can follow the period of an abbreviation.

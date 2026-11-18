@@ -361,7 +361,7 @@ def read_dot_decimals(text: str, dialect: str = "eu") -> str:
     The comma is the Basque decimal mark (Araua 203), and a point before three
     digits groups thousands (``2.500``). text2spoken reads both, and leaves any
     other point between digits as written.
-    TODO(text2spoken issue: DOT_DECIMAL)
+    https://github.com/TigreGotico/text2spoken/issues/264
     """
     parser = _parser(dialect)
 
@@ -383,7 +383,7 @@ def read_glued_case_endings(text: str, dialect: str = "eu") -> str:
     estandarra, baina ehundik ere erabiltzen da, batez ere ehundik gora / 100dik
     gora esapidean». text2spoken reads ``100etik`` and leaves ``100dik`` as
     written. The ending stays as written after the number.
-    TODO(text2spoken issue: GLUED_CASE_ENDING)
+    https://github.com/TigreGotico/text2spoken/issues/273
     """
     parser = _parser(dialect)
 

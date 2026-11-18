@@ -186,7 +186,7 @@ def read_currency_before_number(text: str, dialect: str = "eu") -> str:
 
     The norm writes the number first (Araua 197), and text2spoken reads
     ``5 €-ko`` and ``€5``. It leaves ``€5eko`` as written.
-    TODO(text2spoken issue: CURRENCY_BEFORE_NUMBER)
+    https://github.com/TigreGotico/text2spoken/issues/268
     """
     def read(m: "re.Match[str]") -> str:
         return _counted(_spell(m.group(2), dialect), UNITS[m.group(1)], m.group(3))
@@ -197,7 +197,7 @@ def read_currency_before_number(text: str, dialect: str = "eu") -> str:
 #: 197 names each one: ``t`` (tona), ``mg`` (miligramo), ``h`` (ordu), ``g``
 #: (gramo), and the prefixes ``d`` (dezi-) and ``c`` (zenti-) of ``dm``, ``ml``
 #: and ``cl``.
-#: TODO(text2spoken issue: UNIT_SYMBOL)
+#: https://github.com/TigreGotico/text2spoken/issues/269
 LEFT_BY_TEXT2SPOKEN = frozenset({"dm", "g", "mg", "t", "ml", "cl", "h"})
 
 #: A symbol written as its own word, with a hyphenated case ending and

@@ -177,7 +177,7 @@ def read_bare_monarch_numerals(text: str, dialect: str = "eu") -> str:
     the written article (``Karlos V.a``), and leaves the bare numeral as written.
     A period after the numeral is the full stop, and stays. The whitespace
     between words stays as written.
-    TODO(text2spoken issue: BARE_ROMAN_AFTER_NAME)
+    https://github.com/TigreGotico/text2spoken/issues/266
     """
     parts = re.split(r"(\s+)", text)
     words = parts[::2]
