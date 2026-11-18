@@ -17,7 +17,9 @@ from euskaphone.abbreviations import (
     ("zk.", "zenbakia"),
     ("or.", "orrialdea"),
     ("kap.", "kapitulua"),
-    ("K.a.", "Kristo aurretik"),    # era abbreviation, mixed case
+    # era abbreviation, mixed case. Araua 196 p.27: "K.a. (Kristo aurreko;
+    # Kristo aurretik)"; the table gives the form text2spoken reads.
+    ("K.a.", "Kristo aurreko"),
     ("K.o.", "Kristo ondoren"),
     ("jn.", "jauna"),
 ])
@@ -28,7 +30,7 @@ def test_known_abbreviations(token, expected):
 def test_case_insensitive():
     # the written form matches regardless of case
     assert expand_token("ETAB.") == "eta abar"
-    assert expand_token("k.a.") == "Kristo aurretik"
+    assert expand_token("k.a.") == "Kristo aurreko"
 
 
 @pytest.mark.parametrize("token", ["or", "k", "K", "etab", "zk", "at"])
@@ -58,7 +60,7 @@ def test_expand_in_running_text():
 
 def test_multiword_expansion_flows_as_words():
     # K.a. expands to two words that then reach the lattice individually
-    assert expand_abbreviations("K.a. 50") == "Kristo aurretik 50"
+    assert expand_abbreviations("K.a. 50") == "Kristo aurreko 50"
 
 
 def test_table_is_data_driven_and_nonempty():

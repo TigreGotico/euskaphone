@@ -58,7 +58,9 @@ FALLBACK_READINGS = [
     ("orr.", "orrialdeak."),
     ("ETAB.", "eta abar."),
     ("Katuak, ETAB., gero", "Katuak, eta abar, gero"),
-    ("k.a.", "Kristo aurretik."),
+    # Araua 196 p.27: "K.a. (Kristo aurreko; Kristo aurretik)". The fallback
+    # gives the form text2spoken reads for "K.a.", so the case changes nothing.
+    ("k.a.", "Kristo aurreko."),
     ("Karlos V", "Karlos bosgarrena"),
     ("Luis XIV", "Luis hamalaugarrena"),
     ("Karlos V.", "Karlos bosgarrena."),
@@ -101,6 +103,7 @@ def test_the_fallback_reads_what_text2spoken_leaves(text, spoken):
     ("2.5", "2,5"),
     # Araua 196 p.27: the abbreviation follows the case of the words it stands for.
     ("ETAB.", "etab."),
+    ("k.a.", "K.a."),
     # Araua 203 p.7: "Olaizola II (irakurri: “olaizola bigarrena”)"
     ("Karlos V errege zen", "Karlos V.a errege zen"),
     # Araua 197 p.9: the number comes before the symbol.
