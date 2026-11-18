@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from euskaphone import normalize
+from euskaphone import normalize, number_utils
 
 ROOT = Path(__file__).parent.parent
 TODO = "TODO(text2spoken issue"
@@ -202,6 +202,20 @@ CLOCK = re.compile(r"\d{1,2}:\d{2}")
 def test_no_clock_time_stays_unread(text, lect):
     # The lattice deletes digits, so a clock time left as written is silent.
     assert CLOCK.search(normalize.normalize_text(text, lect)) is None
+
+
+# Araua 35 (p. 184) reads "Hamabostak eta hogeita hamarrean": a numeral in -r
+# doubles it before an ending that starts with a vowel. text2spoken reads the
+# digits with their ending in the same way, so the fallback matches it.
+@pytest.mark.parametrize("text", ["30ean", "10ean", "50etik", "10era", "2an", "5ean"])
+def test_a_glued_ending_reads_as_text2spoken_reads_the_number_with_its_ending(text):
+    assert number_utils.read_glued_case_endings(text) == normalize.text2spoken_reading(text)
+
+
+def test_a_glued_ending_inside_a_form_that_text2spoken_leaves_doubles_the_r():
+    # text2spoken leaves a time with seconds and an ending as written.
+    assert normalize.text2spoken_reading("Maratoia 2:05:30ean") == "Maratoia 2:05:30ean"
+    assert normalize.normalize_text("Maratoia 2:05:30ean").endswith(":hogeita hamarrean")
 
 
 @pytest.mark.parametrize("text,spoken", [

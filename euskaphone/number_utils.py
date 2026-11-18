@@ -382,13 +382,18 @@ def read_glued_case_endings(text: str, dialect: str = "eu") -> str:
     Araua 203 p.38, note 32: «Ehun hitzaren kasuan, ehunetik da forma
     estandarra, baina ehundik ere erabiltzen da, batez ere ehundik gora / 100dik
     gora esapidean». text2spoken reads ``100etik`` and leaves ``100dik`` as
-    written. The ending stays as written after the number.
+    written. The ending stays as written after the number. A numeral in ``-r``
+    doubles it before an ending that starts with a vowel, as Araua 35 p.184
+    reads «Hamabostak eta hogeita hamarrean»: ``30ean`` → ``hogeita hamarrean``.
     https://github.com/TigreGotico/text2spoken/issues/273
     """
     parser = _parser(dialect)
 
     def read(m: "re.Match[str]") -> str:
-        return parser.pronounce_token(m.group(1)) + m.group(2)
+        spelled, ending = parser.pronounce_token(m.group(1)), m.group(2)
+        if spelled.endswith("r") and ending[0] in "aeiou":
+            spelled += "r"
+        return spelled + ending
     return _GLUED_ENDING.sub(read, text)
 
 
