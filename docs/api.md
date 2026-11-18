@@ -77,8 +77,10 @@ is callable on its own. It resolves an alias such as `labourdin`.
 `text2spoken_tag(dialect)` gives the language tag text2spoken reads a lect in,
 and `text2spoken_reading(text, dialect)` gives text2spoken's reading with no
 fallback. `read_bare_clock_times(text, dialect)` is the fallback for a clock
-time with no case ending (`10:30`), and `read_capitalized_abbreviations(text,
-dialect)` the fallback for an abbreviation with a capital (`Jn.`).
+time with no case ending (`10:30`), `read_point_clock_times(text, dialect)` the
+fallback for a clock time with a point and a case ending (`10.30etan`), and
+`read_capitalized_abbreviations(text, dialect)` the fallback for an
+abbreviation with a capital (`Jn.`).
 
 The fallbacks of the other modules are `units.read_currency_before_number`,
 `units.read_unit_symbols`, `romans.read_bare_monarch_numerals` and
