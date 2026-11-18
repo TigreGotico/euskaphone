@@ -165,18 +165,30 @@ def normalize_romans(text: str, dialect: str = "eu") -> str:
     return " ".join(out)
 
 
-#: A bare Roman numeral, with an optional period: ``V``, ``XIV.``.
-_BARE_ROMAN = re.compile(r"^([IVXLCDM]+)(\.?)$")
+#: A bare Roman numeral of the letters I, V and X, with an optional period:
+#: ``V``, ``XIV.``.
+_BARE_ROMAN = re.compile(r"^([IVX]+)(\.?)$")
+
+#: Marks that can open a name: ``«Karlos``.
+_OPENING = "«\"'(["
 
 
 def read_bare_monarch_numerals(text: str, dialect: str = "eu") -> str:
     """Read a bare Roman numeral after a name: ``Karlos V`` → ``Karlos bosgarrena``.
 
     The norm reads a dynastic numeral as a postposed ordinal with the article
-    (Araua 203: ``Olaizola II``, read ``olaizola bigarrena``). text2spoken reads
-    the written article (``Karlos V.a``), and leaves the bare numeral as written.
-    A period after the numeral is the full stop, and stays. The whitespace
-    between words stays as written.
+    (Araua 203 p.7: ``Olaizola II``, read ``olaizola bigarrena``). text2spoken
+    reads the written article (``Karlos V.a``), and leaves the bare numeral as
+    written. A period after the numeral is the full stop, and stays. The
+    whitespace between words stays as written.
+
+    Araua 203 p.7 also says that a Roman numeral is a cardinal, not an ordinal
+    («Zenbaki erromatarrak, zenbaki arabiarrak bezala, kardinalak dira; ez dira
+    berez ordinalak»), and its dynastic and series numerals (``I.a``, ``II.a``,
+    ``III.a``, ``XIV.a``, ``XVI.a``, ``XXIII.a``) use the letters I, V and X
+    only. So a numeral with L, C, D or M (``Ikastola D eredua``, ``Musika CD``)
+    stays a letter, as text2spoken keeps a one-letter numeral after a name for
+    I, V and X. A name ends in a letter: an abbreviation (``Zk. V``) is no name.
     https://github.com/TigreGotico/text2spoken/issues/266
     """
     parts = re.split(r"(\s+)", text)
@@ -184,7 +196,8 @@ def read_bare_monarch_numerals(text: str, dialect: str = "eu") -> str:
     for i in range(1, len(words)):
         m = _BARE_ROMAN.match(words[i])
         n = roman_to_int(m.group(1)) if m else None
-        if n is not None and _is_capitalized_name(words[i - 1]):
+        name = words[i - 1].lstrip(_OPENING)
+        if n is not None and name[-1:].isalpha() and _is_capitalized_name(name):
             words[i] = monarch_ordinal(n, dialect) + m.group(2)
     parts[::2] = words
     return "".join(parts)
