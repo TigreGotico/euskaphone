@@ -181,5 +181,5 @@ def __getattr__(name: str):
     home = _REEXPORTED.get(name)
     if home is None:
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-    warn_deprecated(f"normalize.{name}", f"import it from euskaphone.{home}, or use euskaphone.normalize.normalize_text")
+    warn_deprecated(f"normalize.{name}", "use euskaphone.normalize.normalize_text")
     return getattr(importlib.import_module(f"euskaphone.{home}"), name)
