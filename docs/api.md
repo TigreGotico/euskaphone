@@ -45,10 +45,11 @@ such as `labourdin`: it raises `ValueError` for one.
 
 `read_space_grouped_numbers(text, dialect)`, `read_garren_ordinals(text, dialect)`,
 `read_dot_decimals(text, dialect)` and `read_glued_case_endings(text, dialect)`
-are the fallbacks for `1 000 000`, `16garren`, `2.5` and `100dik`, which
-text2spoken leaves as written. `read_code_digits(text, dialect)` reads the
-digits of a code (`B12`). They run on text2spoken's output inside
-`normalize_text`.
+are the fallbacks for `10 000-20 000`, `16garren`, `2.5` and `100dik`, which
+text2spoken leaves as written. text2spoken reads a single space-grouped number,
+`1 000 000`, and leaves two of them joined by a hyphen, an en dash or a slash.
+`read_code_digits(text, dialect)` reads the digits of a code (`B12`). They run
+on text2spoken's output inside `normalize_text`.
 
 `normalize_numbers(text, dialect="eu", strict=False)` is deprecated: use
 `normalize_text`.

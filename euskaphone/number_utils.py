@@ -6,7 +6,8 @@ text2spoken reads the numbers of running text for
 * :class:`BasqueNumberParser`, which spells an integer or a numeric token as
   Basque words, with the Lapurdian ``bortz`` series;
 * the fallbacks for four number forms that text2spoken leaves as written:
-  space-grouped thousands (:func:`read_space_grouped_numbers`), digits with the
+  space-grouped numbers joined by a hyphen, an en dash or a slash
+  (:func:`read_space_grouped_numbers`), digits with the
   ordinal suffix (:func:`read_garren_ordinals`), a point as the decimal mark
   (:func:`read_dot_decimals`) and digits with a glued case ending
   (:func:`read_glued_case_endings`). Each fallback reads its form with
@@ -322,10 +323,15 @@ def _parser(dialect: str) -> BasqueNumberParser:
 
 
 def read_space_grouped_numbers(text: str, dialect: str = "eu") -> str:
-    """Read digit groups that a space separates: ``1 000 000`` → ``milioi bat``.
+    """Read digit groups that a space separates: ``10 000-20 000`` → ``hamar
+    mila-hogei mila``.
 
     Araua 203 recommends a space between groups of three digits. text2spoken
-    leaves them as written: https://github.com/TigreGotico/text2spoken/issues/295
+    reads a single number in that writing (``1 000 000``). It leaves two such
+    numbers joined by a hyphen, an en dash or a slash as written:
+    https://github.com/TigreGotico/text2spoken/issues/295
+    It also leaves three groups of three digits (``943 123 456``), the shape of
+    a telephone number, as written, and this fallback reads them as one number.
     """
     parser = _parser(dialect)
     return _SPACE_THOUSANDS.sub(

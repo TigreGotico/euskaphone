@@ -13,7 +13,8 @@ Basque words first. :func:`normalize_text` does this in two steps:
 The fallbacks run in this order:
 
 * a clock time with no case ending, ``10:30``;
-* space-grouped thousands, ``1 000 000`` (:mod:`euskaphone.number_utils`);
+* space-grouped numbers joined by a hyphen, an en dash or a slash,
+  ``10 000-20 000`` (:mod:`euskaphone.number_utils`);
 * digits with the ordinal suffix, ``16garren``;
 * a point as the decimal mark, ``2.5``;
 * a currency symbol before the number, ``€5eko`` (:mod:`euskaphone.units`);
