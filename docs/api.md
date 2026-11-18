@@ -39,9 +39,11 @@ Whether `dialect` names a Basque lect, not the Batua fallback.
 
 `BasqueNumberParser(dialect="eu")` with `.cardinal(n)`, `.ordinal(n)`,
 `.decimal(whole, frac)`, `.year(n)`, `.clock(hour, minute)` and
-`.pronounce_token(token, as_ordinal=False)`. It takes a lect code, canonical
-or older (`eu-x-lapurdi` or `eu-x-lapurtera`), and does not resolve an alias
-such as `labourdin`: it raises `ValueError` for one.
+`.pronounce_token(token, as_ordinal=False)`. It takes every name of a lect
+that `resolve_lect` takes: a canonical or older code (`eu-x-lapurdi` or
+`eu-x-lapurtera`) or an alias such as `labourdin`. A name outside Basque, such
+as `xx`, raises `ValueError`. An `eu` tag with a subtag the registry does not
+know, such as `eu-ES` or `eu-x-foo`, reads as Batua, as `resolve_lect` does.
 
 `read_space_grouped_numbers(text, dialect)`, `read_garren_ordinals(text, dialect)`,
 `read_dot_decimals(text, dialect)` and `read_glued_case_endings(text, dialect)`
