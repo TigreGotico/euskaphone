@@ -109,7 +109,7 @@ def read_bare_clock_times(text: str, dialect: str = DEFAULT_DIALECT) -> str:
 #: 15:00ak arte, 15:00etatik, 15:01ean, 15:01era, 15:01etik, 15:02an, 15:02ra,
 #: 15:02tik.
 _POINT_CLOCK = re.compile(
-    r"(?<![\w.,])(\d{1,2})\.([0-5]\d)(etan|etara|etatik|ean|era|etik|an|ra|tik|ak)(?![\w.]|,\d)")
+    r"(?<![\w.,])(\d{1,2})\.([0-5]\d)(etan|etara|etatik|ean|era|etik|an|ra|tik|ak)(?!\w|[.,]\d)")
 
 
 def read_point_clock_times(text: str, dialect: str = DEFAULT_DIALECT) -> str:

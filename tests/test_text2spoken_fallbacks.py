@@ -248,6 +248,9 @@ def test_a_roman_numeral_after_an_abbreviation_is_no_dynastic_number(text):
     ("15.00etatik 17.30etara", "15:00etatik 17:30etara"),
     ("15.00ak arte", "15:00ak arte"),
     ("15.02ra", "15:02ra"),
+    # A full stop that ends the sentence after the time.
+    ("Bilera 10.30etan.", "Bilera 10:30etan."),
+    ("15.00etatik 17.30etara.", "15:00etatik 17:30etara."),
 ])
 def test_a_clock_time_with_a_point_and_a_case_ending_reads_as_with_a_colon(text, norm_writing):
     assert normalize.text2spoken_reading(text) == text
@@ -257,7 +260,7 @@ def test_a_clock_time_with_a_point_and_a_case_ending_reads_as_with_a_colon(text,
 # No clock time: Araua 35 p.185 writes "bakoitzeko bi zifra", two digits for the
 # hours and two for the minutes, and Araua 203 p.49 counts the minutes "00tik
 # 59ra" and the hours "00tik 24rako".
-@pytest.mark.parametrize("text", ["2.5", "2.5ean", "10.75etan", "25.30etan"])
+@pytest.mark.parametrize("text", ["2.5", "2.5ean", "10.75etan", "25.30etan", "2.5ean.", "10.75etan."])
 def test_a_point_number_that_is_no_clock_time_still_reads_as_a_decimal(text):
     assert normalize.normalize_text(text) == number_utils.read_dot_decimals(text)
 
