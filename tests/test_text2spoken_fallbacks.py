@@ -262,6 +262,39 @@ def test_the_digits_of_a_code_read_in_place(text, spoken):
     assert normalize.normalize_text(text) == spoken
 
 
+# Araua 196 p.32-33 (section 13) lets a sentence open with an abbreviation,
+# which then takes a capital: "Testu normaletan, hobe litzateke esaldia laburdura
+# batez ez hastea. Dena dela, estilo-hobespen bat besterik ez da".
+CAPITALIZED = ["Adib.", "And.", "Etorb.", "Hurr.", "Id.", "Ik.", "Jn.", "K.", "Or.", "Pl.",
+               "Tel.", "Zenb.", "Zk."]
+
+
+@pytest.mark.parametrize("abbreviation", CAPITALIZED)
+def test_a_capitalized_abbreviation_reads_as_text2spoken_reads_the_lower_case(abbreviation):
+    lower = normalize.text2spoken_reading(f"{abbreviation.lower()} etxea")
+    assert normalize.text2spoken_reading(f"{abbreviation} etxea") == f"{abbreviation} etxea"
+    assert normalize.normalize_text(f"{abbreviation} etxea") == lower[0].upper() + lower[1:]
+
+
+@pytest.mark.parametrize("text,spoken", [
+    ("Jn. Agirre etorri da.", "Jauna Agirre etorri da."),
+    ("Adib. etxea handia da.", "Adibidez etxea handia da."),
+    ("Zk. 5", "Zenbakia bost"),
+    ("Hori ikusi dugu. Ik. 25. orrialdea.", "Hori ikusi dugu. Ikus hogeita bosgarren orrialdea."),
+    ("Tel.: 943", "Telefonoa: bederatziehun eta berrogeita hiru"),
+    ("Hurr. orrialdean", "Hurrengoak orrialdean"),
+    ("Jn.\nAgirre", "Jauna\nAgirre"),
+    ("(Jn. Agirre)", "(Jauna Agirre)"),
+])
+def test_a_sentence_can_open_with_an_abbreviation(text, spoken):
+    assert normalize.normalize_text(text) == spoken
+
+
+@pytest.mark.parametrize("text", ["E.a. hori", "At. hori"])
+def test_no_reading_for_an_uncited_abbreviation_with_a_capital(text):
+    assert normalize.normalize_text(text) == text
+
+
 def test_every_fallback_names_its_text2spoken_issue():
     # Each fallback comment and each misreading xfail names the URL of its
     # text2spoken issue. Until then they carry the marker, and this test fails.

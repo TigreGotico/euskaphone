@@ -21,6 +21,7 @@ The fallbacks run in this order:
 * a bare Roman numeral after a name, ``Karlos V`` (:mod:`euskaphone.romans`);
 * the abbreviations text2spoken does not read, ``h.d.``
   (:mod:`euskaphone.abbreviations`);
+* an abbreviation of the table with a capital, ``Jn.``;
 * digits with a case ending that text2spoken does not read, ``100dik``.
 
 Last, euskaphone reads the digits that are still in the text, as in a code
@@ -40,7 +41,8 @@ import re
 import text2spoken
 from text2spoken import InvalidLanguageTagError
 
-from euskaphone.abbreviations import read_left_abbreviations
+from euskaphone.abbreviations import (_TRAILING, ABBREVIATIONS,
+                                      read_left_abbreviations)
 from euskaphone.deprecation import warn_deprecated
 from euskaphone.number_utils import (read_code_digits, read_dot_decimals,
                                      read_garren_ordinals,
@@ -101,6 +103,44 @@ def read_bare_clock_times(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     return _BARE_CLOCK.sub(read, text)
 
 
+#: Marks that can open a word before an abbreviation: ``(Jn.``.
+_OPENING = "(«\"'[¿¡"
+
+
+def read_capitalized_abbreviations(text: str, dialect: str = DEFAULT_DIALECT) -> str:
+    """Read an abbreviation of the table with a capital: ``Jn. Agirre`` →
+    ``Jauna Agirre``.
+
+    Araua 196 section 13 (pp. 32-33) lets a sentence open with an
+    abbreviation, which then takes a capital. text2spoken reads the lower-case
+    form (``jn.``) and leaves the capitalized one as written. The capitalized
+    form reads as text2spoken reads the lower-case form before the same next
+    word, and keeps the capital. An abbreviation that text2spoken leaves in
+    lower case too (``e.a.``, ``at.``) stays as written.
+    TODO(text2spoken issue: ABBREVIATIONS)
+    """
+    parts = re.split(r"(\s+)", text)
+    words = parts[::2]
+    for i, word in enumerate(words):
+        body = word.lstrip(_OPENING)
+        opening = word[:len(word) - len(body)]
+        core = body.rstrip(_TRAILING)
+        lower = core.lower()
+        if lower not in ABBREVIATIONS or not core[:1].isupper() or core[1:] != core[1:].lower():
+            continue
+        lowered = lower + body[len(core):]
+        following = next((w for w in words[i + 1:] if w), "")
+        spoken = text2spoken_reading(f"{lowered} {following}" if following else lowered, dialect)
+        if following:
+            if not spoken.endswith(f" {following}"):
+                continue
+            spoken = spoken[:-len(following) - 1]
+        if spoken != lowered:
+            words[i] = opening + spoken[0].upper() + spoken[1:]
+    parts[::2] = words
+    return "".join(parts)
+
+
 def normalize_text(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     """Rewrite ``text`` as the Basque words a speaker of ``dialect`` says.
 
@@ -121,6 +161,7 @@ def normalize_text(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     spoken = read_unit_symbols(spoken, text, lect)
     spoken = read_bare_monarch_numerals(spoken, lect)
     spoken = read_left_abbreviations(spoken)
+    spoken = read_capitalized_abbreviations(spoken, lect)
     spoken = read_glued_case_endings(spoken, lect)
     return read_code_digits(spoken, lect)
 

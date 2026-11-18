@@ -103,6 +103,7 @@ its own form.
 | Unit symbols `dm g mg t ml cl h` | `5 g`, `1 g-ko` | bost gramo, gramo bateko | `units` |
 | Bare Roman numeral after a name | `Karlos V` | Karlos bosgarrena | `romans` |
 | `h.d. kap. lib. orr.`, and `etab.` and `k.a.` in another case | `h.d.`, `ETAB.` | hau da., eta abar. | `abbreviations` |
+| An abbreviation of the table with a capital | `Jn. Agirre` | Jauna Agirre | `normalize` |
 | Digits with a glued case ending | `100dik gora` | ehundik gora | `number_utils` |
 
 Last, euskaphone reads the digits that are still in the text. text2spoken
