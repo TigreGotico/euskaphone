@@ -259,6 +259,23 @@ def test_the_stop_before_a_capital_matches_text2spoken(text, norm_writing):
     assert normalize.normalize_text(text) == normalize.text2spoken_reading(norm_writing)
 
 
+# Araua 203 p.51: "Orduak eta minutuak adierazten badira, ordea, haien artean bi
+# puntu jarrita, alferrikako erredundantzia da h idaztea: (egokia) Itsasgorak:
+# 05:49 eta 18:07 (erredundantea) Itsasgorak: 05:49 h eta 18:07 h". The h after
+# a clock time repeats it, so the time reads as it reads with no h.
+@pytest.mark.parametrize("text,norm_writing", [
+    ("Itsasgorak: 05:49 h eta 18:07 h", "Itsasgorak: 05:49 eta 18:07"),
+    ("12:00 h", "12:00"),
+    ("12:00h", "12:00"),
+    ("Hasiera: 18:30 h.", "Hasiera: 18:30."),
+    ("12:00\u00a0h", "12:00"),
+])
+def test_the_hour_symbol_after_a_clock_time_adds_no_word(text, norm_writing):
+    assert normalize.text2spoken_reading(text) == text
+    assert normalize.normalize_text(text) == normalize.normalize_text(norm_writing)
+    assert "ordu" not in normalize.normalize_text(text)
+
+
 @pytest.mark.parametrize("text,spoken", [
     ("Karlos V\neta", "Karlos bosgarrena\neta"),
     ("Karlos  V", "Karlos  bosgarrena"),
