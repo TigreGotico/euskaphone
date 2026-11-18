@@ -57,6 +57,7 @@ from orthography2ipa import resolve
 from ovos_number_parser import pronounce_number, pronounce_ordinal
 
 from euskaphone.deprecation import warn_deprecated
+from euskaphone.registry import is_supported, resolve_lect
 
 #: The eight eu lects, by the codes this package documents, each mapped to the
 #: key orthography2ipa registers the spec under. orthography2ipa keeps the old
@@ -122,10 +123,16 @@ class BasqueNumberParser:
     Cardinal and ordinal composition is delegated to ``ovos-number-parser``;
     this class adds the euskaphone-domain layer (decimals from a written
     fraction string, clock times, dialect substitution, token handling).
+
+    ``dialect`` takes every name of a lect that
+    :func:`euskaphone.registry.resolve_lect` takes (``lapurtera``,
+    ``biscayan``, ``eu-x-zuberera``). A name that is no Basque lect raises
+    :class:`ValueError`.
     """
 
     def __init__(self, dialect: str = "eu"):
-        dialect = _SPEC_KEYS.get(dialect, dialect)
+        if is_supported(dialect):
+            dialect = resolve_lect(dialect)
         if dialect not in DIALECTS:
             raise ValueError(
                 f"unknown dialect {dialect!r}; expected one of {DIALECTS}")
