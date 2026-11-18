@@ -1,12 +1,11 @@
-"""Abbreviation (laburdura) expansion — the pre-lattice normalizer stage.
+"""Abbreviations (laburdurak): the table and the abbreviation fallback.
 
 Written Basque is full of period-marked abbreviations that a grapheme-to-phoneme
 lattice would mis-read letter by letter (``etab.`` is not "e-t-a-b", it is
-``eta abar``). This stage expands a curated, **cited** list of abbreviations to
-their full spoken form *before* the lattice — and before the Roman-numeral stage
-— so the trailing periods that mark an abbreviation are consumed here and never
-confused with the Roman-numeral ordinal period (``XX.``, see
-:mod:`euskaphone.romans`).
+``eta abar``). text2spoken reads most of them for
+:func:`euskaphone.normalize.normalize_text`. :func:`read_left_abbreviations` reads
+the abbreviations of this table that text2spoken leaves as written.
+:func:`expand_abbreviations`, the stage that text2spoken replaces, is deprecated.
 
 The list itself is data, not code: it lives in ``data/abbreviations.tsv`` and is
 extended by adding a cited row, never by editing this module.
@@ -29,7 +28,10 @@ Sources
 from __future__ import annotations
 
 import os
+import re
 from typing import Dict
+
+from euskaphone.deprecation import warn_deprecated
 
 _DATA = os.path.join(os.path.dirname(__file__), "data", "abbreviations.tsv")
 
@@ -67,14 +69,45 @@ def expand_token(token: str) -> str:
 
 
 def expand_abbreviations(text: str) -> str:
-    """Expand every known abbreviation token in *text*.
+    """Deprecated: :func:`euskaphone.normalize.normalize_text` reads
+    abbreviations through text2spoken.
 
-    Runs word by word so surrounding punctuation and spacing are preserved for
-    tokens that are not abbreviations. Multi-word expansions are inserted inline
-    (``etab.`` → ``eta abar``) and flow on to the pronunciation lattice as
-    ordinary Basque words.
+    Expand every known abbreviation token in *text*, word by word.
     """
-    out = []
-    for word in text.split():
-        out.append(expand_token(word))
-    return " ".join(out)
+    warn_deprecated("abbreviations.expand_abbreviations",
+                    "use euskaphone.normalize.normalize_text, which reads abbreviations through text2spoken")
+    return " ".join(expand_token(word) for word in text.split())
+
+
+#: The abbreviations of the table that text2spoken leaves as written, in any
+#: case: ``h.d.``, ``kap.`` and ``lib.`` (Araua 196 lists them), ``orr.`` (Araua
+#: 196 marks the writing as wrong, but its reading is clear), and ``etab.`` and
+#: ``k.a.`` in a case that text2spoken does not read (``ETAB.``).
+#: https://github.com/TigreGotico/text2spoken/issues/265
+LEFT_BY_TEXT2SPOKEN = frozenset({"h.d.", "kap.", "lib.", "orr.", "etab.", "k.a."})
+
+#: Punctuation that can follow the period of an abbreviation.
+_TRAILING = ",;:!?)»\"'"
+
+
+def read_left_abbreviations(text: str) -> str:
+    """Expand each abbreviation of :data:`LEFT_BY_TEXT2SPOKEN` in *text*.
+
+    At the end of a sentence the period of the abbreviation also ends the
+    sentence, so one period stays (Araua 196, p. 31): ``kap.`` at the end reads
+    ``kapitulua.``. A sentence ends at the end of the text or before a capital,
+    when no other mark follows the period. The whitespace between words stays
+    as written.
+    """
+    parts = re.split(r"(\s+)", text)
+    words = parts[::2]
+    for i, word in enumerate(words):
+        core = word.rstrip(_TRAILING)
+        if core.lower() not in LEFT_BY_TEXT2SPOKEN:
+            continue
+        following = next((w for w in words[i + 1:] if w), "")
+        ends_sentence = word == core and (not following or following[0].isupper())
+        stop = "." if ends_sentence else ""
+        words[i] = ABBREVIATIONS[core.lower()] + stop + word[len(core):]
+    parts[::2] = words
+    return "".join(parts)

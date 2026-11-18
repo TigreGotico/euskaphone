@@ -1,4 +1,10 @@
-"""Date reading — numeric dates to the ``2024ko urtarrilaren 15ean`` form.
+"""Deprecated date reading — numeric dates to the ``2024ko urtarrilaren 15ean`` form.
+
+text2spoken reads numeric dates for :func:`euskaphone.normalize.normalize_text`,
+and every name of this module is deprecated. A bare numeric date reads in the
+absolutive with the article (Araua 203, p. 66: «Data: mila bederatziehun eta
+laurogeita hiruko martxoaren zazpia»), and text2spoken reads it so. This module
+reads the day in the inessive, the form of a date inside a sentence.
 
 Euskaltzaindia Araua 37 (*"Data nola adierazi"*) fixes the spoken shape of a
 date as **year-genitive + month-genitive + day-inessive**:
@@ -37,11 +43,15 @@ from __future__ import annotations
 import re
 from typing import Dict, Optional, Tuple
 
-from euskaphone.numverbal import inessive, locative_genitive, spell_cardinal
+from euskaphone import numverbal
+from euskaphone.deprecation import warn_deprecated
+from euskaphone.numverbal import _inessive, _locative_genitive, _spell_cardinal
 from euskaphone.romans import roman_to_int
 
+_USE = "use euskaphone.normalize.normalize_text, which reads dates through text2spoken"
+
 #: The twelve month names (Batua) in the possessive-genitive form dates use.
-MONTHS_GENITIVE: Dict[int, str] = {
+_MONTHS_GENITIVE: Dict[int, str] = {
     1: "urtarrilaren",
     2: "otsailaren",
     3: "martxoaren",
@@ -85,10 +95,15 @@ def _resolve_fields(a: int, b: int, c: int, a_raw: str, c_raw: str
 
 
 def compose_date(year: int, month: int, day: int, dialect: str = "eu") -> str:
-    """Spell ``(year, month, day)`` as ``<year>ko <month>aren <day>an``."""
-    y = locative_genitive(spell_cardinal(year, dialect))
-    d = inessive(spell_cardinal(day, dialect))
-    return f"{y} {MONTHS_GENITIVE[month]} {d}"
+    """Deprecated. Spell ``(year, month, day)`` as ``<year>ko <month>aren <day>an``."""
+    warn_deprecated("dates.compose_date", _USE)
+    return _compose_date(year, month, day, dialect)
+
+
+def _compose_date(year: int, month: int, day: int, dialect: str = "eu") -> str:
+    y = _locative_genitive(_spell_cardinal(year, dialect))
+    d = _inessive(_spell_cardinal(day, dialect))
+    return f"{y} {_MONTHS_GENITIVE[month]} {d}"
 
 
 def _read_token(tok: str, dialect: str) -> Optional[str]:
@@ -102,11 +117,12 @@ def _read_token(tok: str, dialect: str) -> Optional[str]:
                              m.group(1), m.group(3))
     if fields is None:
         return None
-    return compose_date(*fields, dialect=dialect)
+    return _compose_date(*fields, dialect=dialect)
 
 
 def normalize_dates(text: str, dialect: str = "eu") -> str:
-    """Convert numeric date tokens in *text* to the spelled Basque form."""
+    """Deprecated. Convert numeric date tokens in *text* to the spelled Basque form."""
+    warn_deprecated("dates.normalize_dates", _USE)
     out = []
     for word in text.split():
         # keep any leading/trailing punctuation the token carries
@@ -126,3 +142,18 @@ def normalize_dates(text: str, dialect: str = "eu") -> str:
         spelled = _read_token(core, dialect)
         out.append(f"{prefix}{spelled}{suffix}" if spelled else word)
     return " ".join(out)
+
+
+#: The readers this module exported before text2spoken read the text. Each one
+#: is a deprecated reader of :mod:`euskaphone.numverbal`.
+_REEXPORTED = ("spell_cardinal", "inessive", "locative_genitive")
+
+
+def __getattr__(name: str):
+    if name == "MONTHS_GENITIVE":
+        warn_deprecated("dates.MONTHS_GENITIVE", _USE)
+        return _MONTHS_GENITIVE
+    if name in _REEXPORTED:
+        warn_deprecated(f"dates.{name}", f"import it from euskaphone.numverbal; {_USE}")
+        return getattr(numverbal, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

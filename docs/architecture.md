@@ -7,11 +7,10 @@ caller.
 ```
 text
   │
-  ├─ orthographic normalization  euskaphone.normalize     (o2i `normalize` stage)
-  │     abbreviations, Roman ordinals, units/currency/percent, numeric dates
-  │
-  ├─ number normalization        euskaphone.number_utils  (same stage)
-  │     vigesimal cardinals/ordinals, case-suffix, clock time
+  ├─ orthographic normalization  euskaphone.normalize     (o2i `expand` stage)
+  │     text2spoken: numbers, dates, clock times, money, measures,
+  │     abbreviations, Roman numerals
+  │     fallbacks: the forms text2spoken leaves as written
   │
   ├─ code-switch routing         euskaphone.codeswitch    (outside the engine)
   │     detect es/fr/en words → es-ES/fr-FR/en-US lattice → nativize to Basque
@@ -71,8 +70,8 @@ omission.
 | module | role |
 |--------|------|
 | `euskaphone.lattice_core` | engine wiring, `phonemize`, `register_lexicon` |
-| `euskaphone.normalize` | abbreviations, Roman ordinals, units, dates |
-| `euskaphone.number_utils` | vigesimal verbalization + `normalize_numbers` |
+| `euskaphone.normalize` | `normalize_text`: text2spoken, then the fallbacks |
+| `euskaphone.number_utils` | `BasqueNumberParser` and the number fallbacks |
 | `euskaphone.codeswitch` | detection, contact transcription, nativization |
 | `euskaphone.langdetect` | statistical per-word language detector (optional) |
 | `euskaphone.lexicons` | bundled toponym seed + HiTZ overlay loaders |

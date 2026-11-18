@@ -26,10 +26,11 @@ classifiers = [
 ]
 dependencies = [
     "orthography2ipa>=7.122.0a2",
-    # Basque vigesimal core, large numbers, ordinals and Araua-correct
-    # hundreds land in OpenVoiceOS/ovos-number-parser#51; bump this floor to
-    # the first release that contains it.
+    # BasqueNumberParser spells numbers with it: the fallbacks for the forms
+    # that text2spoken leaves as written, and the deprecated number stage.
     "ovos-number-parser>=0.6.0a1",
+    # Reads numbers, dates, abbreviations, Roman numerals and units.
+    "text2spoken[eu]>=0.0.2a76",
 ]
 
 [project.optional-dependencies]

@@ -1,32 +1,40 @@
-"""Basque number normalization — the orthography2ipa normalizer stage.
+"""Basque number spelling, and the number fallbacks of the normalizer.
 
-Numbers written as digits carry no orthography a grapheme-to-phoneme lattice can
-read, so they are spelled out into Basque words *before* the pronunciation
-lattice runs. :func:`normalize_numbers` rewrites every numeric token in running
-text, leaving non-numeric tokens untouched;
-:class:`~euskaphone.EuskaPhonemizer` wires it as the orthography2ipa
-``Pipeline(expand=...)``, so the spelled-out words then flow through the eu lattice's
-allophony, sandhi and stress like any other word.
+text2spoken reads the numbers of running text for
+:func:`euskaphone.normalize.normalize_text`. This module keeps two things:
+
+* :class:`BasqueNumberParser`, which spells an integer or a numeric token as
+  Basque words, with the Lapurdian ``bortz`` series;
+* the fallbacks for four number forms that text2spoken leaves as written:
+  space-grouped thousands (:func:`read_space_grouped_numbers`), digits with the
+  ordinal suffix (:func:`read_garren_ordinals`), a point as the decimal mark
+  (:func:`read_dot_decimals`) and digits with a glued case ending
+  (:func:`read_glued_case_endings`). Each fallback reads its form with
+  :class:`BasqueNumberParser`, and goes when text2spoken reads the form;
+* :func:`read_code_digits`, which reads the digits of a code (``B12``).
+  text2spoken leaves a code as a name, and the lattice deletes digits, so this
+  stage stays.
+
+:func:`normalize_numbers`, the number stage that text2spoken replaces, is
+deprecated.
 
 Where the work lives
 --------------------
 The vigesimal (base-20) cardinal/ordinal composition is **not** reimplemented
-here — it belongs to the shared parser stack and is delegated to
-``ovos-number-parser`` (:func:`ovos_number_parser.pronounce_number` /
+here. :class:`BasqueNumberParser` delegates it to ``ovos-number-parser``
+(:func:`ovos_number_parser.pronounce_number` /
 :func:`~ovos_number_parser.pronounce_ordinal` with ``lang="eu"``). That module
 carries the Euskaltzaindia Araua 7 / Araua 18 cardinal and ordinal tables (the
 ``-ehun`` hundreds, the ``eta``-drop rule, the ``-garren`` ordinal suffix with
 the ``bost`` → ``bos`` drop, and magnitudes up to ``bilioi``).
 
-euskaphone keeps only the layer that needs *orthographic context* and therefore
-does not belong upstream:
+euskaphone adds the layer that needs *orthographic context*:
 
 * **separator handling** — mapping the written comma / period / space grouping
   of a digit string onto an integer or decimal (European/Basque convention);
 * **case-suffix attachment** — surfacing the declension ending the writer wrote
-  (``1936ko`` → ``… hogeita hamaseiko``, ``20:00etan`` → ``hogeietan``) onto the
-  spelled numeral's final element;
-* **clock times** — reading an ``HH:MM`` token as ``<hour> [eta <minute>]``;
+  (``1936ko`` → ``… hogeita hamaseiko``) onto the spelled numeral's final
+  element;
 * **dialect selection** — the Lapurdian ``bortz`` series. ``ovos-number-parser``
   has no dialect axis for ``eu``, so euskaphone applies the ``bost`` → ``bortz``
   substitution (Araua 7 point 3: ``bortz`` is attested in *some* northern
@@ -46,6 +54,8 @@ import re
 
 from orthography2ipa import resolve
 from ovos_number_parser import pronounce_number, pronounce_ordinal
+
+from euskaphone.deprecation import warn_deprecated
 
 #: The eight eu lects, by the codes this package documents, each mapped to the
 #: key orthography2ipa registers the spec under. orthography2ipa keeps the old
@@ -255,19 +265,20 @@ def _try_time(core: str, suffix: str, parser: "BasqueNumberParser"
 
 def normalize_numbers(text: str, dialect: str = "eu",
                       strict: bool = False) -> str:
-    """Replace numeric tokens in *text* with their Basque written forms.
+    """Deprecated: :func:`euskaphone.normalize.normalize_text` reads numbers
+    through text2spoken.
 
-    This is the orthography2ipa normalizer stage: it runs on raw orthographic
-    text before the pronunciation lattice, so spelled-out numbers are then
-    transcribed like any other word. Handles cardinals, decimals, negative
-    numbers, period/space thousands separators, ``HH:MM`` clock times, and
-    case-suffixed numerals (``1936ko`` → ``… hamaseiko``); an explicit
-    ``<digits>garren`` token is read as an ordinal. Non-numeric tokens are
-    returned untouched.
+    Replace numeric tokens in *text* with their Basque written forms. Handles
+    cardinals, decimals, negative numbers, period/space thousands separators,
+    ``HH:MM`` clock times, and case-suffixed numerals (``1936ko`` → ``…
+    hamaseiko``); an explicit ``<digits>garren`` token is read as an ordinal.
+    Non-numeric tokens are returned untouched.
 
     :param dialect: an eu spec code (see :data:`DIALECTS`).
     :param strict: when true, re-raise a token that fails to verbalize.
     """
+    warn_deprecated("number_utils.normalize_numbers",
+                    "use euskaphone.normalize.normalize_text, which reads numbers through text2spoken")
     dialect = _SPEC_KEYS.get(dialect, dialect)
     if dialect not in DIALECTS:
         dialect = "eu"
@@ -298,3 +309,107 @@ def normalize_numbers(text: str, dialect: str = "eu",
             spelled = None
         out.append(f"{prefix}{spelled}" if spelled is not None else word)
     return " ".join(out)
+
+
+# ---------------------------------------------------------------------------
+# Fallbacks: the number forms that text2spoken leaves as written. Each one runs
+# on text2spoken's output and reads only its own form.
+# ---------------------------------------------------------------------------
+
+def _parser(dialect: str) -> BasqueNumberParser:
+    dialect = _SPEC_KEYS.get(dialect, dialect)
+    return BasqueNumberParser(dialect if dialect in DIALECTS else "eu")
+
+
+def read_space_grouped_numbers(text: str, dialect: str = "eu") -> str:
+    """Read digit groups that a space separates: ``1 000 000`` → ``milioi bat``.
+
+    Araua 203 recommends a space between groups of three digits. text2spoken
+    leaves them as written: https://github.com/TigreGotico/text2spoken/issues/148
+    """
+    parser = _parser(dialect)
+    return _SPACE_THOUSANDS.sub(
+        lambda m: parser.pronounce_token(m.group().replace(" ", "")), text)
+
+
+#: Digits with the ordinal suffix and a case ending: ``16garren``, ``10garrena``.
+_GARREN = re.compile(rf"(?<![\w.,])(\d+(?:\.\d{{3}})*){_ORDINAL_SUFFIX}([^\W\d_]*)")
+
+
+def read_garren_ordinals(text: str, dialect: str = "eu") -> str:
+    """Read digits with the ordinal suffix: ``16garren`` → ``hamaseigarren``.
+
+    Araua 203 marks the writing as wrong (``2garren``), but its reading is the
+    ordinal. text2spoken leaves it as written:
+    https://github.com/TigreGotico/text2spoken/issues/263
+    """
+    parser = _parser(dialect)
+
+    def read(m: "re.Match[str]") -> str:
+        spelled = parser.pronounce_token(m.group(1), as_ordinal=True)
+        return _attach_suffix(spelled, m.group(2)) if spelled else m.group()
+    return _GARREN.sub(read, text)
+
+
+#: A number with one point between digits, and an optional case ending.
+_DOT_NUMBER = re.compile(r"(?<![\w.,])(\d+\.\d+)(?!\d|[.,]\d)([^\W\d_]*)")
+
+
+def read_dot_decimals(text: str, dialect: str = "eu") -> str:
+    """Read a point as the decimal mark: ``2.5`` → ``bi koma bost``.
+
+    The comma is the Basque decimal mark (Araua 203), and a point before three
+    digits groups thousands (``2.500``). text2spoken reads both, and leaves any
+    other point between digits as written.
+    https://github.com/TigreGotico/text2spoken/issues/264
+    """
+    parser = _parser(dialect)
+
+    def read(m: "re.Match[str]") -> str:
+        spelled = parser.pronounce_token(m.group(1))
+        return _attach_suffix(spelled, m.group(2)) if spelled else m.group()
+    return _DOT_NUMBER.sub(read, text)
+
+
+#: Digits with a lower-case ending glued to them: ``100dik``.
+_GLUED_ENDING = re.compile(r"(?<![\w.,])(\d+)([a-z]+)(?!\w)")
+
+
+def read_glued_case_endings(text: str, dialect: str = "eu") -> str:
+    """Read digits with a case ending that text2spoken leaves: ``100dik`` →
+    ``ehundik``.
+
+    Araua 203 p.38, note 32: «Ehun hitzaren kasuan, ehunetik da forma
+    estandarra, baina ehundik ere erabiltzen da, batez ere ehundik gora / 100dik
+    gora esapidean». text2spoken reads ``100etik`` and leaves ``100dik`` as
+    written. The ending stays as written after the number.
+    https://github.com/TigreGotico/text2spoken/issues/273
+    """
+    parser = _parser(dialect)
+
+    def read(m: "re.Match[str]") -> str:
+        return parser.pronounce_token(m.group(1)) + m.group(2)
+    return _GLUED_ENDING.sub(read, text)
+
+
+#: A number in digits, as a code holds it: the ``12`` of ``B12``, the ``1.0`` of ``v1.0``.
+_CODE_DIGITS = re.compile(r"\d+(?:[.,]\d+)*")
+
+
+def read_code_digits(text: str, dialect: str = "eu") -> str:
+    """Read the digits that are still in the text: ``B12`` → ``Bhamabi``.
+
+    text2spoken leaves a code as written (``5G``, ``B12``, ``AP-8``, ``H2O``),
+    because a code is a name. The orthography2ipa lattice reads letters only, and
+    deletes the digits. So each run of digits reads as a number in its place, and
+    the letters and marks around it stay: ``5G`` → ``bostG``, ``AP-8`` →
+    ``AP-zortzi``, ``24/7`` → ``hogeita lau/zazpi``. This runs after every
+    fallback, so it reads only digits that nothing else reads.
+    """
+    parser = _parser(dialect)
+
+    def read(m: "re.Match[str]") -> str:
+        # A run that is no number, such as ``1.0.0``, reads group by group.
+        return parser.pronounce_token(m.group()) or re.sub(
+            r"\d+", lambda d: parser.pronounce_token(d.group()), m.group())
+    return _CODE_DIGITS.sub(read, text)

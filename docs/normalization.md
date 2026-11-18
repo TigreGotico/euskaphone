@@ -1,12 +1,10 @@
 # Orthographic normalization
 
-The pronunciation lattice reads Basque **letters**. Anything written as a
-symbol, an abbreviation, a Roman numeral, or a numeric date must first be
-spelled out into Basque words. euskaphone does this in one pre-lattice
-pipeline, `euskaphone.normalize.normalize_text`, wired in as the
-orthography2ipa `normalize` stage. By the time the lattice runs, the text is
-ordinary Basque words and flows through allophony, sandhi, and stress like
-everything else.
+The pronunciation lattice reads Basque **letters**. A number, a date, a clock
+time, an abbreviation, a Roman numeral, a unit or a currency symbol must first
+become Basque words. `euskaphone.normalize.normalize_text` does this before the
+lattice runs, as the orthography2ipa `expand` stage. The lattice then reads
+ordinary Basque words, with allophony, sandhi and stress.
 
 ```python
 from euskaphone.normalize import normalize_text
@@ -15,154 +13,155 @@ normalize_text("XX. mendean %20 igo da", "eu")
 # 'hogeigarren mendean ehuneko hogei igo da'
 ```
 
-Everything here is cited: the module docstrings and the data files
-(`euskaphone/data/*.tsv`) name the Euskaltzaindia arau or EIMA style-guide
-rule behind every form.
+## How the text is read
 
-## Pipeline order
+The reading has two steps.
 
-The stages run in a fixed order, each consuming what it recognizes and
-passing the rest on:
+1. **text2spoken reads the text.** [text2spoken](https://github.com/TigreGotico/text2spoken)
+   reads numbers, dates, clock times, money, measures, abbreviations and Roman
+   numerals. Where it reads a form, its reading stands.
+2. **euskaphone reads what text2spoken leaves.** A fallback reads one class of
+   form that text2spoken leaves as written. Each fallback names the
+   text2spoken issue for its class. When text2spoken reads the form, the
+   fallback goes.
 
-1. **abbreviations**: `etab.` → `eta abar`. This runs first, so the periods
-   that mark an abbreviation are gone before the Roman-numeral stage looks
-   for the ordinal period.
-2. **dates**: numeric `Y/M/D` triples become the `…ko …aren …an` form before
-   the `/` gets split up.
-3. **units**: percent, currency, and unit symbols become words.
-4. **romans**: Roman ordinals and monarch numerals.
-5. **numbers**: the vigesimal cardinal/ordinal core (see
-   [`numbers.md`](numbers.md)) verbalizes every remaining digit token.
+text2spoken reads the text in the lect that `euskaphone.registry.resolve_lect`
+gives. Every name of a lect reaches text2spoken as one tag: `lapurtera`,
+`labourdin` and `eu-x-lapurtera` all reach it as `eu-x-lapurdi`. A lect that
+text2spoken refuses as a language tag reads as `eu`.
 
-Stages 1-4 emit Basque words, so the number stage never re-touches their
-output.
+Text that is already spelled out comes through unchanged.
 
-## 1. Abbreviations
+## What text2spoken reads
 
-A curated, cited list of abbreviations (`laburdurak`) expands to the full
-spoken form. The list is **data, not code**: it lives in
-`euskaphone/data/abbreviations.tsv` and grows by adding a cited row.
-
-```python
-normalize_text("Liburuak, aldizkariak, etab.", "eu")   # '… eta abar'
-normalize_text("K.a. 50", "eu")                         # 'Kristo aurretik ...'
-```
-
-| written | read | gloss |
-|---|---|---|
-| `etab.` | eta abar | et cetera |
-| `adib.` | adibidez | e.g. |
-| `zk.` | zenbakia | no. |
-| `or.` | orrialdea | page |
-| `K.a.` / `K.o.` | Kristo aurretik / Kristo ondoren | BC / AD |
-
-Sources: **Euskaltzaindia Araua 196** (*Laburtzapenak*) and the EIMA
-*Ortotipografia* style guide.
-
-## 2. Roman numerals
-
-Two conventions, both cited to **Araua 18** and the *Euskara Batuaren
-Eskuliburua*.
-
-**Ordinal-period.** A Roman numeral followed by a period is an ordinal. The
-period is the `-garren` marker itself, the same convention Araua 18 fixes
-for Arabic digits (`20.` = `hogeigarren`):
+Some examples, each with the Euskaltzaindia norm that gives the reading:
 
 ```
-XX. mendea    -> hogeigarren mendea      (the twentieth century)
-V. kapitulua  -> bosgarren kapitulua
+XX. mendea            -> hogeigarren mendea                   (Araua 18)
+16. kapitulua         -> hamaseigarren kapitulua              (Araua 203)
+Luis XIV.a            -> Luis hamalaugarrena
+1936ko gerra          -> mila bederatziehun eta hogeita hamaseiko gerra
+3/4 zati              -> hiru laurden zati                    (Araua 203)
+%5, 5%                -> ehuneko bost                         (Araua 197)
+5 €, €5               -> bost euro
+1 kg                  -> kilogramo bat
+3 km-ra               -> hiru kilometrora
+etab. hori            -> eta abar hori                        (Araua 196)
+23. or.               -> hogeita hirugarren orrialdea.
 ```
 
-**Monarchs and popes.** A Roman numeral on a dynastic name is a *postposed*
-ordinal that is **always declined**, carrying the article `-a`:
+A **bare numeric date** reads the day in the absolutive, with the article
+(Araua 203, p. 66: «Data: mila bederatziehun eta laurogeita hiruko martxoaren
+zazpia»). A date with a case ending reads the case:
 
 ```
-Luis XIV.a          -> Luis hamalaugarrena
-Benedikto XVI.aren  -> Benedikto hamaseigarrenaren
-Karlos I.a          -> Karlos lehena          (suppletive first)
+2024-01-15               -> bi mila eta hogeita lauko urtarrilaren hamabosta
+Bilera 2024-01-15ean da  -> Bilera bi mila eta hogeita lauko urtarrilaren hamabostean da
 ```
 
-### The `V.` ambiguity
-
-A lone `V.` at the end of a sentence is a numeral plus a full stop, not
-"fifth". The heuristic:
-
-- **Monarch reading wins first.** A Roman numeral immediately preceded by a
-  capitalized word (a proper name) is read as a postposed declined ordinal,
-  period or not.
-- **Ordinal-period otherwise.** A Roman plus period is read as an ordinal
-  only when the next token starts with a lower-case letter, the common noun
-  the ordinal modifies (`mendea`, `kapitulua`). A Roman plus period that ends
-  the string, or is followed by a capitalized word, is left as a literal
-  numeral.
-
-This deliberately errs toward leaving text alone when the reading is
-genuinely ambiguous: null beats a wrong reading. Ordinary words that merely
-start with Roman letters (`Luis`, `Ikusi`) are never read as numerals,
-because a lower-case declension is only recognized after the period.
-
-## 3. Units, currency, and percent
-
-Symbols are read as their full word (**Araua 197**, *Sinboloak*), with the
-Basque-specific word order and declension.
-
-**Percent.** `%` is the word `ehuneko`, read before the number in either
-writing order:
+A **clock time** reads with the part of the day, the everyday reading of
+Araua 35 (p. 4: «Arratsaldeko hiruretan»). The hour takes the article, and the
+case ending goes on the last word (p. 3: «Hamarrak eta hamarrean»):
 
 ```
-%5   -> ehuneko bost
-5%   -> ehuneko bost
+20:00etan  -> arratsaldeko zortzietan
+20:10ean   -> arratsaldeko zortziak eta hamarrean
 ```
 
-**Currency.** The money word follows the number, and a relational ending
-attaches to the spelled word. The numeral "one" (`bat`) is postposed:
+A clock time with no case ending reads in the same way, with the article on
+the hour (Araua 203, p. 49: «12:15 dira (hamabiak eta hamabost …)»). A fallback
+reads it:
 
 ```
-5 €     -> bost euro
-€5eko   -> bost euroko       (relational -ko on the vowel-final word: no epenthetic e)
-1 €     -> euro bat
+Bilera 10:30 da  -> Bilera goizeko hamarrak eta hogeita hamar da
+12:00            -> eguerdiko hamabiak
 ```
 
-**Units.** Number then unit word, carrying any declension the writer
-hyphenated onto the symbol:
+An **abbreviation at the end of a sentence** keeps one period, because its
+period also ends the sentence (Araua 196, p. 31):
 
 ```
-5 km      -> bost kilometro
-3 km-ra   -> hiru kilometrora
-50 kg-ko  -> berrogeita hamar kilogramoko
+katuak etab.  -> katuak eta abar.
 ```
 
-The symbol-to-word table is in `euskaphone/data/units.tsv` (data, not code).
+Where the norm gives two readings, euskaphone follows text2spoken: `3,14` reads
+`hiru koma hamalau`, `K.a.` reads `Kristo aurreko` and `hurr.` reads
+`hurrengoak`.
 
-## 4. Dates
+## The fallbacks
 
-Numeric dates convert to the spoken shape **Araua 37** (*Data nola
-adierazi*) fixes: year in the locative-genitive, month name in the
-possessive genitive, day in the inessive.
+The fallbacks run on text2spoken's output, in this order. Each one reads only
+its own form.
 
-```
-2024-01-15   -> bi mila eta hogeita lauko urtarrilaren hamabostean
-15/01/2024   -> bi mila eta hogeita lauko urtarrilaren hamabostean
-1995/III/07  -> mila bederatziehun eta laurogeita hamabosteko martxoaren zazpian
-```
+| Form | Example | Reading | Module |
+|---|---|---|---|
+| Clock time with no case ending | `10:30` | goizeko hamarrak eta hogeita hamar | `normalize` |
+| Space-grouped thousands | `1 000 000 lagun` | milioi bat lagun | `number_utils` |
+| Digits with `-garren` | `16garren` | hamaseigarren | `number_utils` |
+| A point as the decimal mark | `2.5` | bi koma bost | `number_utils` |
+| Currency symbol before the number | `€5eko` | bost euroko | `units` |
+| Unit symbols `dm g mg t ml cl h` | `5 g`, `1 g-ko` | bost gramo, gramo bateko | `units` |
+| Bare Roman numeral after a name | `Karlos V` | Karlos bosgarrena | `romans` |
+| `h.d. kap. lib. orr.`, and `etab.` and `k.a.` in another case | `h.d.`, `ETAB.` | hau da., eta abar. | `abbreviations` |
+| An abbreviation of the table with a capital | `Jn. Agirre` | Jauna Agirre | `normalize` |
+| Digits with a glued case ending | `100dik gora` | ehundik gora | `number_utils` |
 
-Field order is resolved without a locale guess. The four-digit (or `>31`)
-field is the year, and its position decides ISO `Y/M/D` versus European
-`D/M/Y`. A Roman-numeral field is the month. A triple that does not validate
-as a real calendar date is left untouched, so a ratio like `3/4` is never
-mistaken for a date. A date already written with a month name
-(`2024ko urtarrilaren 15ean`) needs nothing from this stage: its `2024ko`
-and `15ean` are ordinary case-suffixed numerals the number stage verbalizes
-on its own (see [`numbers.md`](numbers.md)).
+Last, euskaphone reads the digits that are still in the text. text2spoken
+leaves a code as a name, and the lattice deletes the digits it cannot read.
+So each run of digits reads as a number in its place, and the letters and
+marks around it stay: `B12` gives `Bhamabi`, and `AP-8` gives `AP-zortzi`.
+
+The fallbacks keep the whitespace of the text, newlines and tabs included.
+
+The number fallbacks spell with `BasqueNumberParser`. The unit fallback keeps
+the number that text2spoken read and reads only the symbol. A unit symbol is a
+unit only right after digits, so `g letra` stays as written.
+
+Some forms get no reading. `ad.` stays as written: Araua 196 lists it as
+`aditza`, not `adibidez`. `e.a.` and `at.` stay as written, because no source
+that euskaphone cites defines them.
+
+## Lapurdian `bortz`
+
+Araua 7 gives `bortz` for 5 in some northern varieties, and `BasqueNumberParser`
+spells the `bortz` series for Lapurdian. text2spoken reads every Basque lect
+as Batua, so `normalize_text("15", "eu-x-lapurdi")` gives `hamabost`. A strict
+xfail test holds the `bortz` reading until text2spoken reads it.
+
+## The data tables
+
+The abbreviation table (`euskaphone/data/abbreviations.tsv`) and the unit
+table (`euskaphone/data/units.tsv`) are data, not code. Each row names its
+source. The fallbacks read their words from these tables.
+
+## Deprecated stages
+
+The stages that text2spoken replaces keep their names and their behaviour, and
+each call gives a `DeprecationWarning` that names the release that removes
+them:
+
+| Module | Deprecated names |
+|---|---|
+| `euskaphone.number_utils` | `normalize_numbers` |
+| `euskaphone.dates` | `normalize_dates`, `compose_date`, `MONTHS_GENITIVE` |
+| `euskaphone.abbreviations` | `expand_abbreviations` |
+| `euskaphone.romans` | `normalize_romans` |
+| `euskaphone.units` | `normalize_units` |
+| `euskaphone.numverbal` | `spell_cardinal`, `inessive`, `locative_genitive` |
+
+Use `normalize_text` in their place.
 
 ## Sources
 
+- Euskaltzaindia **Araua 7**: *Zenbakien idazkeraz*
 - Euskaltzaindia **Araua 18**: *Ordinalen eta banatzaileen idazkera*
-- Euskaltzaindia **Araua 37**: *Data nola adierazi*
-- Euskaltzaindia **Araua 196**: *Laburtzapenak: laburdurak eta siglak*
-- Euskaltzaindia **Araua 197**: *Sinboloak*
-- Euskaltzaindia, *Euskara Batuaren Eskuliburua* (dynastic Roman numerals)
-- EIMA / Basque Government, J. R. Zubimendi, *Ortotipografia* (2004)
+- Euskaltzaindia **Araua 35**: *Orduak nola esan*
+- Euskaltzaindia **Araua 196**: EBO (I), *Laburtzapenak: laburdurak eta siglak*
+- Euskaltzaindia **Araua 197**: EBO (II), *Sinboloak*
+- Euskaltzaindia **Araua 203**: EBO (VI), *Zenbakizko adierazpenak*
+
+The PDFs are at `https://www.euskaltzaindia.eus/dok/arauak/Araua_NNNN.pdf`. A
+page number is the PDF page.
 
 ---
 [← Numbers](numbers.md) · [Home](../README.md) · [Code-switch →](codeswitch.md)

@@ -11,8 +11,10 @@ that ordinal is **always declined**: ``Luis XIV`` (written ``Luis XIV.a``) →
 ``Benedikto hamaseigarrenaren``, and the first of a name is the suppletive
 ``lehena`` (``Karlos I`` → ``Karlos lehena``).
 
-This stage produces Basque *words* directly (it does not leave digits for the
-number stage), composing the cardinal/ordinal composer through
+text2spoken reads these forms for :func:`euskaphone.normalize.normalize_text`.
+It leaves a bare numeral after a name (``Karlos V``) as written, and
+:func:`read_bare_monarch_numerals` reads it. :func:`normalize_romans`, the stage
+that text2spoken replaces, is deprecated. Both produce Basque *words* through
 :mod:`euskaphone.numverbal`.
 
 The period ambiguity, and how it is resolved
@@ -54,6 +56,7 @@ from __future__ import annotations
 import re
 from typing import Optional
 
+from euskaphone.deprecation import warn_deprecated
 from euskaphone.numverbal import spell_ordinal
 
 #: A strict Roman numeral 1..3999 (subtractive notation), whole-token.
@@ -114,11 +117,15 @@ _TOKEN_RE = re.compile(r"^([IVXLCDM]+)(?:(\.)([a-z]+)?)?$")
 
 
 def normalize_romans(text: str, dialect: str = "eu") -> str:
-    """Read Roman-numeral ordinals and monarch numerals in *text* to words.
+    """Deprecated: :func:`euskaphone.normalize.normalize_text` reads Roman
+    numerals through text2spoken.
 
+    Read Roman-numeral ordinals and monarch numerals in *text* to words.
     See the module docstring for the period/monarch disambiguation heuristic.
     Tokens that are not a resolvable Roman-numeral reading are left untouched.
     """
+    warn_deprecated("romans.normalize_romans",
+                    "use euskaphone.normalize.normalize_text, which reads Roman numerals through text2spoken")
     tokens = text.split()
     out = []
     for i, tok in enumerate(tokens):
@@ -156,3 +163,28 @@ def normalize_romans(text: str, dialect: str = "eu") -> str:
         # ambiguous / sentence-final Roman -> leave literal
         out.append(tok)
     return " ".join(out)
+
+
+#: A bare Roman numeral, with an optional period: ``V``, ``XIV.``.
+_BARE_ROMAN = re.compile(r"^([IVXLCDM]+)(\.?)$")
+
+
+def read_bare_monarch_numerals(text: str, dialect: str = "eu") -> str:
+    """Read a bare Roman numeral after a name: ``Karlos V`` → ``Karlos bosgarrena``.
+
+    The norm reads a dynastic numeral as a postposed ordinal with the article
+    (Araua 203: ``Olaizola II``, read ``olaizola bigarrena``). text2spoken reads
+    the written article (``Karlos V.a``), and leaves the bare numeral as written.
+    A period after the numeral is the full stop, and stays. The whitespace
+    between words stays as written.
+    https://github.com/TigreGotico/text2spoken/issues/266
+    """
+    parts = re.split(r"(\s+)", text)
+    words = parts[::2]
+    for i in range(1, len(words)):
+        m = _BARE_ROMAN.match(words[i])
+        n = roman_to_int(m.group(1)) if m else None
+        if n is not None and _is_capitalized_name(words[i - 1]):
+            words[i] = monarch_ordinal(n, dialect) + m.group(2)
+    parts[::2] = words
+    return "".join(parts)
