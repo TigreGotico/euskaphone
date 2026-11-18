@@ -89,7 +89,8 @@ are deprecated: `dates.normalize_dates`, `dates.compose_date`,
 `numverbal.spell_cardinal`, `numverbal.inessive` and
 `numverbal.locative_genitive`. Each call gives a `DeprecationWarning` that names
 the release that removes it. The names that `normalize` and `dates` imported
-from these modules still resolve there, and give the same warning.
+from these modules still resolve there. Their warning names the replacement
+that the reader they give names, never another deprecated name.
 
 ## Pitch accent: `euskaphone.pitch_accent`
 

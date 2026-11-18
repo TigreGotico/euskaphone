@@ -204,6 +204,34 @@ def test_no_clock_time_stays_unread(text, lect):
     assert CLOCK.search(normalize.normalize_text(text, lect)) is None
 
 
+# Araua 203 p.7: "Zenbaki erromatarrak, zenbaki arabiarrak bezala, kardinalak
+# dira; ez dira berez ordinalak". A bare numeral reads as an ordinal only as the
+# dynastic or series number of a personal name: "Olaizola II (irakurri: “olaizola
+# bigarrena”)". The names of that page take I.a, II.a, III.a, XIV.a, XVI.a and
+# XXIII.a, written with I, V and X only.
+@pytest.mark.parametrize("text,spoken", [
+    ("Olaizola II", "Olaizola bigarrena"),
+    ("Karlos V", "Karlos bosgarrena"),
+    ("Luis XIV", "Luis hamalaugarrena"),
+    ("Joan XXIII", "Joan hogeita hirugarrena"),
+    # A letter after a capitalized common noun is no dynastic number.
+    ("Ikastola D eredua", "Ikastola D eredua"),
+    ("Musika CD bat", "Musika CD bat"),
+    ("Vitamina C hartu", "Vitamina C hartu"),
+])
+def test_a_bare_roman_numeral_reads_as_an_ordinal_only_after_a_name(text, spoken):
+    assert normalize.text2spoken_reading(text) == text
+    assert normalize.normalize_text(text) == spoken
+
+
+@pytest.mark.parametrize("text", ["Zk. V", "Or. XII", "Zenb. IV", "Ik. X"])
+def test_a_roman_numeral_after_an_abbreviation_is_no_dynastic_number(text):
+    # An abbreviation is no name: "Zk. V" is "number V". The numeral stays as
+    # text2spoken leaves it after the lower-case abbreviation.
+    lower = normalize.text2spoken_reading(text[0].lower() + text[1:])
+    assert normalize.normalize_text(text) == lower[0].upper() + lower[1:]
+
+
 # Araua 35 (p. 184) reads "Hamabostak eta hogeita hamarrean": a numeral in -r
 # doubles it before an ending that starts with a vowel. text2spoken reads the
 # digits with their ending in the same way, so the fallback matches it.
@@ -301,12 +329,31 @@ def test_a_capitalized_abbreviation_reads_as_text2spoken_reads_the_lower_case(ab
     ("Hurr. orrialdean", "Hurrengoak orrialdean"),
     ("Jn.\nAgirre", "Jauna\nAgirre"),
     ("(Jn. Agirre)", "(Jauna Agirre)"),
+    # The EIMA punctuation guide (Garzia 2014), 2.8: "Elkarrizketetan erabiltzen
+    # da marra bakarra, solaskide bakoitzaren txandari dagokion paragrafoaren
+    # hasieran: —Zer duzu? —Ezer ez." The dash opens the turn, so it opens the word.
+    ("—Jn. Agirre etorri da.", "—Jauna Agirre etorri da."),
+    # Araua 196 section 10 (p. 27): "Laburtutako hitzei dagokien letra larri eta
+    # xeheen erabilerari jarraitu behar diote laburdurek". In a heading or a form
+    # in capitals, the abbreviation is in capitals too.
+    ("ZK. 5", "Zenbakia bost"),
+    ("TEL. 943", "Telefonoa bederatziehun eta berrogeita hiru"),
+    ("JN. Agirre", "Jauna Agirre"),
 ])
 def test_a_sentence_can_open_with_an_abbreviation(text, spoken):
     assert normalize.normalize_text(text) == spoken
 
 
-@pytest.mark.parametrize("text", ["E.a. hori", "At. hori"])
+@pytest.mark.parametrize("abbreviation", CAPITALIZED)
+def test_an_abbreviation_in_capitals_or_after_a_dash_reads_as_with_a_capital(abbreviation):
+    lower = normalize.text2spoken_reading(f"{abbreviation.lower()} etxea")
+    spoken = lower[0].upper() + lower[1:]
+    for text, expected in [(f"{abbreviation.upper()} etxea", spoken), (f"—{abbreviation} etxea", f"—{spoken}")]:
+        assert normalize.text2spoken_reading(text) == text
+        assert normalize.normalize_text(text) == expected
+
+
+@pytest.mark.parametrize("text", ["E.a. hori", "At. hori", "E.A. hori", "AT. hori", "—E.a. hori"])
 def test_no_reading_for_an_uncited_abbreviation_with_a_capital(text):
     assert normalize.normalize_text(text) == text
 
@@ -328,7 +375,7 @@ FALLBACK_ISSUES = [
     ("abbreviations", "LEFT_BY_TEXT2SPOKEN", 265),
     ("normalize", "read_bare_clock_times", 267),
     ("normalize", "read_capitalized_abbreviations", 265),
-    ("number_utils", "read_space_grouped_numbers", 148),
+    ("number_utils", "read_space_grouped_numbers", 295),
     ("number_utils", "read_garren_ordinals", 263),
     ("number_utils", "read_dot_decimals", 264),
     ("number_utils", "read_glued_case_endings", 273),
