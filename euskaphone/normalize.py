@@ -12,6 +12,7 @@ Basque words first. :func:`normalize_text` does this in two steps:
 
 The fallbacks run in this order:
 
+* a clock time with no case ending, ``10:30``;
 * space-grouped thousands, ``1 000 000`` (:mod:`euskaphone.number_utils`);
 * digits with the ordinal suffix, ``16garren``;
 * a point as the decimal mark, ``2.5``;
@@ -19,7 +20,12 @@ The fallbacks run in this order:
 * the unit symbols text2spoken does not read, ``5 g``;
 * a bare Roman numeral after a name, ``Karlos V`` (:mod:`euskaphone.romans`);
 * the abbreviations text2spoken does not read, ``h.d.``
-  (:mod:`euskaphone.abbreviations`).
+  (:mod:`euskaphone.abbreviations`);
+* digits with a case ending that text2spoken does not read, ``100dik``.
+
+Last, euskaphone reads the digits that are still in the text, as in a code
+(``B12``, ``AP-8``). text2spoken leaves a code as a name, and the lattice
+deletes the digits it cannot read.
 
 text2spoken leaves spelled-out Basque as written, so text that a caller has
 already normalized comes through unchanged. The whole pipeline is the
@@ -28,12 +34,17 @@ orthography2ipa engine's ``expand`` callable (see :mod:`euskaphone.lattice_core`
 from __future__ import annotations
 
 import functools
+import importlib
+import re
 
 import text2spoken
 from text2spoken import InvalidLanguageTagError
 
 from euskaphone.abbreviations import read_left_abbreviations
-from euskaphone.number_utils import (read_dot_decimals, read_garren_ordinals,
+from euskaphone.deprecation import warn_deprecated
+from euskaphone.number_utils import (read_code_digits, read_dot_decimals,
+                                     read_garren_ordinals,
+                                     read_glued_case_endings,
                                      read_space_grouped_numbers)
 from euskaphone.registry import DEFAULT_DIALECT, resolve_lect
 from euskaphone.romans import read_bare_monarch_numerals
@@ -62,6 +73,34 @@ def text2spoken_reading(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     return text2spoken.normalize(text, text2spoken_tag(dialect))
 
 
+#: A clock time with no case ending: ``10:30``. A time with seconds
+#: (``07:05:15``) or a case ending (``10:30ean``) does not match.
+_BARE_CLOCK = re.compile(r"(?<![\w:.,])(\d{1,2}):([0-5]\d)(?![\w:]|[.,]\d)")
+
+
+def read_bare_clock_times(text: str, dialect: str = DEFAULT_DIALECT) -> str:
+    """Read a clock time with no case ending: ``10:30`` → ``goizeko hamarrak eta
+    hogeita hamar``.
+
+    Araua 203 p.49 reads ``12:15`` as «hamabiak eta hamabost»: the hour takes the
+    plural article and ``eta`` joins the minutes. Note 34 on the same page puts
+    the part of the day first («Arratsaldeko zazpiak eta hamar (7:10 p.m.)»), as
+    text2spoken does for a time with a case ending. text2spoken reads the hour
+    with the article (``10:00ak``), so the hour reads through text2spoken, and
+    the minutes follow it.
+    TODO(text2spoken issue: CLOCK_BARE)
+    """
+    def read(m: "re.Match[str]") -> str:
+        hour, minute = int(m.group(1)), int(m.group(2))
+        if hour > 24 or (hour == 24 and minute):
+            return m.group()
+        spoken = text2spoken_reading(f"{hour}:00ak", dialect)
+        if minute:
+            spoken = f"{spoken} eta {text2spoken_reading(str(minute), dialect)}"
+        return spoken
+    return _BARE_CLOCK.sub(read, text)
+
+
 def normalize_text(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     """Rewrite ``text`` as the Basque words a speaker of ``dialect`` says.
 
@@ -74,10 +113,32 @@ def normalize_text(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     """
     lect = resolve_lect(dialect)
     spoken = text2spoken_reading(text, lect)
+    spoken = read_bare_clock_times(spoken, lect)
     spoken = read_space_grouped_numbers(spoken, lect)
     spoken = read_garren_ordinals(spoken, lect)
     spoken = read_dot_decimals(spoken, lect)
     spoken = read_currency_before_number(spoken, lect)
     spoken = read_unit_symbols(spoken, text, lect)
     spoken = read_bare_monarch_numerals(spoken, lect)
-    return read_left_abbreviations(spoken)
+    spoken = read_left_abbreviations(spoken)
+    spoken = read_glued_case_endings(spoken, lect)
+    return read_code_digits(spoken, lect)
+
+
+#: The readers this module exported before text2spoken read the text, by the
+#: module that defines each one.
+_REEXPORTED = {
+    "expand_abbreviations": "abbreviations",
+    "normalize_dates": "dates",
+    "normalize_numbers": "number_utils",
+    "normalize_romans": "romans",
+    "normalize_units": "units",
+}
+
+
+def __getattr__(name: str):
+    home = _REEXPORTED.get(name)
+    if home is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    warn_deprecated(f"normalize.{name}", f"import it from euskaphone.{home}, or use euskaphone.normalize.normalize_text")
+    return getattr(importlib.import_module(f"euskaphone.{home}"), name)

@@ -175,13 +175,16 @@ def read_bare_monarch_numerals(text: str, dialect: str = "eu") -> str:
     The norm reads a dynastic numeral as a postposed ordinal with the article
     (Araua 203: ``Olaizola II``, read ``olaizola bigarrena``). text2spoken reads
     the written article (``Karlos V.a``), and leaves the bare numeral as written.
-    A period after the numeral is the full stop, and stays.
+    A period after the numeral is the full stop, and stays. The whitespace
+    between words stays as written.
     TODO(text2spoken issue: BARE_ROMAN_AFTER_NAME)
     """
-    words = text.split(" ")
+    parts = re.split(r"(\s+)", text)
+    words = parts[::2]
     for i in range(1, len(words)):
         m = _BARE_ROMAN.match(words[i])
         n = roman_to_int(m.group(1)) if m else None
         if n is not None and _is_capitalized_name(words[i - 1]):
             words[i] = monarch_ordinal(n, dialect) + m.group(2)
-    return " ".join(words)
+    parts[::2] = words
+    return "".join(parts)

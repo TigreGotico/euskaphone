@@ -15,4 +15,4 @@ def _misreading(reason: str):
 LAPURDI_LECT = _misreading(
     "text2spoken reads the Lapurdian lect 'eu-x-lapurdi' as Batua: '15' gives 'hamabost'. Araua 7: "
     "'Bost zenbakiaren aldaera bortz da, Iparraldeko zenbait hizkeratan erabilia.' "
-    "TODO(text2spoken issue: LAPURDI_LECT)")
+    "https://github.com/TigreGotico/text2spoken/issues/262")

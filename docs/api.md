@@ -43,10 +43,12 @@ Whether `dialect` names a Basque lect, not the Batua fallback.
 or older (`eu-x-lapurdi` or `eu-x-lapurtera`), and does not resolve an alias
 such as `labourdin`: it raises `ValueError` for one.
 
-`read_space_grouped_numbers(text, dialect)`, `read_garren_ordinals(text, dialect)`
-and `read_dot_decimals(text, dialect)` are the fallbacks for `1 000 000`,
-`16garren` and `2.5`, which text2spoken leaves as written. They run on
-text2spoken's output inside `normalize_text`.
+`read_space_grouped_numbers(text, dialect)`, `read_garren_ordinals(text, dialect)`,
+`read_dot_decimals(text, dialect)` and `read_glued_case_endings(text, dialect)`
+are the fallbacks for `1 000 000`, `16garren`, `2.5` and `100dik`, which
+text2spoken leaves as written. `read_code_digits(text, dialect)` reads the
+digits of a code (`B12`). They run on text2spoken's output inside
+`normalize_text`.
 
 `normalize_numbers(text, dialect="eu", strict=False)` is deprecated: use
 `normalize_text`.
@@ -74,7 +76,8 @@ is callable on its own. It resolves an alias such as `labourdin`.
 
 `text2spoken_tag(dialect)` gives the language tag text2spoken reads a lect in,
 and `text2spoken_reading(text, dialect)` gives text2spoken's reading with no
-fallback.
+fallback. `read_bare_clock_times(text, dialect)` is the fallback for a clock
+time with no case ending (`10:30`).
 
 The fallbacks of the other modules are `units.read_currency_before_number`,
 `units.read_unit_symbols`, `romans.read_bare_monarch_numerals` and
@@ -84,7 +87,8 @@ are deprecated: `dates.normalize_dates`, `dates.compose_date`,
 `romans.normalize_romans`, `units.normalize_units`,
 `numverbal.spell_cardinal`, `numverbal.inessive` and
 `numverbal.locative_genitive`. Each call gives a `DeprecationWarning` that names
-the release that removes it.
+the release that removes it. The names that `normalize` and `dates` imported
+from these modules still resolve there, and give the same warning.
 
 ## Pitch accent: `euskaphone.pitch_accent`
 

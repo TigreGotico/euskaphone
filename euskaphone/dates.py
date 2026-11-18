@@ -43,6 +43,7 @@ from __future__ import annotations
 import re
 from typing import Dict, Optional, Tuple
 
+from euskaphone import numverbal
 from euskaphone.deprecation import warn_deprecated
 from euskaphone.numverbal import _inessive, _locative_genitive, _spell_cardinal
 from euskaphone.romans import roman_to_int
@@ -143,8 +144,16 @@ def normalize_dates(text: str, dialect: str = "eu") -> str:
     return " ".join(out)
 
 
+#: The readers this module exported before text2spoken read the text. Each one
+#: is a deprecated reader of :mod:`euskaphone.numverbal`.
+_REEXPORTED = ("spell_cardinal", "inessive", "locative_genitive")
+
+
 def __getattr__(name: str):
     if name == "MONTHS_GENITIVE":
         warn_deprecated("dates.MONTHS_GENITIVE", _USE)
         return _MONTHS_GENITIVE
+    if name in _REEXPORTED:
+        warn_deprecated(f"dates.{name}", f"import it from euskaphone.numverbal; {_USE}")
+        return getattr(numverbal, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

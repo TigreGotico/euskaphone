@@ -160,6 +160,26 @@ def _order(spelled: str, word: str) -> str:
 # text2spoken's output and reads only its own form.
 # ---------------------------------------------------------------------------
 
+def _one(suffix: str) -> str:
+    """``bat`` ("one") with the case ending of its unit: ``bateko``, ``batek``.
+
+    Araua 197 p.13 puts the ending on ``bat``: «1 s-eko iraupena (segundo bateko
+    iraupena)», «1 kg-ek? (... kilogramo batek?)». ``bat`` ends in a consonant,
+    so an ending that starts with a consonant takes the epenthetic ``e``.
+    """
+    if suffix and suffix[0] not in _VOWELS:
+        suffix = "e" + suffix
+    return "bat" + suffix
+
+
+def _counted(spelled: str, word: str, suffix: str) -> str:
+    """The number, its unit word and the case ending: ``bost gramoko``, and
+    ``gramo bateko`` for one."""
+    if spelled == "bat":
+        return f"{word} {_one(suffix)}"
+    return _attach(f"{spelled} {word}", suffix)
+
+
 def read_currency_before_number(text: str, dialect: str = "eu") -> str:
     """Read a currency symbol before a number with a case ending:
     ``€5eko`` → ``bost euroko``.
@@ -169,7 +189,7 @@ def read_currency_before_number(text: str, dialect: str = "eu") -> str:
     TODO(text2spoken issue: CURRENCY_BEFORE_NUMBER)
     """
     def read(m: "re.Match[str]") -> str:
-        return _attach(_order(_spell(m.group(2), dialect), UNITS[m.group(1)]), m.group(3))
+        return _counted(_spell(m.group(2), dialect), UNITS[m.group(1)], m.group(3))
     return _prefix_currency_regex().sub(read, text)
 
 
@@ -205,18 +225,20 @@ def read_unit_symbols(spoken: str, written: str, dialect: str = "eu") -> str:
     number of ``5 g`` and leaves the symbol (``bost g``), so the symbol becomes
     its word and the number stays as text2spoken read it: ``bost gramo``. A
     case ending moves to the word (``bost g-ko`` → ``bost gramoko``), and ``bat``
-    follows the word (``1 g`` → ``gramo bat``). text2spoken leaves a symbol glued
-    to its digits (``5g``) whole, and this reads both. A symbol that does not
-    follow digits in ``written`` is a letter, and stays.
+    follows the word and takes the ending (``1 g-ko`` → ``gramo bateko``).
+    text2spoken leaves a symbol glued to its digits (``5g``) whole, and this
+    reads both. A symbol that does not follow digits in ``written`` is a letter,
+    and stays. The whitespace between words stays as written.
     """
     def glued(m: "re.Match[str]") -> str:
-        return _attach(_order(_spell(m.group(1), dialect), UNITS[m.group(2)]), m.group(3) or "")
+        return _counted(_spell(m.group(1), dialect), UNITS[m.group(2)], m.group(3) or "")
     spoken = _glued_symbol_regex().sub(glued, spoken)
 
     written_words = written.split()
     numbers = [written_words[i - 1] if i > 0 and _DIGITS.fullmatch(written_words[i - 1]) else None
                for i in _symbols(written_words)]
-    words = spoken.split(" ")
+    parts = re.split(r"(\s+)", spoken)
+    words = parts[::2]
     positions = _symbols(words)
     if len(positions) != len(numbers):
         return spoken
@@ -224,9 +246,9 @@ def read_unit_symbols(spoken: str, written: str, dialect: str = "eu") -> str:
         if number is None:
             continue
         symbol, suffix, trail = _SYMBOL_WORD.match(words[i]).groups()
-        word = _attach(UNITS[symbol], suffix or "")
         if number == "1" and i > 0 and words[i - 1] == "bat":
-            words[i - 1], words[i] = word, "bat" + trail
+            words[i - 1], words[i] = UNITS[symbol], _one(suffix or "") + trail
         else:
-            words[i] = word + trail
-    return " ".join(words)
+            words[i] = _attach(UNITS[symbol], suffix or "") + trail
+    parts[::2] = words
+    return "".join(parts)

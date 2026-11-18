@@ -55,11 +55,12 @@ Basque declines a numeral phrase on its **final element** only:
 1936ko gerra   -> mila bederatziehun eta hogeita hamaseiko gerra   (year = cardinal)
 20:00etan      -> arratsaldeko zortzietan
 20:10ean       -> arratsaldeko zortziak eta hamarrean
+20:10          -> arratsaldeko zortziak eta hamar
 ```
 
 A clock time reads with the part of the day, the everyday reading of Araua 35.
 The hour takes the article (`zortziak`), and the case ending goes on the last
-word.
+word. With no case ending, the hour keeps the article (Araua 203, p. 49).
 
 ## Dialect variants and the `bost`/`bortz` correction
 

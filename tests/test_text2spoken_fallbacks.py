@@ -5,6 +5,7 @@ as written, and it goes when text2spoken reads that form. The guard tests below
 turn red on the day text2spoken reads a fallback form: the fallback then comes
 out, with its ``TODO(text2spoken issue: <CLASS>)`` marker.
 """
+import re
 import warnings
 from pathlib import Path
 
@@ -30,6 +31,10 @@ LEFT_AS_WRITTEN = [
     ("€5eko sarrera", "€5eko"),
     ("5g", "5g"),
     *[(f"5 {unit}", f" {unit}") for unit in ["dm", "g", "mg", "t", "ml", "cl", "h"]],
+    ("1 g-ko", "g-ko"),
+    ("12:00", "12:00"),
+    ("Bilera 10:30 da", "10:30"),
+    ("100dik gora", "100dik"),
 ]
 
 
@@ -78,6 +83,27 @@ FALLBACK_READINGS = [
     # "bat" (one) follows the unit word, as it does in text2spoken's "kilogramo bat".
     ("1 g", "gramo bat"),
     ("1 g.", "gramo bat."),
+    # Araua 197 p.13: "1 s-eko iraupena (segundo bateko iraupena); Zenbat balio
+    # du 1 kg-ek? (zenbat balio du kilogramo batek?)": the ending goes on "bat".
+    ("1 g-ko", "gramo bateko"),
+    ("1 h-ko iraupena", "ordu bateko iraupena"),
+    ("1 g-k", "gramo batek"),
+    ("1g-ko", "gramo bateko"),
+    # Araua 203 p.49: "12:15 dira (hamabiak eta hamabost ...)": the hour takes
+    # the plural article and "eta" joins the minutes. Note 34 on the same page
+    # puts the part of the day first: "Arratsaldeko zazpiak eta hamar (7:10
+    # p.m.)". text2spoken reads a time with a case ending in the same way.
+    ("12:00", "eguerdiko hamabiak"),
+    ("08:15", "goizeko zortziak eta hamabost"),
+    ("7:05", "goizeko zazpiak eta bost"),
+    ("23:59", "gaueko hamaikak eta berrogeita hemeretzi"),
+    ("1:15", "goizeko ordu bata eta hamabost"),
+    ("Hasiera: 18:30", "Hasiera: arratsaldeko seiak eta hogeita hamar"),
+    ("Bilera 10:30 da", "Bilera goizeko hamarrak eta hogeita hamar da"),
+    # Araua 203 p.38, note 32: "Ehun hitzaren kasuan, ehunetik da forma
+    # estandarra, baina ehundik ere erabiltzen da, batez ere ehundik gora / 100dik
+    # gora esapidean". text2spoken reads "100etik"; "100dik" keeps its "d".
+    ("100dik gora", "ehundik gora"),
 ]
 
 
@@ -108,6 +134,8 @@ def test_the_fallback_reads_what_text2spoken_leaves(text, spoken):
     ("Karlos V errege zen", "Karlos V.a errege zen"),
     # Araua 197 p.9: the number comes before the symbol.
     ("€5eko sarrera", "5 €-ko sarrera"),
+    # Araua 197 p.13 writes "1 kg-ek" and "1 s-eko"; text2spoken reads "kg".
+    ("1 kg-ko", "1 kg-ko"),
 ])
 def test_the_fallback_matches_text2spoken_on_the_norm_writing(text, norm_writing):
     assert normalize.normalize_text(text) == normalize.text2spoken_reading(norm_writing)
@@ -151,6 +179,87 @@ def test_no_fallback_for_a_wrong_or_uncited_abbreviation(text, spoken):
     # "e.a." or "at.".
     assert normalize.normalize_text(text) == spoken
     assert normalize.text2spoken_reading(text) == spoken
+
+
+def test_one_gram_with_an_ending_has_the_shape_of_one_kilogram():
+    # text2spoken reads "1 kg-ko" as "kilogramo bateko"; "g" must give the same shape.
+    for ending in ["ko", "ek", "tik", "ra"]:
+        assert (normalize.normalize_text(f"1 g-{ending}").replace("gramo", "kilogramo")
+                == normalize.text2spoken_reading(f"1 kg-{ending}"))
+
+
+CLOCK = re.compile(r"\d{1,2}:\d{2}")
+
+
+@pytest.mark.parametrize("text", [
+    "12:00", "08:15", "7:05", "23:59", "00:00", "24:00", "Hasiera: 18:30",
+    "Bilera 10:30 da", "Ordutegia: 08:15.", "10:30-12:00", "(09:45)", "goizeko 10:30",
+    "Bilera 10:30ean da", "20:00etan",
+])
+@pytest.mark.parametrize("lect", ["eu", "eu-x-lapurdi", "eu-x-bizkaiera"])
+def test_no_clock_time_stays_unread(text, lect):
+    # The lattice deletes digits, so a clock time left as written is silent.
+    assert CLOCK.search(normalize.normalize_text(text, lect)) is None
+
+
+@pytest.mark.parametrize("text,spoken", [
+    ("Karlos V\neta", "Karlos bosgarrena\neta"),
+    ("Karlos  V", "Karlos  bosgarrena"),
+    ("Karlos\tV", "Karlos\tbosgarrena"),
+    # A capital after the period ends the sentence, so the period stays.
+    ("lib.\nBilbon", "liburua.\nBilbon"),
+    ("h.d.\thori", "hau da\thori"),
+    ("kap.\n3", "kapitulua\nhiru"),
+    ("5 g\ngatz", "bost gramo\ngatz"),
+    ("5\tg", "bost\tgramo"),
+    ("1  g-ko", "gramo  bateko"),
+])
+def test_the_fallbacks_read_across_any_whitespace_and_keep_it(text, spoken):
+    assert normalize.normalize_text(text) == spoken
+
+
+# The mixed tokens of the review probe. text2spoken leaves a code as a name,
+# and the lattice deletes the digits it cannot read, so euskaphone reads them.
+PROBE_TOKENS = [
+    "5G sarea", "4K bideoa", "MP3 fitxategia", "A4 orria", "F1 lasterketa",
+    "COVID-19 gaixotasuna", "G7 bilera", "3D inprimagailua", "B12 bitamina", "3rd",
+    "80ko hamarkada", "90eko hamarkadan", "1990eko hamarkadan", "2an", "3ak", "5ekoa",
+    "10etik 20ra", "100dik gora", "3x3", "2+2", "5-10 urte", "10-15", "1/2", "50%",
+    "%50", "5km", "5kg", "5 €", "€5", "5€", "24/7", "+34 943 123 456", "943123456",
+    "2024ko", "1936an", "3. mailan", "2.a", "1.go", "H2O", "CO2", "N-1 errepidea",
+    "AP-8 autobidea", "BI-631", "Euskal Herria 2030", "4x4 autoa", "1:0 irabazi",
+    "2-1 galdu", "21:30ean", "12:00", "7.30etan", "0,5", "-5 gradu", "5º", "5ª", "1ºC",
+    "25 °C", "10 m2", "5 m³", "x2", "v1.0", "iPhone 15", "Windows 11", "Bizkaia 2030ean",
+]
+
+
+def test_the_probe_has_all_63_tokens():
+    assert len(PROBE_TOKENS) == len(set(PROBE_TOKENS)) == 63
+
+
+@pytest.mark.parametrize("text", PROBE_TOKENS)
+def test_no_digit_is_lost(text):
+    assert re.search(r"\d", normalize.normalize_text(text)) is None
+
+
+@pytest.mark.parametrize("text,spoken", [
+    # The readings of the previous number stage: the digits read as a number in
+    # their place, and the letters around them stay.
+    ("5G sarea", "bostG sarea"),
+    ("B12 bitamina", "Bhamabi bitamina"),
+    ("H2O", "HbiO"),
+    ("MP3 fitxategia", "MPhiru fitxategia"),
+    ("v1.0", "vbat koma zero"),
+    ("5º", "bostº"),
+    # A hyphen in a code is no minus sign: text2spoken reads "N-1" as "N bat".
+    ("AP-8 autobidea", "AP-zortzi autobidea"),
+    ("BI-631", "BI-seiehun eta hogeita hamaika"),
+    ("24/7", "hogeita lau/zazpi"),
+    ("1:0 irabazi", "bat:zero irabazi"),
+])
+def test_the_digits_of_a_code_read_in_place(text, spoken):
+    assert normalize.text2spoken_reading(text) == text
+    assert normalize.normalize_text(text) == spoken
 
 
 def test_every_fallback_names_its_text2spoken_issue():

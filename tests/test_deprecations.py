@@ -43,5 +43,31 @@ def test_the_month_table_warns_and_keeps_working(removal_version):
         assert dates.MONTHS_GENITIVE[3] == "martxoaren"
 
 
+# Names that a module imported and so exported, before text2spoken read the text.
+REEXPORTED = [
+    ("normalize", "expand_abbreviations", "abbreviations"),
+    ("normalize", "normalize_dates", "dates"),
+    ("normalize", "normalize_numbers", "number_utils"),
+    ("normalize", "normalize_romans", "romans"),
+    ("normalize", "normalize_units", "units"),
+    ("dates", "spell_cardinal", "numverbal"),
+    ("dates", "inessive", "numverbal"),
+    ("dates", "locative_genitive", "numverbal"),
+]
+
+
+@pytest.mark.parametrize("module,name,home", REEXPORTED)
+def test_a_reexported_name_warns_and_gives_the_reader_of_its_home_module(removal_version, module, name, home):
+    with pytest.warns(DeprecationWarning, match=rf"euskaphone\.{module}\.{name} .*removed in euskaphone {removal_version}"):
+        reader = getattr(importlib.import_module(f"euskaphone.{module}"), name)
+    assert reader is getattr(importlib.import_module(f"euskaphone.{home}"), name)
+
+
+@pytest.mark.parametrize("module", ["normalize", "dates"])
+def test_an_unknown_name_is_still_an_attribute_error(module):
+    with pytest.raises(AttributeError):
+        getattr(importlib.import_module(f"euskaphone.{module}"), "no_such_reader")
+
+
 def test_the_removal_release_comes_after_this_one(removal_version):
     assert int(removal_version.split(".")[0]) > VERSION_MAJOR

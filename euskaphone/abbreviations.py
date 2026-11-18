@@ -28,6 +28,7 @@ Sources
 from __future__ import annotations
 
 import os
+import re
 from typing import Dict
 
 from euskaphone.deprecation import warn_deprecated
@@ -95,9 +96,11 @@ def read_left_abbreviations(text: str) -> str:
     At the end of a sentence the period of the abbreviation also ends the
     sentence, so one period stays (Araua 196, p. 31): ``kap.`` at the end reads
     ``kapitulua.``. A sentence ends at the end of the text or before a capital,
-    when no other mark follows the period.
+    when no other mark follows the period. The whitespace between words stays
+    as written.
     """
-    words = text.split(" ")
+    parts = re.split(r"(\s+)", text)
+    words = parts[::2]
     for i, word in enumerate(words):
         core = word.rstrip(_TRAILING)
         if core.lower() not in LEFT_BY_TEXT2SPOKEN:
@@ -106,4 +109,5 @@ def read_left_abbreviations(text: str) -> str:
         ends_sentence = word == core and (not following or following[0].isupper())
         stop = "." if ends_sentence else ""
         words[i] = ABBREVIATIONS[core.lower()] + stop + word[len(core):]
-    return " ".join(words)
+    parts[::2] = words
+    return "".join(parts)

@@ -4,8 +4,9 @@ Expected forms follow Euskaltzaindia Araua 37 (*Data nola adierazi*): year in th
 locative-genitive, month name in the possessive genitive. A bare numeric date
 reads the day in the absolutive with the article (Araua 203 p.66: «Data zifra
 bidez adierazten denean testu batean txertatu gabe, absolutiboan, ez zaio
-artikulua eransten.» and «Data: mila bederatziehun eta laurogeita hiruko
-martxoaren zazpia»). text2spoken reads the dates for
+artikulua eransten. Ulertu behar da konbentzio bat dela, eta, beraz,
+irakurtzean artikulua ezarri behar da» and «Data: mila bederatziehun eta
+laurogeita hiruko martxoaren zazpia»). text2spoken reads the dates for
 :func:`euskaphone.normalize.normalize_text`; the date stage of
 :mod:`euskaphone.dates` is deprecated.
 """

@@ -68,6 +68,15 @@ case ending goes on the last word (p. 3: «Hamarrak eta hamarrean»):
 20:10ean   -> arratsaldeko zortziak eta hamarrean
 ```
 
+A clock time with no case ending reads in the same way, with the article on
+the hour (Araua 203, p. 49: «12:15 dira (hamabiak eta hamabost …)»). A fallback
+reads it:
+
+```
+Bilera 10:30 da  -> Bilera goizeko hamarrak eta hogeita hamar da
+12:00            -> eguerdiko hamabiak
+```
+
 An **abbreviation at the end of a sentence** keeps one period, because its
 period also ends the sentence (Araua 196, p. 31):
 
@@ -86,13 +95,22 @@ its own form.
 
 | Form | Example | Reading | Module |
 |---|---|---|---|
+| Clock time with no case ending | `10:30` | goizeko hamarrak eta hogeita hamar | `normalize` |
 | Space-grouped thousands | `1 000 000 lagun` | milioi bat lagun | `number_utils` |
 | Digits with `-garren` | `16garren` | hamaseigarren | `number_utils` |
 | A point as the decimal mark | `2.5` | bi koma bost | `number_utils` |
 | Currency symbol before the number | `€5eko` | bost euroko | `units` |
-| Unit symbols `dm g mg t ml cl h` | `5 g`, `1 g` | bost gramo, gramo bat | `units` |
+| Unit symbols `dm g mg t ml cl h` | `5 g`, `1 g-ko` | bost gramo, gramo bateko | `units` |
 | Bare Roman numeral after a name | `Karlos V` | Karlos bosgarrena | `romans` |
 | `h.d. kap. lib. orr.`, and `etab.` and `k.a.` in another case | `h.d.`, `ETAB.` | hau da., eta abar. | `abbreviations` |
+| Digits with a glued case ending | `100dik gora` | ehundik gora | `number_utils` |
+
+Last, euskaphone reads the digits that are still in the text. text2spoken
+leaves a code as a name, and the lattice deletes the digits it cannot read.
+So each run of digits reads as a number in its place, and the letters and
+marks around it stay: `B12` gives `Bhamabi`, and `AP-8` gives `AP-zortzi`.
+
+The fallbacks keep the whitespace of the text, newlines and tabs included.
 
 The number fallbacks spell with `BasqueNumberParser`. The unit fallback keeps
 the number that text2spoken read and reads only the symbol. A unit symbol is a

@@ -5,11 +5,15 @@ text2spoken reads the numbers of running text for
 
 * :class:`BasqueNumberParser`, which spells an integer or a numeric token as
   Basque words, with the Lapurdian ``bortz`` series;
-* the fallbacks for three number forms that text2spoken leaves as written:
+* the fallbacks for four number forms that text2spoken leaves as written:
   space-grouped thousands (:func:`read_space_grouped_numbers`), digits with the
-  ordinal suffix (:func:`read_garren_ordinals`) and a point as the decimal mark
-  (:func:`read_dot_decimals`). Each fallback reads its form with
-  :class:`BasqueNumberParser`, and goes when text2spoken reads the form.
+  ordinal suffix (:func:`read_garren_ordinals`), a point as the decimal mark
+  (:func:`read_dot_decimals`) and digits with a glued case ending
+  (:func:`read_glued_case_endings`). Each fallback reads its form with
+  :class:`BasqueNumberParser`, and goes when text2spoken reads the form;
+* :func:`read_code_digits`, which reads the digits of a code (``B12``).
+  text2spoken leaves a code as a name, and the lattice deletes digits, so this
+  stage stays.
 
 :func:`normalize_numbers`, the number stage that text2spoken replaces, is
 deprecated.
@@ -336,8 +340,8 @@ def read_garren_ordinals(text: str, dialect: str = "eu") -> str:
     """Read digits with the ordinal suffix: ``16garren`` → ``hamaseigarren``.
 
     Araua 203 marks the writing as wrong (``2garren``), but its reading is the
-    ordinal. text2spoken leaves it as written.
-    TODO(text2spoken issue: GARREN_SUFFIX)
+    ordinal. text2spoken leaves it as written:
+    https://github.com/TigreGotico/text2spoken/issues/263
     """
     parser = _parser(dialect)
 
@@ -365,3 +369,47 @@ def read_dot_decimals(text: str, dialect: str = "eu") -> str:
         spelled = parser.pronounce_token(m.group(1))
         return _attach_suffix(spelled, m.group(2)) if spelled else m.group()
     return _DOT_NUMBER.sub(read, text)
+
+
+#: Digits with a lower-case ending glued to them: ``100dik``.
+_GLUED_ENDING = re.compile(r"(?<![\w.,])(\d+)([a-z]+)(?!\w)")
+
+
+def read_glued_case_endings(text: str, dialect: str = "eu") -> str:
+    """Read digits with a case ending that text2spoken leaves: ``100dik`` →
+    ``ehundik``.
+
+    Araua 203 p.38, note 32: «Ehun hitzaren kasuan, ehunetik da forma
+    estandarra, baina ehundik ere erabiltzen da, batez ere ehundik gora / 100dik
+    gora esapidean». text2spoken reads ``100etik`` and leaves ``100dik`` as
+    written. The ending stays as written after the number.
+    TODO(text2spoken issue: GLUED_CASE_ENDING)
+    """
+    parser = _parser(dialect)
+
+    def read(m: "re.Match[str]") -> str:
+        return parser.pronounce_token(m.group(1)) + m.group(2)
+    return _GLUED_ENDING.sub(read, text)
+
+
+#: A number in digits, as a code holds it: the ``12`` of ``B12``, the ``1.0`` of ``v1.0``.
+_CODE_DIGITS = re.compile(r"\d+(?:[.,]\d+)*")
+
+
+def read_code_digits(text: str, dialect: str = "eu") -> str:
+    """Read the digits that are still in the text: ``B12`` → ``Bhamabi``.
+
+    text2spoken leaves a code as written (``5G``, ``B12``, ``AP-8``, ``H2O``),
+    because a code is a name. The orthography2ipa lattice reads letters only, and
+    deletes the digits. So each run of digits reads as a number in its place, and
+    the letters and marks around it stay: ``5G`` → ``bostG``, ``AP-8`` →
+    ``AP-zortzi``, ``24/7`` → ``hogeita lau/zazpi``. This runs after every
+    fallback, so it reads only digits that nothing else reads.
+    """
+    parser = _parser(dialect)
+
+    def read(m: "re.Match[str]") -> str:
+        # A run that is no number, such as ``1.0.0``, reads group by group.
+        return parser.pronounce_token(m.group()) or re.sub(
+            r"\d+", lambda d: parser.pronounce_token(d.group()), m.group())
+    return _CODE_DIGITS.sub(read, text)
