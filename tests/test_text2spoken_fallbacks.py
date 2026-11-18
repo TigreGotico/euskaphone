@@ -5,6 +5,8 @@ as written, and it goes when text2spoken reads that form. The guard tests below
 turn red on the day text2spoken reads a fallback form: the fallback then comes
 out, with its ``TODO(text2spoken issue: <CLASS>)`` marker.
 """
+import importlib
+import inspect
 import re
 import warnings
 from pathlib import Path
@@ -303,3 +305,51 @@ def test_every_fallback_names_its_text2spoken_issue():
               for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1)
               if TODO in line]
     assert marked == []
+
+
+ISSUE_URL = "https://github.com/TigreGotico/text2spoken/issues/"
+
+# Each fallback and the text2spoken issue that holds the form it reads.
+FALLBACK_ISSUES = [
+    ("abbreviations", "LEFT_BY_TEXT2SPOKEN", 265),
+    ("normalize", "read_bare_clock_times", 267),
+    ("normalize", "read_capitalized_abbreviations", 265),
+    ("number_utils", "read_space_grouped_numbers", 148),
+    ("number_utils", "read_garren_ordinals", 263),
+    ("number_utils", "read_dot_decimals", 264),
+    ("number_utils", "read_glued_case_endings", 273),
+    ("romans", "read_bare_monarch_numerals", 266),
+    ("units", "read_currency_before_number", 268),
+    ("units", "LEFT_BY_TEXT2SPOKEN", 269),
+]
+
+
+def _documentation(module_name, name):
+    # A function carries the URL in its docstring, a constant in the "#:" lines
+    # right above its assignment.
+    module = importlib.import_module(f"euskaphone.{module_name}")
+    obj = getattr(module, name)
+    if callable(obj):
+        return inspect.getdoc(obj) or ""
+    lines = inspect.getsource(module).splitlines()
+    start = next(n for n, line in enumerate(lines) if re.match(rf"{name}\b\s*[:=]", line))
+    comments = []
+    for line in reversed(lines[:start]):
+        if not line.startswith("#:"):
+            break
+        comments.append(line)
+    return "\n".join(comments)
+
+
+@pytest.mark.parametrize("module_name,name,issue", FALLBACK_ISSUES)
+def test_a_fallback_cites_its_text2spoken_issue(module_name, name, issue):
+    urls = re.findall(rf"{re.escape(ISSUE_URL)}(\d+)", _documentation(module_name, name))
+    assert urls == [str(issue)]
+
+
+def test_every_issue_url_in_the_package_has_a_fallback_row():
+    found = sorted((path.stem, int(number))
+                   for path in (ROOT / "euskaphone").glob("*.py")
+                   for number in re.findall(rf"{re.escape(ISSUE_URL)}(\d+)",
+                                            path.read_text(encoding="utf-8")))
+    assert found == sorted((module_name, issue) for module_name, _, issue in FALLBACK_ISSUES)
