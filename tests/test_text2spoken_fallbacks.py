@@ -204,12 +204,39 @@ def test_no_clock_time_stays_unread(text, lect):
     assert CLOCK.search(normalize.normalize_text(text, lect)) is None
 
 
+# Araua 196 section 12 (p. 30): "Laburdura-puntua ez da puntuazio-marka bat;
+# beraz, haren ondoren datorren hitza letra xehez hasita idazten da, non eta ez
+# den izen berezi bat edo esaldiaren hasierako hitza." A capital after the stop
+# starts a name or a sentence. Section 12.1 (p. 31) ends a sentence with "etab.":
+# "musika klasikoa, etab." text2spoken keeps the stop before a capital for
+# "etab." only, and the fallback reads each abbreviation in the same way.
+@pytest.mark.parametrize("text,spoken", [
+    ("h.d. Euskal Herrian", "hau da Euskal Herrian"),
+    ("Ikus lib. Bilbon", "Ikus liburua Bilbon"),
+    ("Ikus kap. Lehenengoa", "Ikus kapitulua Lehenengoa"),
+    ("orr. Bilbon", "orrialdeak Bilbon"),
+    ("Bilbo, ETAB. Gero", "Bilbo, eta abar. Gero"),
+    # The end of the text ends the sentence.
+    ("Ikus h.d.", "Ikus hau da."),
+])
+def test_an_abbreviation_keeps_its_stop_before_a_capital_only_where_a_sentence_ends(text, spoken):
+    assert normalize.normalize_text(text) == spoken
+
+
+@pytest.mark.parametrize("text,norm_writing", [
+    ("Bilbo, ETAB. Gero", "Bilbo, etab. Gero"),
+    ("k.a. Erroman", "K.a. Erroman"),
+])
+def test_the_stop_before_a_capital_matches_text2spoken(text, norm_writing):
+    assert normalize.normalize_text(text) == normalize.text2spoken_reading(norm_writing)
+
+
 @pytest.mark.parametrize("text,spoken", [
     ("Karlos V\neta", "Karlos bosgarrena\neta"),
     ("Karlos  V", "Karlos  bosgarrena"),
     ("Karlos\tV", "Karlos\tbosgarrena"),
-    # A capital after the period ends the sentence, so the period stays.
-    ("lib.\nBilbon", "liburua.\nBilbon"),
+    # A capital after the stop of "lib." starts a name, so no stop stays.
+    ("lib.\nBilbon", "liburua\nBilbon"),
     ("h.d.\thori", "hau da\thori"),
     ("kap.\n3", "kapitulua\nhiru"),
     ("5 g\ngatz", "bost gramo\ngatz"),
