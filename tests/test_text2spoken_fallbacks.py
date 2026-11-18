@@ -287,12 +287,31 @@ def test_a_capitalized_abbreviation_reads_as_text2spoken_reads_the_lower_case(ab
     ("Hurr. orrialdean", "Hurrengoak orrialdean"),
     ("Jn.\nAgirre", "Jauna\nAgirre"),
     ("(Jn. Agirre)", "(Jauna Agirre)"),
+    # The EIMA punctuation guide (Garzia 2014), 2.8: "Elkarrizketetan erabiltzen
+    # da marra bakarra, solaskide bakoitzaren txandari dagokion paragrafoaren
+    # hasieran: —Zer duzu? —Ezer ez." The dash opens the turn, so it opens the word.
+    ("—Jn. Agirre etorri da.", "—Jauna Agirre etorri da."),
+    # Araua 196 section 10 (p. 27): "Laburtutako hitzei dagokien letra larri eta
+    # xeheen erabilerari jarraitu behar diote laburdurek". In a heading or a form
+    # in capitals, the abbreviation is in capitals too.
+    ("ZK. 5", "Zenbakia bost"),
+    ("TEL. 943", "Telefonoa bederatziehun eta berrogeita hiru"),
+    ("JN. Agirre", "Jauna Agirre"),
 ])
 def test_a_sentence_can_open_with_an_abbreviation(text, spoken):
     assert normalize.normalize_text(text) == spoken
 
 
-@pytest.mark.parametrize("text", ["E.a. hori", "At. hori"])
+@pytest.mark.parametrize("abbreviation", CAPITALIZED)
+def test_an_abbreviation_in_capitals_or_after_a_dash_reads_as_with_a_capital(abbreviation):
+    lower = normalize.text2spoken_reading(f"{abbreviation.lower()} etxea")
+    spoken = lower[0].upper() + lower[1:]
+    for text, expected in [(f"{abbreviation.upper()} etxea", spoken), (f"—{abbreviation} etxea", f"—{spoken}")]:
+        assert normalize.text2spoken_reading(text) == text
+        assert normalize.normalize_text(text) == expected
+
+
+@pytest.mark.parametrize("text", ["E.a. hori", "At. hori", "E.A. hori", "AT. hori", "—E.a. hori"])
 def test_no_reading_for_an_uncited_abbreviation_with_a_capital(text):
     assert normalize.normalize_text(text) == text
 
