@@ -325,7 +325,7 @@ def read_space_grouped_numbers(text: str, dialect: str = "eu") -> str:
     """Read digit groups that a space separates: ``1 000 000`` → ``milioi bat``.
 
     Araua 203 recommends a space between groups of three digits. text2spoken
-    leaves them as written: https://github.com/TigreGotico/text2spoken/issues/148
+    leaves them as written: https://github.com/TigreGotico/text2spoken/issues/295
     """
     parser = _parser(dialect)
     return _SPACE_THOUSANDS.sub(
