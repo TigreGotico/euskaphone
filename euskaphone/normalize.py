@@ -13,7 +13,6 @@ Basque words first. :func:`normalize_text` does this in two steps:
 The fallbacks run in this order:
 
 * a clock time with no case ending, ``10:30``;
-* space-grouped thousands, ``1 000 000`` (:mod:`euskaphone.number_utils`);
 * digits with the ordinal suffix, ``16garren``;
 * a point as the decimal mark, ``2.5``;
 * a currency symbol before the number, ``€5eko`` (:mod:`euskaphone.units`);
@@ -46,8 +45,7 @@ from euskaphone.abbreviations import (_TRAILING, ABBREVIATIONS,
 from euskaphone.deprecation import warn_deprecated
 from euskaphone.number_utils import (read_code_digits, read_dot_decimals,
                                      read_garren_ordinals,
-                                     read_glued_case_endings,
-                                     read_space_grouped_numbers)
+                                     read_glued_case_endings)
 from euskaphone.registry import DEFAULT_DIALECT, resolve_lect
 from euskaphone.romans import read_bare_monarch_numerals
 from euskaphone.units import read_currency_before_number, read_unit_symbols
@@ -159,7 +157,6 @@ def normalize_text(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     lect = resolve_lect(dialect)
     spoken = text2spoken_reading(text, lect)
     spoken = read_bare_clock_times(spoken, lect)
-    spoken = read_space_grouped_numbers(spoken, lect)
     spoken = read_garren_ordinals(spoken, lect)
     spoken = read_dot_decimals(spoken, lect)
     spoken = read_currency_before_number(spoken, lect)

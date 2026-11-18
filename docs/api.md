@@ -43,15 +43,15 @@ Whether `dialect` names a Basque lect, not the Batua fallback.
 or older (`eu-x-lapurdi` or `eu-x-lapurtera`), and does not resolve an alias
 such as `labourdin`: it raises `ValueError` for one.
 
-`read_space_grouped_numbers(text, dialect)`, `read_garren_ordinals(text, dialect)`,
-`read_dot_decimals(text, dialect)` and `read_glued_case_endings(text, dialect)`
-are the fallbacks for `1 000 000`, `16garren`, `2.5` and `100dik`, which
-text2spoken leaves as written. `read_code_digits(text, dialect)` reads the
+`read_garren_ordinals(text, dialect)`, `read_dot_decimals(text, dialect)` and
+`read_glued_case_endings(text, dialect)` are the fallbacks for `16garren`,
+`2.5` and `100dik`, which text2spoken leaves as written. `read_code_digits(text, dialect)` reads the
 digits of a code (`B12`). They run on text2spoken's output inside
 `normalize_text`.
 
-`normalize_numbers(text, dialect="eu", strict=False)` is deprecated: use
-`normalize_text`.
+`normalize_numbers(text, dialect="eu", strict=False)` and
+`read_space_grouped_numbers(text, dialect)` are deprecated: use
+`normalize_text`, which reads `1 000 000` through text2spoken.
 
 Vigesimal cardinal/ordinal composition is delegated to `ovos-number-parser`
 (`pronounce_number` / `pronounce_ordinal`, `lang="eu"`). euskaphone keeps

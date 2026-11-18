@@ -21,7 +21,6 @@ TODO = "TODO(text2spoken issue"
 # Forms that text2spoken leaves as written, with the written part it keeps.
 LEFT_AS_WRITTEN = [
     ("16garren postua", "16garren"),
-    ("1 000 000 lagun", "1 000 000"),
     ("2.5", "2.5"),
     ("h.d. hori", "h.d."),
     ("kap. 3", "kap."),
@@ -55,8 +54,6 @@ FALLBACK_READINGS = [
     ("1garren", "lehenengo"),
     ("16garren postua", "hamaseigarren postua"),
     ("10garrena.", "hamargarrena."),
-    ("1 000 000 lagun", "milioi bat lagun"),
-    ("2 500 metro", "bi mila eta bostehun metro"),
     ("2.5", "bi koma bost"),
     ("h.d. hori", "hau da hori"),
     ("h.d.", "hau da."),
@@ -125,8 +122,6 @@ def test_the_fallback_reads_what_text2spoken_leaves(text, spoken):
 @pytest.mark.parametrize("text,norm_writing", [
     # Araua 203 p.24: "(desegokia) bi. edo 2garren"; "(egokia) bigarren edo 2."
     ("16garren postua", "16. postua"),
-    # Araua 203 p.12: "36 524; 256 089; 1 000 000"
-    ("1 000 000 lagun", "1.000.000 lagun"),
     # Araua 203 p.14: "Euskaraz, koma da markatzaile dezimala"
     ("2.5", "2,5"),
     # Araua 196 p.27: the abbreviation follows the case of the words it stands for.
@@ -143,9 +138,25 @@ def test_the_fallback_matches_text2spoken_on_the_norm_writing(text, norm_writing
     assert normalize.normalize_text(text) == normalize.text2spoken_reading(norm_writing)
 
 
+# Araua 203 p.12 writes digits in groups of three with a space between them:
+# "36 524; 256 089; 1 000 000". text2spoken reads that writing as it reads the
+# groups with a full stop. The number words are those of test_number_utils
+# (Araua 7).
+@pytest.mark.parametrize("text,period_writing,spoken", [
+    ("1 000 000 lagun", "1.000.000 lagun", "milioi bat lagun"),
+    ("2 500 metro", "2.500 metro", "bi mila eta bostehun metro"),
+])
+def test_text2spoken_reads_a_number_grouped_by_spaces(text, period_writing, spoken):
+    assert normalize.text2spoken_reading(text) == spoken
+    assert normalize.text2spoken_reading(period_writing) == spoken
+    with warnings.catch_warnings():
+        # The reading path calls no deprecated reader.
+        warnings.simplefilter("error", DeprecationWarning)
+        assert normalize.normalize_text(text) == spoken
+
+
 @pytest.mark.parametrize("text,form,reading", [
     ("16garren postua", "16garren", "hamaseigarren"),
-    ("1 000 000 lagun", "1 000 000", "milioi bat"),
     ("2.5 kilo", "2.5", "bi koma bost"),
     ("h.d. hori", "h.d.", "hau da"),
     ("Karlos V errege zen", "Karlos V", "Karlos bosgarrena"),
@@ -361,7 +372,6 @@ FALLBACK_ISSUES = [
     ("abbreviations", "LEFT_BY_TEXT2SPOKEN", 265),
     ("normalize", "read_bare_clock_times", 267),
     ("normalize", "read_capitalized_abbreviations", 265),
-    ("number_utils", "read_space_grouped_numbers", 295),
     ("number_utils", "read_garren_ordinals", 263),
     ("number_utils", "read_dot_decimals", 264),
     ("number_utils", "read_glued_case_endings", 273),
