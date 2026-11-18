@@ -5,9 +5,11 @@ text2spoken reads the numbers of running text for
 
 * :class:`BasqueNumberParser`, which spells an integer or a numeric token as
   Basque words, with the Lapurdian ``bortz`` series;
-* the fallbacks for three number forms that text2spoken leaves as written:
-  digits with the ordinal suffix (:func:`read_garren_ordinals`), a point as the
-  decimal mark (:func:`read_dot_decimals`) and digits with a glued case ending
+* the fallbacks for four number forms that text2spoken leaves as written:
+  space-grouped numbers joined by a hyphen, an en dash or a slash
+  (:func:`read_space_grouped_numbers`), digits with the
+  ordinal suffix (:func:`read_garren_ordinals`), a point as the decimal mark
+  (:func:`read_dot_decimals`) and digits with a glued case ending
   (:func:`read_glued_case_endings`). Each fallback reads its form with
   :class:`BasqueNumberParser`, and goes when text2spoken reads the form;
 * :func:`read_code_digits`, which reads the digits of a code (``B12``).
@@ -15,8 +17,7 @@ text2spoken reads the numbers of running text for
   stage stays.
 
 :func:`normalize_numbers`, the number stage that text2spoken replaces, is
-deprecated, and so is :func:`read_space_grouped_numbers`, the fallback for
-space-grouped thousands (``1 000 000``), which text2spoken reads.
+deprecated.
 
 Where the work lives
 --------------------
@@ -322,14 +323,16 @@ def _parser(dialect: str) -> BasqueNumberParser:
 
 
 def read_space_grouped_numbers(text: str, dialect: str = "eu") -> str:
-    """Deprecated: :func:`euskaphone.normalize.normalize_text` reads space-grouped
-    numbers through text2spoken.
+    """Read digit groups that a space separates: ``10 000-20 000`` → ``hamar
+    mila-hogei mila``.
 
-    Read digit groups that a space separates: ``1 000 000`` → ``milioi bat``.
-    Araua 203 recommends a space between groups of three digits.
+    Araua 203 recommends a space between groups of three digits. text2spoken
+    reads a single number in that writing (``1 000 000``). It leaves two such
+    numbers joined by a hyphen, an en dash or a slash as written:
+    https://github.com/TigreGotico/text2spoken/issues/295
+    It also leaves three groups of three digits (``943 123 456``), the shape of
+    a telephone number, as written, and this fallback reads them as one number.
     """
-    warn_deprecated("number_utils.read_space_grouped_numbers",
-                    "use euskaphone.normalize.normalize_text, which reads space-grouped numbers through text2spoken")
     parser = _parser(dialect)
     return _SPACE_THOUSANDS.sub(
         lambda m: parser.pronounce_token(m.group().replace(" ", "")), text)

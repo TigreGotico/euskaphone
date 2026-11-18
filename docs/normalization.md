@@ -96,6 +96,7 @@ its own form.
 | Form | Example | Reading | Module |
 |---|---|---|---|
 | Clock time with no case ending | `10:30` | goizeko hamarrak eta hogeita hamar | `normalize` |
+| Space-grouped numbers joined by `-`, `–` or `/` | `10 000-20 000 lagun` | hamar mila-hogei mila lagun | `number_utils` |
 | Digits with `-garren` | `16garren` | hamaseigarren | `number_utils` |
 | A point as the decimal mark | `2.5` | bi koma bost | `number_utils` |
 | Currency symbol before the number | `€5eko` | bost euroko | `units` |
@@ -141,7 +142,7 @@ them:
 
 | Module | Deprecated names |
 |---|---|
-| `euskaphone.number_utils` | `normalize_numbers`, `read_space_grouped_numbers` |
+| `euskaphone.number_utils` | `normalize_numbers` |
 | `euskaphone.dates` | `normalize_dates`, `compose_date`, `MONTHS_GENITIVE` |
 | `euskaphone.abbreviations` | `expand_abbreviations` |
 | `euskaphone.romans` | `normalize_romans` |

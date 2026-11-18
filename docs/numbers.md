@@ -84,8 +84,9 @@ European/Basque convention: the **comma is the decimal separator** and the
 digits) reads as the thousands grouping 2500 rather than 2.5. A period that does
 not form a 1–3 + 3-digit grouping (`2.5`, `2.53`) falls back to a decimal point.
 
-text2spoken reads `2,5`, `1.000.000`, `1 000 000` and `2.500`. It leaves
-`2.5` as written, and a fallback reads it by this convention.
+text2spoken reads `2,5`, `1.000.000`, `1 000 000` and `2.500`. It leaves `2.5`
+as written, and two space-grouped numbers joined by a hyphen, an en dash or a
+slash (`10 000-20 000`). The fallbacks read them by this convention.
 
 ## Where the composition lives
 
@@ -97,8 +98,7 @@ hundreds, the `eta`-drop rule) and **Araua 18** ("Ordinalen … idazkera",
 ordinals: the `-garren` suffix, the `bost` → `bos` drop) tables. euskaphone
 adds the layer that needs orthographic context: separator handling,
 case-suffix attachment and the Lapurdian `bortz` substitution.
-`normalize_numbers`, the number stage that text2spoken replaces, and
-`read_space_grouped_numbers`, which reads `1 000 000`, are
+`normalize_numbers`, the number stage that text2spoken replaces, is
 deprecated.
 
 Both arauak are deposited in the papers library

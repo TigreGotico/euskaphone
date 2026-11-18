@@ -20,7 +20,6 @@ def removal_version():
 
 DEPRECATED = [
     ("number_utils", "normalize_numbers", ("31 katu",), "hogeita hamaika katu"),
-    ("number_utils", "read_space_grouped_numbers", ("1 000 000 lagun",), "milioi bat lagun"),
     ("dates", "normalize_dates", ("2024-01-15",), "bi mila eta hogeita lauko urtarrilaren hamabostean"),
     ("dates", "compose_date", (1995, 3, 7), "mila bederatziehun eta laurogeita hamabosteko martxoaren zazpian"),
     ("abbreviations", "expand_abbreviations", ("katuak etab.",), "katuak eta abar"),

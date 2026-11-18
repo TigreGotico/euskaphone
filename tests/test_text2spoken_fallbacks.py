@@ -21,6 +21,10 @@ TODO = "TODO(text2spoken issue"
 # Forms that text2spoken leaves as written, with the written part it keeps.
 LEFT_AS_WRITTEN = [
     ("16garren postua", "16garren"),
+    ("10 000-20 000 lagun", "10 000-20 000"),
+    ("2 500/3 000", "2 500/3 000"),
+    ("1 000–2 000 metro", "1 000–2 000"),
+    ("943 123 456", "943 123 456"),
     ("2.5", "2.5"),
     ("h.d. hori", "h.d."),
     ("kap. 3", "kap."),
@@ -54,6 +58,9 @@ FALLBACK_READINGS = [
     ("1garren", "lehenengo"),
     ("16garren postua", "hamaseigarren postua"),
     ("10garrena.", "hamargarrena."),
+    ("10 000-20 000 lagun", "hamar mila-hogei mila lagun"),
+    ("2 500/3 000", "bi mila eta bostehun/hiru mila"),
+    ("1 000–2 000 metro", "mila–bi mila metro"),
     ("2.5", "bi koma bost"),
     ("h.d. hori", "hau da hori"),
     ("h.d.", "hau da."),
@@ -155,8 +162,37 @@ def test_text2spoken_reads_a_number_grouped_by_spaces(text, period_writing, spok
         assert normalize.normalize_text(text) == spoken
 
 
+# Two space-grouped numbers joined by a hyphen, an en dash or a slash: each
+# number reads as text2spoken reads it alone, and the mark stays.
+@pytest.mark.parametrize("left,mark,right,tail", [
+    ("10 000", "-", "20 000", " lagun"),
+    ("2 500", "/", "3 000", ""),
+    ("1 000", "–", "2 000", " metro"),
+])
+def test_each_number_of_a_space_grouped_range_reads_as_text2spoken_reads_it_alone(left, mark, right, tail):
+    text = f"{left}{mark}{right}{tail}"
+    assert normalize.text2spoken_reading(text) == text
+    spoken = f"{normalize.text2spoken_reading(left)}{mark}{normalize.text2spoken_reading(right)}{tail}"
+    assert normalize.normalize_text(text) == spoken
+
+
+# text2spoken leaves three groups of three digits as written, because Araua 203,
+# note 12, groups a telephone number in that shape: "zenbakiak binaka edo
+# hirunaka ere zatitu daitezke: Telefonoa: +34 944 15 81 55 / +34 944 158 155".
+# The fallback reads the groups as one number, and an abbreviation before them
+# then reads with the number after it.
+@pytest.mark.parametrize("text,spoken", [
+    ("943 123 456", "bederatziehun eta berrogeita hiru milioi ehun eta hogeita hiru mila laurehun eta berrogeita hamasei"),
+    ("Tel. 943 123 456", "Telefonoa bederatziehun eta berrogeita hiru milioi ehun eta hogeita hiru mila laurehun eta berrogeita hamasei"),
+])
+def test_three_groups_of_three_digits_read_as_one_number(text, spoken):
+    assert normalize.text2spoken_reading(text) == text
+    assert normalize.normalize_text(text) == spoken
+
+
 @pytest.mark.parametrize("text,form,reading", [
     ("16garren postua", "16garren", "hamaseigarren"),
+    ("10 000-20 000 lagun", "10 000-20 000", "hamar mila-hogei mila"),
     ("2.5 kilo", "2.5", "bi koma bost"),
     ("h.d. hori", "h.d.", "hau da"),
     ("Karlos V errege zen", "Karlos V", "Karlos bosgarrena"),
@@ -399,6 +435,7 @@ FALLBACK_ISSUES = [
     ("abbreviations", "LEFT_BY_TEXT2SPOKEN", 265),
     ("normalize", "read_bare_clock_times", 267),
     ("normalize", "read_capitalized_abbreviations", 265),
+    ("number_utils", "read_space_grouped_numbers", 295),
     ("number_utils", "read_garren_ordinals", 263),
     ("number_utils", "read_dot_decimals", 264),
     ("number_utils", "read_glued_case_endings", 273),
