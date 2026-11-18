@@ -106,8 +106,9 @@ def read_bare_clock_times(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     return _BARE_CLOCK.sub(read, text)
 
 
-#: Marks that can open a word before an abbreviation: ``(Jn.``.
-_OPENING = "(«\"'[¿¡"
+#: Marks that can open a word before an abbreviation: ``(Jn.``, and the dash
+#: that opens a turn of dialogue, ``—Jn.``.
+_OPENING = "(«\"'[¿¡—"
 
 
 def read_capitalized_abbreviations(text: str, dialect: str = DEFAULT_DIALECT) -> str:
@@ -115,11 +116,14 @@ def read_capitalized_abbreviations(text: str, dialect: str = DEFAULT_DIALECT) ->
     ``Jauna Agirre``.
 
     Araua 196 section 13 (pp. 32-33) lets a sentence open with an
-    abbreviation, which then takes a capital. text2spoken reads the lower-case
-    form (``jn.``) and leaves the capitalized one as written. The capitalized
-    form reads as text2spoken reads the lower-case form before the same next
-    word, and keeps the capital. An abbreviation that text2spoken leaves in
-    lower case too (``e.a.``, ``at.``) stays as written.
+    abbreviation, which then takes a capital. Section 10 (p. 27) gives an
+    abbreviation the case of the words it stands for, so a heading in capitals
+    writes ``ZK.``. text2spoken reads the lower-case form (``jn.``) and leaves
+    the capitalized one and the one in capitals as written. Each reads as
+    text2spoken reads the lower-case form before the same next word, with a
+    capital. An abbreviation that text2spoken leaves in lower case too
+    (``e.a.``, ``at.``) stays as written. The dash that opens a turn of
+    dialogue (``—Jn.``) stays before the reading.
     https://github.com/TigreGotico/text2spoken/issues/265
     """
     parts = re.split(r"(\s+)", text)
@@ -129,7 +133,8 @@ def read_capitalized_abbreviations(text: str, dialect: str = DEFAULT_DIALECT) ->
         opening = word[:len(word) - len(body)]
         core = body.rstrip(_TRAILING)
         lower = core.lower()
-        if lower not in ABBREVIATIONS or not core[:1].isupper() or core[1:] != core[1:].lower():
+        rest = core[1:]
+        if lower not in ABBREVIATIONS or not core[:1].isupper() or rest not in (rest.lower(), rest.upper()):
             continue
         lowered = lower + body[len(core):]
         following = next((w for w in words[i + 1:] if w), "")
@@ -184,5 +189,5 @@ def __getattr__(name: str):
     home = _REEXPORTED.get(name)
     if home is None:
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-    warn_deprecated(f"normalize.{name}", f"import it from euskaphone.{home}, or use euskaphone.normalize.normalize_text")
+    warn_deprecated(f"normalize.{name}", "use euskaphone.normalize.normalize_text")
     return getattr(importlib.import_module(f"euskaphone.{home}"), name)
