@@ -116,6 +116,13 @@ _POINT_CLOCK = re.compile(
     r"(?<![\w.,])(\d{1,2})\.([0-5]\d)(etan|etara|etatik|ean|era|etik|an|ra|tik|ak)(?!\w|[.,]\d)")
 
 
+#: The word right before a point clock time, as ``goizeko`` in ``goizeko
+#: 10.30etan``, looked for in the last :data:`_WORD_BEFORE_REACH` characters
+#: only, so that a long text costs no more per time than a short one.
+_WORD_BEFORE = re.compile(r"(\S+)\s+\Z")
+_WORD_BEFORE_REACH = 100
+
+
 def read_point_clock_times(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     """Read a clock time with a point and a case ending: ``10.30etan`` →
     ``goizeko hamarrak eta hogeita hamarretan``.
@@ -132,7 +139,7 @@ def read_point_clock_times(text: str, dialect: str = DEFAULT_DIALECT) -> str:
         if hour > 24 or (hour == 24 and minute):
             return m.group()
         written = f"{m.group(1)}:{m.group(2)}{m.group(3)}"
-        before = re.search(r"(\S+)\s+$", text[:m.start()])
+        before = _WORD_BEFORE.search(text, max(0, m.start() - _WORD_BEFORE_REACH), m.start())
         if before is not None:
             prefix = f"{before.group(1)} "
             spoken = text2spoken_reading(prefix + written, dialect)
