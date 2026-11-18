@@ -75,9 +75,10 @@ def text2spoken_reading(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     return text2spoken.normalize(text, text2spoken_tag(dialect))
 
 
-#: A clock time with no case ending: ``10:30``. A time with seconds
-#: (``07:05:15``) or a case ending (``10:30ean``) does not match.
-_BARE_CLOCK = re.compile(r"(?<![\w:.,])(\d{1,2}):([0-5]\d)(?![\w:]|[.,]\d)")
+#: A clock time with no case ending: ``10:30``, and ``10:30 h`` with the hour
+#: symbol. A time with seconds (``07:05:15``) or a case ending (``10:30ean``)
+#: does not match.
+_BARE_CLOCK = re.compile(r"(?<![\w:.,])(\d{1,2}):([0-5]\d)(?:[ \u00a0]?h)?(?![\w:]|[.,]\d)")
 
 
 def read_bare_clock_times(text: str, dialect: str = DEFAULT_DIALECT) -> str:
@@ -89,7 +90,9 @@ def read_bare_clock_times(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     the part of the day first («Arratsaldeko zazpiak eta hamar (7:10 p.m.)»), as
     text2spoken does for a time with a case ending. text2spoken reads the hour
     with the article (``10:00ak``), so the hour reads through text2spoken, and
-    the minutes follow it.
+    the minutes follow it. The hour symbol after the time adds no word: Araua 203
+    p.51 calls it redundant («Itsasgorak: 05:49 h eta 18:07 h» is
+    «erredundantea»), so ``12:00 h`` reads as ``12:00``.
     https://github.com/TigreGotico/text2spoken/issues/267
     """
     def read(m: "re.Match[str]") -> str:

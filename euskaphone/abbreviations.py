@@ -86,6 +86,11 @@ def expand_abbreviations(text: str) -> str:
 #: https://github.com/TigreGotico/text2spoken/issues/265
 LEFT_BY_TEXT2SPOKEN = frozenset({"h.d.", "kap.", "lib.", "orr.", "etab.", "k.a."})
 
+#: The abbreviations of :data:`LEFT_BY_TEXT2SPOKEN` that end a list, and so can
+#: end a sentence before a capital (Araua 196 p.31: «musika klasikoa, etab.»).
+#: text2spoken keeps the stop of ``etab.`` before a capital in the same way.
+_SENTENCE_FINAL = frozenset({"etab."})
+
 #: Punctuation that can follow the period of an abbreviation.
 _TRAILING = ",;:!?)»\"'"
 
@@ -95,9 +100,13 @@ def read_left_abbreviations(text: str) -> str:
 
     At the end of a sentence the period of the abbreviation also ends the
     sentence, so one period stays (Araua 196, p. 31): ``kap.`` at the end reads
-    ``kapitulua.``. A sentence ends at the end of the text or before a capital,
-    when no other mark follows the period. The whitespace between words stays
-    as written.
+    ``kapitulua.``. A sentence ends at the end of the text, when no other mark
+    follows the period. A capital after the period starts a name or a sentence
+    (Araua 196, p. 30: «haren ondoren datorren hitza letra xehez hasita idazten
+    da, non eta ez den izen berezi bat edo esaldiaren hasierako hitza»), so the
+    period stays before a capital only after an abbreviation that ends a list
+    (:data:`_SENTENCE_FINAL`): ``h.d. Euskal Herrian`` reads ``hau da Euskal
+    Herrian``. The whitespace between words stays as written.
     """
     parts = re.split(r"(\s+)", text)
     words = parts[::2]
@@ -106,7 +115,8 @@ def read_left_abbreviations(text: str) -> str:
         if core.lower() not in LEFT_BY_TEXT2SPOKEN:
             continue
         following = next((w for w in words[i + 1:] if w), "")
-        ends_sentence = word == core and (not following or following[0].isupper())
+        ends_sentence = word == core and (
+            not following or (core.lower() in _SENTENCE_FINAL and following[0].isupper()))
         stop = "." if ends_sentence else ""
         words[i] = ABBREVIATIONS[core.lower()] + stop + word[len(core):]
     parts[::2] = words
