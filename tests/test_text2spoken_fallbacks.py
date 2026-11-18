@@ -21,7 +21,10 @@ TODO = "TODO(text2spoken issue"
 # Forms that text2spoken leaves as written, with the written part it keeps.
 LEFT_AS_WRITTEN = [
     ("16garren postua", "16garren"),
-    ("1 000 000 lagun", "1 000 000"),
+    ("10 000-20 000 lagun", "10 000-20 000"),
+    ("2 500/3 000", "2 500/3 000"),
+    ("1 000–2 000 metro", "1 000–2 000"),
+    ("943 123 456", "943 123 456"),
     ("2.5", "2.5"),
     ("10.30etan", "10.30etan"),
     ("h.d. hori", "h.d."),
@@ -56,8 +59,9 @@ FALLBACK_READINGS = [
     ("1garren", "lehenengo"),
     ("16garren postua", "hamaseigarren postua"),
     ("10garrena.", "hamargarrena."),
-    ("1 000 000 lagun", "milioi bat lagun"),
-    ("2 500 metro", "bi mila eta bostehun metro"),
+    ("10 000-20 000 lagun", "hamar mila-hogei mila lagun"),
+    ("2 500/3 000", "bi mila eta bostehun/hiru mila"),
+    ("1 000–2 000 metro", "mila–bi mila metro"),
     ("2.5", "bi koma bost"),
     ("h.d. hori", "hau da hori"),
     ("h.d.", "hau da."),
@@ -126,8 +130,6 @@ def test_the_fallback_reads_what_text2spoken_leaves(text, spoken):
 @pytest.mark.parametrize("text,norm_writing", [
     # Araua 203 p.24: "(desegokia) bi. edo 2garren"; "(egokia) bigarren edo 2."
     ("16garren postua", "16. postua"),
-    # Araua 203 p.12: "36 524; 256 089; 1 000 000"
-    ("1 000 000 lagun", "1.000.000 lagun"),
     # Araua 203 p.14: "Euskaraz, koma da markatzaile dezimala"
     ("2.5", "2,5"),
     # Araua 196 p.27: the abbreviation follows the case of the words it stands for.
@@ -144,9 +146,54 @@ def test_the_fallback_matches_text2spoken_on_the_norm_writing(text, norm_writing
     assert normalize.normalize_text(text) == normalize.text2spoken_reading(norm_writing)
 
 
+# Araua 203 p.12 writes digits in groups of three with a space between them:
+# "36 524; 256 089; 1 000 000". text2spoken reads that writing as it reads the
+# groups with a full stop. The number words are those of test_number_utils
+# (Araua 7).
+@pytest.mark.parametrize("text,period_writing,spoken", [
+    ("1 000 000 lagun", "1.000.000 lagun", "milioi bat lagun"),
+    ("2 500 metro", "2.500 metro", "bi mila eta bostehun metro"),
+])
+def test_text2spoken_reads_a_number_grouped_by_spaces(text, period_writing, spoken):
+    assert normalize.text2spoken_reading(text) == spoken
+    assert normalize.text2spoken_reading(period_writing) == spoken
+    with warnings.catch_warnings():
+        # The reading path calls no deprecated reader.
+        warnings.simplefilter("error", DeprecationWarning)
+        assert normalize.normalize_text(text) == spoken
+
+
+# Two space-grouped numbers joined by a hyphen, an en dash or a slash: each
+# number reads as text2spoken reads it alone, and the mark stays.
+@pytest.mark.parametrize("left,mark,right,tail", [
+    ("10 000", "-", "20 000", " lagun"),
+    ("2 500", "/", "3 000", ""),
+    ("1 000", "–", "2 000", " metro"),
+])
+def test_each_number_of_a_space_grouped_range_reads_as_text2spoken_reads_it_alone(left, mark, right, tail):
+    text = f"{left}{mark}{right}{tail}"
+    assert normalize.text2spoken_reading(text) == text
+    spoken = f"{normalize.text2spoken_reading(left)}{mark}{normalize.text2spoken_reading(right)}{tail}"
+    assert normalize.normalize_text(text) == spoken
+
+
+# text2spoken leaves three groups of three digits as written, because Araua 203,
+# note 12, groups a telephone number in that shape: "zenbakiak binaka edo
+# hirunaka ere zatitu daitezke: Telefonoa: +34 944 15 81 55 / +34 944 158 155".
+# The fallback reads the groups as one number, and an abbreviation before them
+# then reads with the number after it.
+@pytest.mark.parametrize("text,spoken", [
+    ("943 123 456", "bederatziehun eta berrogeita hiru milioi ehun eta hogeita hiru mila laurehun eta berrogeita hamasei"),
+    ("Tel. 943 123 456", "Telefonoa bederatziehun eta berrogeita hiru milioi ehun eta hogeita hiru mila laurehun eta berrogeita hamasei"),
+])
+def test_three_groups_of_three_digits_read_as_one_number(text, spoken):
+    assert normalize.text2spoken_reading(text) == text
+    assert normalize.normalize_text(text) == spoken
+
+
 @pytest.mark.parametrize("text,form,reading", [
     ("16garren postua", "16garren", "hamaseigarren"),
-    ("1 000 000 lagun", "1 000 000", "milioi bat"),
+    ("10 000-20 000 lagun", "10 000-20 000", "hamar mila-hogei mila"),
     ("2.5 kilo", "2.5", "bi koma bost"),
     ("Lasterketa 10.30etan da", "10.30etan", "goizeko hamarrak eta hogeita hamarretan"),
     ("h.d. hori", "h.d.", "hau da"),
@@ -234,6 +281,64 @@ def test_a_roman_numeral_after_an_abbreviation_is_no_dynastic_number(text):
     assert normalize.normalize_text(text) == lower[0].upper() + lower[1:]
 
 
+# Araua 196 section 12 (p. 30): "Laburdura-puntua ez da puntuazio-marka bat;
+# beraz, haren ondoren datorren hitza letra xehez hasita idazten da, non eta ez
+# den izen berezi bat edo esaldiaren hasierako hitza." A capital after the stop
+# starts a name or a sentence. Section 12.1 (p. 31) ends a sentence with "etab.":
+# "musika klasikoa, etab." text2spoken keeps the stop before a capital for
+# "etab." only, and the fallback reads each abbreviation in the same way.
+@pytest.mark.parametrize("text,spoken", [
+    ("h.d. Euskal Herrian", "hau da Euskal Herrian"),
+    ("Ikus lib. Bilbon", "Ikus liburua Bilbon"),
+    ("Ikus kap. Lehenengoa", "Ikus kapitulua Lehenengoa"),
+    ("orr. Bilbon", "orrialdeak Bilbon"),
+    ("Bilbo, ETAB. Gero", "Bilbo, eta abar. Gero"),
+    # The end of the text ends the sentence.
+    ("Ikus h.d.", "Ikus hau da."),
+])
+def test_an_abbreviation_keeps_its_stop_before_a_capital_only_where_a_sentence_ends(text, spoken):
+    assert normalize.normalize_text(text) == spoken
+
+
+@pytest.mark.parametrize("text,norm_writing", [
+    ("Bilbo, ETAB. Gero", "Bilbo, etab. Gero"),
+    ("k.a. Erroman", "K.a. Erroman"),
+])
+def test_the_stop_before_a_capital_matches_text2spoken(text, norm_writing):
+    assert normalize.normalize_text(text) == normalize.text2spoken_reading(norm_writing)
+
+
+# Araua 203 p.51: "Orduak eta minutuak adierazten badira, ordea, haien artean bi
+# puntu jarrita, alferrikako erredundantzia da h idaztea: (egokia) Itsasgorak:
+# 05:49 eta 18:07 (erredundantea) Itsasgorak: 05:49 h eta 18:07 h". The h after
+# a clock time repeats it, so the time reads as it reads with no h.
+@pytest.mark.parametrize("text,norm_writing", [
+    ("Itsasgorak: 05:49 h eta 18:07 h", "Itsasgorak: 05:49 eta 18:07"),
+    ("12:00 h", "12:00"),
+    ("12:00h", "12:00"),
+    ("Hasiera: 18:30 h.", "Hasiera: 18:30."),
+    ("12:00\u00a0h", "12:00"),
+])
+def test_the_hour_symbol_after_a_clock_time_adds_no_word(text, norm_writing):
+    assert normalize.text2spoken_reading(text) == text
+    assert normalize.normalize_text(text) == normalize.normalize_text(norm_writing)
+    assert "ordu" not in normalize.normalize_text(text)
+
+
+# Araua 35 (p. 184) reads "Hamabostak eta hogeita hamarrean": a numeral in -r
+# doubles it before an ending that starts with a vowel. text2spoken reads the
+# digits with their ending in the same way, so the fallback matches it.
+@pytest.mark.parametrize("text", ["30ean", "10ean", "50etik", "10era", "2an", "5ean"])
+def test_a_glued_ending_reads_as_text2spoken_reads_the_number_with_its_ending(text):
+    assert number_utils.read_glued_case_endings(text) == normalize.text2spoken_reading(text)
+
+
+def test_a_glued_ending_inside_a_form_that_text2spoken_leaves_doubles_the_r():
+    # text2spoken leaves a time with seconds and an ending as written.
+    assert normalize.text2spoken_reading("Maratoia 2:05:30ean") == "Maratoia 2:05:30ean"
+    assert normalize.normalize_text("Maratoia 2:05:30ean").endswith(":hogeita hamarrean")
+
+
 # Araua 203 p.51: "Koma (edo puntua) erabili da batzuetan orduak eta minutuak
 # bereizteko, baina testu formaletan bi puntu erabili behar dira. [...] minutuak
 # ez dira dezimalak." A clock time with a point and a case ending of the clock
@@ -269,8 +374,8 @@ def test_a_point_number_that_is_no_clock_time_still_reads_as_a_decimal(text):
     ("Karlos V\neta", "Karlos bosgarrena\neta"),
     ("Karlos  V", "Karlos  bosgarrena"),
     ("Karlos\tV", "Karlos\tbosgarrena"),
-    # A capital after the period ends the sentence, so the period stays.
-    ("lib.\nBilbon", "liburua.\nBilbon"),
+    # A capital after the stop of "lib." starts a name, so no stop stays.
+    ("lib.\nBilbon", "liburua\nBilbon"),
     ("h.d.\thori", "hau da\thori"),
     ("kap.\n3", "kapitulua\nhiru"),
     ("5 g\ngatz", "bost gramo\ngatz"),

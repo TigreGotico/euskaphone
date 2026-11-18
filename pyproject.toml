@@ -30,7 +30,7 @@ dependencies = [
     # that text2spoken leaves as written, and the deprecated number stage.
     "ovos-number-parser>=0.6.0a1",
     # Reads numbers, dates, abbreviations, Roman numerals and units.
-    "text2spoken[eu]>=0.0.2a76",
+    "text2spoken[eu]>=0.0.2a81",
 ]
 
 [project.optional-dependencies]
