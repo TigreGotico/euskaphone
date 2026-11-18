@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 from euskaphone import normalize, number_utils
+from tests.text2spoken_gaps import TELEPHONE
 
 ROOT = Path(__file__).parent.parent
 TODO = "TODO(text2spoken issue"
@@ -179,15 +180,22 @@ def test_each_number_of_a_space_grouped_range_reads_as_text2spoken_reads_it_alon
 # text2spoken leaves three groups of three digits as written, because Araua 203,
 # note 12, groups a telephone number in that shape: "zenbakiak binaka edo
 # hirunaka ere zatitu daitezke: Telefonoa: +34 944 15 81 55 / +34 944 158 155".
-# The fallback reads the groups as one number, and an abbreviation before them
-# then reads with the number after it.
-@pytest.mark.parametrize("text,spoken", [
-    ("943 123 456", "bederatziehun eta berrogeita hiru milioi ehun eta hogeita hiru mila laurehun eta berrogeita hamasei"),
-    ("Tel. 943 123 456", "Telefonoa bederatziehun eta berrogeita hiru milioi ehun eta hogeita hiru mila laurehun eta berrogeita hamasei"),
-])
-def test_three_groups_of_three_digits_read_as_one_number(text, spoken):
+# With no telephone word before it, the run is also a quantity in the writing of
+# Araua 203 p.13, "(egokia) 12 578 936", so the fallback reads the groups as one
+# number.
+def test_three_groups_of_three_digits_read_as_one_number():
+    text = "943 123 456"
     assert normalize.text2spoken_reading(text) == text
-    assert normalize.normalize_text(text) == spoken
+    assert normalize.normalize_text(text) == normalize.text2spoken_reading("943.123.456")
+
+
+# After "Tel." the run is the telephone number of note 12, and each written group
+# reads as a number. The abbreviation reads as text2spoken reads "tel.".
+@TELEPHONE
+def test_a_telephone_number_after_tel_reads_group_by_group():
+    groups = ["943", "123", "456"]
+    spoken = " ".join(["Telefonoa", *(normalize.text2spoken_reading(group) for group in groups)])
+    assert normalize.normalize_text("Tel. 943 123 456") == spoken
 
 
 @pytest.mark.parametrize("text,form,reading", [
