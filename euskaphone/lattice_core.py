@@ -12,9 +12,11 @@ the lattice itself, not by post-hoc string edits.
 What euskaphone adds sits in the stages orthography2ipa leaves to the caller,
 wired through orthography2ipa's own extension points:
 
-* **number normalization** — vigesimal (base-20) cardinal/ordinal verbalization
-  (:mod:`euskaphone.number_utils`) runs as the pipeline's ``expand``, before
-  the lattice sees the text;
+* **text normalization** — text2spoken reads numbers, dates, clock times,
+  money, measures, abbreviations and Roman numerals, and euskaphone's
+  fallbacks read the forms it leaves as written
+  (:func:`euskaphone.normalize.normalize_text`). This runs as the pipeline's
+  ``expand``, before the lattice sees the text;
 * **code-switch handling** — embedded Spanish/French words are detected, routed
   through the ``es-ES``/``fr-FR`` lattice and nativized onto the Basque
   inventory (:mod:`euskaphone.codeswitch`), *outside* the engine, so a contact
@@ -52,11 +54,11 @@ _LEXICONS: Dict[str, Tuple[str, Dict[str, str]]] = {}
 def _expander(lect: str):
     """The orthography2ipa ``expand`` callable euskaphone supplies for ``lect``.
 
-    The full pre-lattice orthographic normalization runs here: abbreviations,
-    numeric dates, unit/currency/percent symbols, Roman-numeral ordinals and
-    monarch numerals, and finally vigesimal cardinal/ordinal verbalization
-    (:func:`euskaphone.normalize.normalize_text`). It is a purely orthographic,
-    pre-lattice transformation that leaves the text as Basque words.
+    The full pre-lattice orthographic normalization runs here
+    (:func:`euskaphone.normalize.normalize_text`): text2spoken reads the text in
+    the lect, then the fallbacks read the forms it leaves as written. It is a
+    purely orthographic, pre-lattice transformation that leaves the text as
+    Basque words.
     """
 
     def expand(text: str) -> str:

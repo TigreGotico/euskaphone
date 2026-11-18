@@ -38,18 +38,23 @@ Whether `dialect` names a Basque lect, not the Batua fallback.
 ## Numbers: `euskaphone.number_utils`
 
 `BasqueNumberParser(dialect="eu")` with `.cardinal(n)`, `.ordinal(n)`,
-`.decimal(whole, frac)`, `.year(n)`, `.clock(hour, minute)`.
-`normalize_numbers(text, dialect="eu", strict=False)` rewrites every numeric
-token in running text. Both take a lect code, canonical or older (`eu-x-lapurdi`
-or `eu-x-lapurtera`), and do not resolve an alias such as `labourdin`:
-`BasqueNumberParser` raises `ValueError` for one, and `normalize_numbers` reads it
-as `eu`. `EuskaPhonemizer.phonemize_sentence` resolves aliases before it calls
-them.
+`.decimal(whole, frac)`, `.year(n)`, `.clock(hour, minute)` and
+`.pronounce_token(token, as_ordinal=False)`. It takes a lect code, canonical
+or older (`eu-x-lapurdi` or `eu-x-lapurtera`), and does not resolve an alias
+such as `labourdin`: it raises `ValueError` for one.
+
+`read_space_grouped_numbers(text, dialect)`, `read_garren_ordinals(text, dialect)`
+and `read_dot_decimals(text, dialect)` are the fallbacks for `1 000 000`,
+`16garren` and `2.5`, which text2spoken leaves as written. They run on
+text2spoken's output inside `normalize_text`.
+
+`normalize_numbers(text, dialect="eu", strict=False)` is deprecated: use
+`normalize_text`.
 
 Vigesimal cardinal/ordinal composition is delegated to `ovos-number-parser`
 (`pronounce_number` / `pronounce_ordinal`, `lang="eu"`). euskaphone keeps
 only the orthographic layer: written-separator handling, case-suffix
-attachment, clock times, and the Lapurdian `bortz` substitution.
+attachment and the Lapurdian `bortz` substitution.
 
 ## Code-switch: `euskaphone.codeswitch`
 
@@ -61,10 +66,25 @@ orthographic heuristic then takes over).
 
 ## Normalization: `euskaphone.normalize`
 
-`normalize_text(text, dialect="eu")` spells abbreviations, Roman-numeral
-ordinals, unit/currency/percent symbols, and numeric dates into Basque
-words. It runs automatically as the engine's `normalize` stage and is
-callable on its own.
+`normalize_text(text, dialect="eu")` spells numbers, dates, clock times,
+abbreviations, Roman numerals and unit/currency/percent symbols into Basque
+words. text2spoken reads the text first, and the fallbacks read the forms it
+leaves as written. It runs automatically as the engine's `expand` stage and
+is callable on its own. It resolves an alias such as `labourdin`.
+
+`text2spoken_tag(dialect)` gives the language tag text2spoken reads a lect in,
+and `text2spoken_reading(text, dialect)` gives text2spoken's reading with no
+fallback.
+
+The fallbacks of the other modules are `units.read_currency_before_number`,
+`units.read_unit_symbols`, `romans.read_bare_monarch_numerals` and
+`abbreviations.read_left_abbreviations`. The stages that text2spoken replaces
+are deprecated: `dates.normalize_dates`, `dates.compose_date`,
+`dates.MONTHS_GENITIVE`, `abbreviations.expand_abbreviations`,
+`romans.normalize_romans`, `units.normalize_units`,
+`numverbal.spell_cardinal`, `numverbal.inessive` and
+`numverbal.locative_genitive`. Each call gives a `DeprecationWarning` that names
+the release that removes it.
 
 ## Pitch accent: `euskaphone.pitch_accent`
 

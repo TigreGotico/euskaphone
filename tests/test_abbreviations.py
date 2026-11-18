@@ -39,6 +39,12 @@ def test_no_period_is_not_an_abbreviation(token):
     assert expand_token(token) == token
 
 
+def test_ad_is_not_adibidez():
+    # Araua 196 p.44 lists «ad. aditza»; "adibidez" is "adib.".
+    assert expand_token("ad.") == "ad."
+    assert expand_token("adib.") == "adibidez"
+
+
 def test_non_abbreviation_untouched():
     assert expand_token("katua") == "katua"
     assert expand_token("bat") == "bat"

@@ -16,9 +16,13 @@ handled, each with the Basque-specific word order and declension:
   (``3 km-ra`` → ``hiru kilometrora``, ``50 kg-ko`` → ``berrogeita hamar
   kilogramoko``), the standard Araua 197 symbol-plus-hyphen-suffix convention.
 
-The symbol→word table lives in ``data/units.tsv`` (data, not code). This stage
-composes the number verbalizer through :mod:`euskaphone.numverbal` and produces
-Basque *words*, so the downstream number stage leaves its output alone.
+The symbol→word table lives in ``data/units.tsv`` (data, not code).
+
+text2spoken reads these forms for :func:`euskaphone.normalize.normalize_text`.
+Two fallbacks read what it leaves as written: a currency symbol before a number
+with a case ending (:func:`read_currency_before_number`) and the unit symbols of
+:data:`LEFT_BY_TEXT2SPOKEN` (:func:`read_unit_symbols`). :func:`normalize_units`,
+the stage that text2spoken replaces, is deprecated.
 
 Sources
 -------
@@ -34,8 +38,9 @@ from __future__ import annotations
 
 import os
 import re
-from typing import Dict
+from typing import Dict, List
 
+from euskaphone.deprecation import warn_deprecated
 from euskaphone.numverbal import spell_token
 
 _DATA = os.path.join(os.path.dirname(__file__), "data", "units.tsv")
@@ -111,7 +116,13 @@ def _prefix_currency_regex() -> "re.Pattern[str]":
 
 
 def normalize_units(text: str, dialect: str = "eu") -> str:
-    """Read percent, currency and unit expressions in *text* to Basque words."""
+    """Deprecated: :func:`euskaphone.normalize.normalize_text` reads units,
+    currency and percent through text2spoken.
+
+    Read percent, currency and unit expressions in *text* to Basque words.
+    """
+    warn_deprecated("units.normalize_units",
+                    "use euskaphone.normalize.normalize_text, which reads units through text2spoken")
 
     def percent(m: "re.Match[str]") -> str:
         num = m.group(1) or m.group(2)
@@ -142,3 +153,80 @@ def _order(spelled: str, word: str) -> str:
     if spelled == "bat":
         return f"{word} bat"
     return f"{spelled} {word}"
+
+
+# ---------------------------------------------------------------------------
+# Fallbacks: the forms that text2spoken leaves as written. Each one runs on
+# text2spoken's output and reads only its own form.
+# ---------------------------------------------------------------------------
+
+def read_currency_before_number(text: str, dialect: str = "eu") -> str:
+    """Read a currency symbol before a number with a case ending:
+    ``€5eko`` → ``bost euroko``.
+
+    The norm writes the number first (Araua 197), and text2spoken reads
+    ``5 €-ko`` and ``€5``. It leaves ``€5eko`` as written.
+    TODO(text2spoken issue: CURRENCY_BEFORE_NUMBER)
+    """
+    def read(m: "re.Match[str]") -> str:
+        return _attach(_order(_spell(m.group(2), dialect), UNITS[m.group(1)]), m.group(3))
+    return _prefix_currency_regex().sub(read, text)
+
+
+#: The unit symbols that text2spoken leaves as written after a number. Araua
+#: 197 names each one: ``t`` (tona), ``mg`` (miligramo), ``h`` (ordu), ``g``
+#: (gramo), and the prefixes ``d`` (dezi-) and ``c`` (zenti-) of ``dm``, ``ml``
+#: and ``cl``.
+#: TODO(text2spoken issue: UNIT_SYMBOL)
+LEFT_BY_TEXT2SPOKEN = frozenset({"dm", "g", "mg", "t", "ml", "cl", "h"})
+
+#: A symbol written as its own word, with a hyphenated case ending and
+#: punctuation: ``g``, ``g-ko``, ``h.``.
+_SYMBOL_WORD = re.compile(r"^([^\W\d_]+)(?:-([a-z]+))?([.,;:!?)»\"']*)$")
+
+#: A number written in digits, as the word before a symbol.
+_DIGITS = re.compile(r"-?\d+(?:[.,]\d+)*")
+
+
+def _glued_symbol_regex() -> "re.Pattern[str]":
+    alt = "|".join(re.escape(s) for s in sorted(LEFT_BY_TEXT2SPOKEN, key=len, reverse=True))
+    return re.compile(rf"(?<![\w.,])({_NUM})({alt})(?:-([a-z]+))?(?![a-zA-Z])")
+
+
+def _symbols(words: List[str]) -> List[int]:
+    return [i for i, w in enumerate(words)
+            if (m := _SYMBOL_WORD.match(w)) and m.group(1) in LEFT_BY_TEXT2SPOKEN]
+
+
+def read_unit_symbols(spoken: str, written: str, dialect: str = "eu") -> str:
+    """Read the symbols of :data:`LEFT_BY_TEXT2SPOKEN` after a number.
+
+    ``spoken`` is text2spoken's reading of ``written``. text2spoken reads the
+    number of ``5 g`` and leaves the symbol (``bost g``), so the symbol becomes
+    its word and the number stays as text2spoken read it: ``bost gramo``. A
+    case ending moves to the word (``bost g-ko`` → ``bost gramoko``), and ``bat``
+    follows the word (``1 g`` → ``gramo bat``). text2spoken leaves a symbol glued
+    to its digits (``5g``) whole, and this reads both. A symbol that does not
+    follow digits in ``written`` is a letter, and stays.
+    """
+    def glued(m: "re.Match[str]") -> str:
+        return _attach(_order(_spell(m.group(1), dialect), UNITS[m.group(2)]), m.group(3) or "")
+    spoken = _glued_symbol_regex().sub(glued, spoken)
+
+    written_words = written.split()
+    numbers = [written_words[i - 1] if i > 0 and _DIGITS.fullmatch(written_words[i - 1]) else None
+               for i in _symbols(written_words)]
+    words = spoken.split(" ")
+    positions = _symbols(words)
+    if len(positions) != len(numbers):
+        return spoken
+    for i, number in zip(positions, numbers):
+        if number is None:
+            continue
+        symbol, suffix, trail = _SYMBOL_WORD.match(words[i]).groups()
+        word = _attach(UNITS[symbol], suffix or "")
+        if number == "1" and i > 0 and words[i - 1] == "bat":
+            words[i - 1], words[i] = word, "bat" + trail
+        else:
+            words[i] = word + trail
+    return " ".join(words)
