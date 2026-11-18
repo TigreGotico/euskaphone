@@ -5,9 +5,10 @@ text2spoken reads the numbers of running text for
 
 * :class:`BasqueNumberParser`, which spells an integer or a numeric token as
   Basque words, with the Lapurdian ``bortz`` series;
-* the fallbacks for four number forms that text2spoken leaves as written:
+* the fallbacks for five number forms that text2spoken leaves as written:
   space-grouped numbers joined by a hyphen, an en dash or a slash
-  (:func:`read_space_grouped_numbers`), digits with the
+  (:func:`read_space_grouped_numbers`), digits grouped by commas
+  (:func:`read_comma_grouped_numbers`), digits with the
   ordinal suffix (:func:`read_garren_ordinals`), a point as the decimal mark
   (:func:`read_dot_decimals`) and digits with a glued case ending
   (:func:`read_glued_case_endings`). Each fallback reads its form with
@@ -336,6 +337,30 @@ def read_space_grouped_numbers(text: str, dialect: str = "eu") -> str:
     parser = _parser(dialect)
     return _SPACE_THOUSANDS.sub(
         lambda m: parser.pronounce_token(m.group().replace(" ", "")), text)
+
+
+#: Digits grouped in threes by two commas or more: ``1,000,000``.
+_COMMA_GROUPS = re.compile(r"(?<![\w.,])\d{1,3}(?:,\d{3}){2,}(?!\w|[.,]\d)")
+
+
+def read_comma_grouped_numbers(text: str, dialect: str = "eu") -> str:
+    """Read digits that two commas or more group in threes: ``1,000,000`` →
+    ``milioi bat``.
+
+    Araua 203 p.14: «Euskaraz, koma da markatzaile dezimala», so a Basque
+    decimal has one comma. Araua 203 p.11 names the writing with a comma
+    between the groups: «Herrialde askotan (adibidez, Erresuma Batuan,
+    Ameriketako Estatu Batuetan, Australian…), puntua baliatzen da zenbaki
+    dezimaldunetan zati osoa eta zati dezimala bereizteko [...] eta koma,
+    berriz, milakoen markatzailea da.» A number with two commas or more, each
+    before three digits, is that writing, and reads as the same digits grouped by
+    spaces (p.12: «1 000 000»). One comma stays the decimal mark: text2spoken
+    reads ``1,000`` as ``bat koma zero zero zero``, and leaves ``1,000,000`` as
+    written.
+    TODO(text2spoken issue: COMMA_GROUPS)
+    """
+    parser = _parser(dialect)
+    return _COMMA_GROUPS.sub(lambda m: parser.cardinal(int(m.group().replace(",", ""))), text)
 
 
 #: Digits with the ordinal suffix and a case ending: ``16garren``, ``10garrena``.

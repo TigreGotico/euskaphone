@@ -15,6 +15,7 @@ The fallbacks run in this order:
 * a clock time with no case ending, ``10:30``;
 * space-grouped numbers joined by a hyphen, an en dash or a slash,
   ``10 000-20 000`` (:mod:`euskaphone.number_utils`);
+* digits grouped by two commas or more, ``1,000,000``;
 * digits with the ordinal suffix, ``16garren``;
 * a point as the decimal mark, ``2.5``;
 * a currency symbol before the number, ``€5eko`` (:mod:`euskaphone.units`);
@@ -45,7 +46,9 @@ from text2spoken import InvalidLanguageTagError
 from euskaphone.abbreviations import (_TRAILING, ABBREVIATIONS,
                                       read_left_abbreviations)
 from euskaphone.deprecation import warn_deprecated
-from euskaphone.number_utils import (read_code_digits, read_dot_decimals,
+from euskaphone.number_utils import (read_code_digits,
+                                     read_comma_grouped_numbers,
+                                     read_dot_decimals,
                                      read_garren_ordinals,
                                      read_glued_case_endings,
                                      read_space_grouped_numbers)
@@ -164,6 +167,7 @@ def normalize_text(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     spoken = text2spoken_reading(text, lect)
     spoken = read_bare_clock_times(spoken, lect)
     spoken = read_space_grouped_numbers(spoken, lect)
+    spoken = read_comma_grouped_numbers(spoken, lect)
     spoken = read_garren_ordinals(spoken, lect)
     spoken = read_dot_decimals(spoken, lect)
     spoken = read_currency_before_number(spoken, lect)

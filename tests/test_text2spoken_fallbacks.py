@@ -25,6 +25,7 @@ LEFT_AS_WRITTEN = [
     ("2 500/3 000", "2 500/3 000"),
     ("1 000–2 000 metro", "1 000–2 000"),
     ("943 123 456", "943 123 456"),
+    ("1,000,000", "1,000,000"),
     ("2.5", "2.5"),
     ("h.d. hori", "h.d."),
     ("kap. 3", "kap."),
@@ -160,6 +161,31 @@ def test_text2spoken_reads_a_number_grouped_by_spaces(text, period_writing, spok
         # The reading path calls no deprecated reader.
         warnings.simplefilter("error", DeprecationWarning)
         assert normalize.normalize_text(text) == spoken
+
+
+# Araua 203 p.14: "Euskaraz, koma da markatzaile dezimala": a Basque decimal
+# has one comma. Araua 203 p.11: in the United Kingdom, the United States and
+# Australia "koma, berriz, milakoen markatzailea da". Two commas or more, each
+# before three digits, group thousands, and the number reads as the same digits
+# grouped by spaces, the writing of Araua 203 p.12 ("1 000 000").
+@pytest.mark.parametrize("text,space_writing", [
+    ("1,000,000", "1 000 000"),
+    ("2,500,000 euro", "2 500 000 euro"),
+    ("12,345,678 lagun", "12 345 678 lagun"),
+    ("1,000,000,000", "1 000 000 000"),
+])
+def test_digits_grouped_by_commas_read_as_the_digits_grouped_by_spaces(text, space_writing):
+    assert normalize.text2spoken_reading(text) == text
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", DeprecationWarning)
+        assert normalize.normalize_text(text) == normalize.text2spoken_reading(space_writing)
+
+
+# One comma is the decimal mark, so its reading stays text2spoken's.
+@pytest.mark.parametrize("text", ["1,000", "3,14", "10,000 metro", "4 712,395"])
+def test_one_comma_stays_the_decimal_mark(text):
+    assert " koma " in normalize.text2spoken_reading(text)
+    assert normalize.normalize_text(text) == normalize.text2spoken_reading(text)
 
 
 # Two space-grouped numbers joined by a hyphen, an en dash or a slash: each
