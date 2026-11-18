@@ -330,7 +330,7 @@ def _documentation(module_name, name):
     module = importlib.import_module(f"euskaphone.{module_name}")
     obj = getattr(module, name)
     if callable(obj):
-        return inspect.getdoc(obj)
+        return inspect.getdoc(obj) or ""
     lines = inspect.getsource(module).splitlines()
     start = next(n for n, line in enumerate(lines) if re.match(rf"{name}\b\s*[:=]", line))
     comments = []
