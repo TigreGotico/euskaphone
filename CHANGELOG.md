@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.1a1](https://github.com/TigreGotico/euskaphone/tree/0.3.1a1) (2026-11-18)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.0a2...0.3.1a1)
+
+**Merged pull requests:**
+
+- fix: read a bare Roman numeral as a dynastic ordinal only after a name [\#79](https://github.com/TigreGotico/euskaphone/pull/79) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: read an abbreviation in capitals or after a dialogue dash [\#78](https://github.com/TigreGotico/euskaphone/pull/78) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: name a replacement that is not deprecated in each re-export warning [\#77](https://github.com/TigreGotico/euskaphone/pull/77) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: cite text2spoken\#295 for space-grouped Basque numbers [\#76](https://github.com/TigreGotico/euskaphone/pull/76) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.3.0a2](https://github.com/TigreGotico/euskaphone/tree/0.3.0a2) (2026-11-18)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.0a1...0.3.0a2)
