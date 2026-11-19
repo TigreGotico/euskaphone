@@ -21,4 +21,4 @@ TELEPHONE = _misreading(
     "text2spoken has no telephone reading, and leaves digit groups after 'Tel.' as written, so euskaphone reads "
     "'Tel. 943 123 456' as 943 million. Araua 203, footnote 12: 'Telefono-zenbakiak emateko [...] zenbakiak binaka "
     "edo hirunaka ere zatitu daitezke: Telefonoa: +34 944 15 81 55 / +34 944 158 155'. "
-    "TODO(text2spoken issue: TELEPHONE)")
+    "https://github.com/TigreGotico/text2spoken/issues/339")
