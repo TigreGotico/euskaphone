@@ -1,15 +1,30 @@
 # Changelog
 
-## [0.3.8a1](https://github.com/TigreGotico/euskaphone/tree/0.3.8a1) (2026-11-19)
+## [0.3.10a1](https://github.com/TigreGotico/euskaphone/tree/0.3.10a1) (2026-11-19)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.5a1...0.3.8a1)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.8a1...0.3.10a1)
 
 **Merged pull requests:**
 
 - fix: let BasqueNumberParser take every lect name the registry resolves [\#90](https://github.com/TigreGotico/euskaphone/pull/90) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: read a clock time with a point and a case ending as a time [\#82](https://github.com/TigreGotico/euskaphone/pull/82) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
+## [0.3.8a1](https://github.com/TigreGotico/euskaphone/tree/0.3.8a1) (2026-11-18)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.7a1...0.3.8a1)
+
+## [0.3.7a1](https://github.com/TigreGotico/euskaphone/tree/0.3.7a1) (2026-11-18)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.6a1...0.3.7a1)
+
+## [0.3.6a1](https://github.com/TigreGotico/euskaphone/tree/0.3.6a1) (2026-11-18)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.5a1...0.3.6a1)
+
+**Merged pull requests:**
+
 - fix: require text2spoken 0.0.2a81 and keep the space-group fallback for ranges [\#84](https://github.com/TigreGotico/euskaphone/pull/84) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 - fix: double the r of a numeral before a glued vowel ending [\#83](https://github.com/TigreGotico/euskaphone/pull/83) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
-- fix: read a clock time with a point and a case ending as a time [\#82](https://github.com/TigreGotico/euskaphone/pull/82) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 - fix: read a clock time with the hour symbol as the time alone [\#81](https://github.com/TigreGotico/euskaphone/pull/81) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 
 ## [0.3.5a1](https://github.com/TigreGotico/euskaphone/tree/0.3.5a1) (2026-11-18)
