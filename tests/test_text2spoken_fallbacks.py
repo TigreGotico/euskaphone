@@ -191,13 +191,13 @@ def test_three_groups_of_three_digits_read_as_one_number():
     assert normalize.normalize_text(text) == normalize.text2spoken_reading("943.123.456")
 
 
-# After "Tel." the run is the telephone number of note 12, and each written group
-# reads as a number. The abbreviation reads as text2spoken reads "tel.".
+# After "Tel." the run is the telephone number of note 12. No Araua gives its
+# spoken form, so text2spoken#339 asks for the shared telephone reading: one digit
+# at a time, as text2spoken reads a telephone number in es, pt, en and de.
 @TELEPHONE
-def test_a_telephone_number_after_tel_reads_group_by_group():
-    groups = ["943", "123", "456"]
-    spoken = " ".join(["Telefonoa", *(normalize.text2spoken_reading(group) for group in groups)])
-    assert normalize.normalize_text("Tel. 943 123 456") == spoken
+def test_a_telephone_number_after_tel_reads_digit_by_digit():
+    digits = [normalize.text2spoken_reading(digit) for digit in "943123456"]
+    assert normalize.normalize_text("Tel. 943 123 456") == " ".join(["Telefonoa", *digits])
 
 
 @pytest.mark.parametrize("text,form,reading", [
