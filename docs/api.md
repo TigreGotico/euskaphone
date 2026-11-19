@@ -39,9 +39,11 @@ Whether `dialect` names a Basque lect, not the Batua fallback.
 
 `BasqueNumberParser(dialect="eu")` with `.cardinal(n)`, `.ordinal(n)`,
 `.decimal(whole, frac)`, `.year(n)`, `.clock(hour, minute)` and
-`.pronounce_token(token, as_ordinal=False)`. It takes a lect code, canonical
-or older (`eu-x-lapurdi` or `eu-x-lapurtera`), and does not resolve an alias
-such as `labourdin`: it raises `ValueError` for one.
+`.pronounce_token(token, as_ordinal=False)`. It takes every name of a lect
+that `resolve_lect` takes: a canonical or older code (`eu-x-lapurdi` or
+`eu-x-lapurtera`) or an alias such as `labourdin`. A name outside Basque, such
+as `xx`, raises `ValueError`. An `eu` tag with a subtag the registry does not
+know, such as `eu-ES` or `eu-x-foo`, reads as Batua, as `resolve_lect` does.
 
 `read_space_grouped_numbers(text, dialect)`, `read_comma_grouped_numbers(text, dialect)`,
 `read_garren_ordinals(text, dialect)`, `read_dot_decimals(text, dialect)` and
@@ -79,8 +81,10 @@ is callable on its own. It resolves an alias such as `labourdin`.
 `text2spoken_tag(dialect)` gives the language tag text2spoken reads a lect in,
 and `text2spoken_reading(text, dialect)` gives text2spoken's reading with no
 fallback. `read_bare_clock_times(text, dialect)` is the fallback for a clock
-time with no case ending (`10:30`), and `read_capitalized_abbreviations(text,
-dialect)` the fallback for an abbreviation with a capital (`Jn.`).
+time with no case ending (`10:30`), `read_point_clock_times(text, dialect)` the
+fallback for a clock time with a point and a case ending (`10.30etan`), and
+`read_capitalized_abbreviations(text, dialect)` the fallback for an
+abbreviation with a capital (`Jn.`).
 
 The fallbacks of the other modules are `units.read_currency_before_number`,
 `units.read_unit_symbols`, `romans.read_bare_monarch_numerals` and
