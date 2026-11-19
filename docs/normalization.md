@@ -90,6 +90,11 @@ Where the norm gives two readings, euskaphone follows text2spoken: `3,14` reads
 
 ## The fallbacks
 
+Before text2spoken reads the text, digits that two commas or more group in
+threes are grouped by spaces (`1,000,000` → `1 000 000`). text2spoken reads that
+writing with the currency or unit beside it: `€1,000,000` reads `milioi bat
+euro`.
+
 The fallbacks run on text2spoken's output, in this order. Each one reads only
 its own form.
 
@@ -97,7 +102,6 @@ its own form.
 |---|---|---|---|
 | Clock time with no case ending | `10:30` | goizeko hamarrak eta hogeita hamar | `normalize` |
 | Space-grouped numbers joined by `-`, `–` or `/` | `10 000-20 000 lagun` | hamar mila-hogei mila lagun | `number_utils` |
-| Digits grouped by two commas or more | `1,000,000` | milioi bat | `number_utils` |
 | Digits with `-garren` | `16garren` | hamaseigarren | `number_utils` |
 | Clock time with a point and a case ending | `10.30etan` | goizeko hamarrak eta hogeita hamarretan | `normalize` |
 | A point as the decimal mark | `2.5` | bi koma bost | `number_utils` |

@@ -175,6 +175,10 @@ def test_text2spoken_reads_a_number_grouped_by_spaces(text, period_writing, spok
     ("2,500,000 euro", "2 500 000 euro"),
     ("12,345,678 lagun", "12 345 678 lagun"),
     ("1,000,000,000", "1 000 000 000"),
+    ("€1,000,000", "€1 000 000"),
+    ("1,000,000 €", "1 000 000 €"),
+    ("$1,000,000", "$1 000 000"),
+    ("1,000,000 km", "1 000 000 km"),
 ])
 def test_digits_grouped_by_commas_read_as_the_digits_grouped_by_spaces(text, space_writing):
     assert normalize.text2spoken_reading(text) == text
@@ -539,7 +543,7 @@ FALLBACK_ISSUES = [
     ("normalize", "read_capitalized_abbreviations", 265),
     ("normalize", "read_point_clock_times", 264),
     ("number_utils", "read_space_grouped_numbers", 295),
-    ("number_utils", "read_comma_grouped_numbers", 338),
+    ("number_utils", "comma_groups_as_spaces", 338),
     ("number_utils", "read_garren_ordinals", 263),
     ("number_utils", "read_dot_decimals", 264),
     ("number_utils", "read_glued_case_endings", 273),
