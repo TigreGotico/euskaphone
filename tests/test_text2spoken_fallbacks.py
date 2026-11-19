@@ -527,6 +527,7 @@ FALLBACK_ISSUES = [
     ("normalize", "read_capitalized_abbreviations", 265),
     ("normalize", "read_point_clock_times", 264),
     ("number_utils", "read_space_grouped_numbers", 295),
+    ("number_utils", "read_comma_grouped_numbers", 338),
     ("number_utils", "read_garren_ordinals", 263),
     ("number_utils", "read_dot_decimals", 264),
     ("number_utils", "read_glued_case_endings", 273),

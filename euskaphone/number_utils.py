@@ -364,8 +364,8 @@ def read_comma_grouped_numbers(text: str, dialect: str = "eu") -> str:
     before three digits, is that writing, and reads as the same digits grouped by
     spaces (p.12: «1 000 000»). One comma stays the decimal mark: text2spoken
     reads ``1,000`` as ``bat koma zero zero zero``, and leaves ``1,000,000`` as
-    written.
-    TODO(text2spoken issue: COMMA_GROUPS)
+    written:
+    https://github.com/TigreGotico/text2spoken/issues/338
     """
     parser = _parser(dialect)
     return _COMMA_GROUPS.sub(lambda m: parser.cardinal(int(m.group().replace(",", ""))), text)
