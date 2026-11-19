@@ -16,7 +16,7 @@ from euskaphone.dates import (
     MONTHS_GENITIVE, normalize_dates,
 )
 from euskaphone.normalize import normalize_text
-from tests.text2spoken_gaps import ROMAN_MONTH_DAY_FIRST
+from tests.text2spoken_gaps import ROMAN_MONTH_DAY_FIRST, ROMAN_MONTH_SLASH
 
 
 def test_month_table_complete():
@@ -78,10 +78,11 @@ def test_date_in_running_text_keeps_trailing_punctuation():
 # dago»), and Araua 37 p.194 writes it in place of the month digits. With the
 # day first, the date reads as test_numeric_dates reads it with the month in
 # digits.
-@ROMAN_MONTH_DAY_FIRST
 @pytest.mark.parametrize("text,expected", [
-    ("15-I-2024", "bi mila eta hogeita lauko urtarrilaren hamabosta"),
-    ("7/III/1995", "mila bederatziehun eta laurogeita hamabosteko martxoaren zazpia"),
+    pytest.param("15-I-2024", "bi mila eta hogeita lauko urtarrilaren hamabosta",
+                 marks=ROMAN_MONTH_DAY_FIRST),
+    pytest.param("7/III/1995", "mila bederatziehun eta laurogeita hamabosteko martxoaren zazpia",
+                 marks=ROMAN_MONTH_SLASH),
 ])
 def test_a_roman_month_with_the_day_first_reads_as_the_month_in_digits(text, expected):
     assert normalize_text(text) == expected
