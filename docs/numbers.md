@@ -88,6 +88,13 @@ text2spoken reads `2,5`, `1.000.000`, `1 000 000` and `2.500`. It leaves `2.5`
 as written, and two space-grouped numbers joined by a hyphen, an en dash or a
 slash (`10 000-20 000`). The fallbacks read them by this convention.
 
+A Basque decimal has one comma. Two commas or more, each before three digits,
+are the English writing that Araua 203 (p. 11) names, where the comma groups
+thousands: `1,000,000` reads `milioi bat`, as `1 000 000` does. text2spoken
+leaves that writing as written, so euskaphone groups the digits by spaces before
+text2spoken reads the text. The currency beside the number then reads too:
+`€1,000,000` reads `milioi bat euro`.
+
 ## Where the composition lives
 
 text2spoken reads the numbers of running text. `BasqueNumberParser` delegates

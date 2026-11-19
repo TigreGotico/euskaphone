@@ -2,11 +2,14 @@
 
 The orthography2ipa lattice reads Basque *letters*. A number, a date, a clock
 time, an abbreviation, a Roman numeral, a unit or a currency symbol must become
-Basque words first. :func:`normalize_text` does this in two steps:
+Basque words first. :func:`normalize_text` does this in three steps:
 
-1. **text2spoken** reads the text (:func:`text2spoken_reading`). Where it reads a
+1. Digits that two commas or more group in threes, ``1,000,000``, are grouped
+   by spaces, ``1 000 000`` (:func:`~euskaphone.number_utils.comma_groups_as_spaces`).
+   text2spoken reads that writing with its currency or unit.
+2. **text2spoken** reads the text (:func:`text2spoken_reading`). Where it reads a
    form, its reading stands.
-2. **fallbacks** read the forms that text2spoken leaves as written. Each fallback
+3. **fallbacks** read the forms that text2spoken leaves as written. Each fallback
    reads one class of form, and its comment names the text2spoken issue for that
    class. A fallback goes when text2spoken reads its form.
 
@@ -46,7 +49,8 @@ from text2spoken import InvalidLanguageTagError
 from euskaphone.abbreviations import (_TRAILING, ABBREVIATIONS,
                                       read_left_abbreviations)
 from euskaphone.deprecation import warn_deprecated
-from euskaphone.number_utils import (read_code_digits, read_dot_decimals,
+from euskaphone.number_utils import (comma_groups_as_spaces,
+                                     read_code_digits, read_dot_decimals,
                                      read_garren_ordinals,
                                      read_glued_case_endings,
                                      read_space_grouped_numbers)
@@ -202,14 +206,15 @@ def normalize_text(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     'hogeigarren mendean ehun urte'
     """
     lect = resolve_lect(dialect)
-    spoken = text2spoken_reading(text, lect)
+    written = comma_groups_as_spaces(text)
+    spoken = text2spoken_reading(written, lect)
     spoken = read_bare_clock_times(spoken, lect)
     spoken = read_space_grouped_numbers(spoken, lect)
     spoken = read_garren_ordinals(spoken, lect)
     spoken = read_point_clock_times(spoken, lect)
     spoken = read_dot_decimals(spoken, lect)
     spoken = read_currency_before_number(spoken, lect)
-    spoken = read_unit_symbols(spoken, text, lect)
+    spoken = read_unit_symbols(spoken, written, lect)
     spoken = read_bare_monarch_numerals(spoken, lect)
     spoken = read_left_abbreviations(spoken)
     spoken = read_capitalized_abbreviations(spoken, lect)
