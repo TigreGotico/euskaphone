@@ -8,6 +8,7 @@ out, with its ``TODO(text2spoken issue: <CLASS>)`` marker.
 import importlib
 import inspect
 import re
+import time
 import warnings
 from pathlib import Path
 
@@ -394,6 +395,17 @@ def test_a_clock_time_with_a_point_and_a_case_ending_reads_as_with_a_colon(text,
 @pytest.mark.parametrize("text", ["2.5", "2.5ean", "10.75etan", "25.30etan", "2.5ean.", "10.75etan."])
 def test_a_point_number_that_is_no_clock_time_still_reads_as_a_decimal(text):
     assert normalize.normalize_text(text) == number_utils.read_dot_decimals(text)
+
+
+def test_the_word_before_a_point_clock_time_is_looked_for_near_the_time_only():
+    # 600 times with no space between them. Each time looked back over the whole
+    # text before it, and the reading took about a minute; it takes well under
+    # a second now.
+    text = "(10.30etan" * 600
+    start = time.perf_counter()
+    spoken = normalize.read_point_clock_times(text)
+    assert time.perf_counter() - start < 10
+    assert spoken == f"({normalize.text2spoken_reading('10:30etan')}" * 600
 
 
 @pytest.mark.parametrize("text,spoken", [
