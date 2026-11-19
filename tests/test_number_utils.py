@@ -9,6 +9,7 @@ from orthography2ipa import resolve
 
 from euskaphone.normalize import normalize_text
 from euskaphone.number_utils import BasqueNumberParser, normalize_numbers
+from euskaphone.registry import resolve_lect
 
 
 @pytest.mark.parametrize("n,expected", [
@@ -91,6 +92,25 @@ def test_peninsular_and_souletin_keep_bost():
 def test_unknown_dialect_rejected():
     with pytest.raises(ValueError):
         BasqueNumberParser("xx")
+
+
+# The names of a lect that docs/dialects.md lists, as the deprecated
+# spell_cardinal takes them. Its warning names BasqueNumberParser(dialect) in its
+# place, so the parser takes the same names. Araua 7 point 3 gives bortz to some
+# Iparralde varieties (Lapurdi) and bost to Zuberoa and the peninsula.
+@pytest.mark.parametrize("name,fifteen", [
+    ("lapurtera", "hamabortz"),
+    ("labourdin", "hamabortz"),
+    ("biscayan", "hamabost"),
+    ("western", "hamabost"),
+    ("souletin", "hamabost"),
+    ("xiberotarra", "hamabost"),
+    ("roncalese", "hamabost"),
+    ("Biscayan", "hamabost"),
+])
+def test_a_lect_name_of_the_registry_gives_its_lect(name, fifteen):
+    assert BasqueNumberParser(name).cardinal(15) == fifteen
+    assert BasqueNumberParser(name).dialect == resolve_lect(name)
 
 
 # -- running-text normalization -------------------------------------------

@@ -16,6 +16,7 @@ The fallbacks run in this order:
 * space-grouped numbers joined by a hyphen, an en dash or a slash,
   ``10 000-20 000`` (:mod:`euskaphone.number_utils`);
 * digits with the ordinal suffix, ``16garren``;
+* a clock time with a point and a case ending, ``10.30etan``;
 * a point as the decimal mark, ``2.5``;
 * a currency symbol before the number, ``€5eko`` (:mod:`euskaphone.units`);
 * the unit symbols text2spoken does not read, ``5 g``;
@@ -107,6 +108,40 @@ def read_bare_clock_times(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     return _BARE_CLOCK.sub(read, text)
 
 
+#: A clock time with a point and a case ending of the clock: ``10.30etan``. The
+#: endings are those of the table of Araua 35 p.184: 15:00etan, 15:00etara,
+#: 15:00ak arte, 15:00etatik, 15:01ean, 15:01era, 15:01etik, 15:02an, 15:02ra,
+#: 15:02tik.
+_POINT_CLOCK = re.compile(
+    r"(?<![\w.,])(\d{1,2})\.([0-5]\d)(etan|etara|etatik|ean|era|etik|an|ra|tik|ak)(?!\w|[.,]\d)")
+
+
+def read_point_clock_times(text: str, dialect: str = DEFAULT_DIALECT) -> str:
+    """Read a clock time with a point and a case ending: ``10.30etan`` →
+    ``goizeko hamarrak eta hogeita hamarretan``.
+
+    Araua 203 p.51: «Koma (edo puntua) erabili da batzuetan orduak eta minutuak
+    bereizteko, baina testu formaletan bi puntu erabili behar dira [...] minutuak
+    ez dira dezimalak». text2spoken reads the time with the colon and leaves the
+    point as written, so the time reads as text2spoken reads it with the colon,
+    after the same word: ``goizeko 10.30etan`` names the part of the day once.
+    https://github.com/TigreGotico/text2spoken/issues/264
+    """
+    def read(m: "re.Match[str]") -> str:
+        hour, minute = int(m.group(1)), int(m.group(2))
+        if hour > 24 or (hour == 24 and minute):
+            return m.group()
+        written = f"{m.group(1)}:{m.group(2)}{m.group(3)}"
+        before = re.search(r"(\S+)\s+$", text[:m.start()])
+        if before is not None:
+            prefix = f"{before.group(1)} "
+            spoken = text2spoken_reading(prefix + written, dialect)
+            if spoken.startswith(prefix):
+                return spoken[len(prefix):]
+        return text2spoken_reading(written, dialect)
+    return _POINT_CLOCK.sub(read, text)
+
+
 #: Marks that can open a word before an abbreviation: ``(Jn.``, and the dash
 #: that opens a turn of dialogue, ``—Jn.``.
 _OPENING = "(«\"'[¿¡—"
@@ -165,6 +200,7 @@ def normalize_text(text: str, dialect: str = DEFAULT_DIALECT) -> str:
     spoken = read_bare_clock_times(spoken, lect)
     spoken = read_space_grouped_numbers(spoken, lect)
     spoken = read_garren_ordinals(spoken, lect)
+    spoken = read_point_clock_times(spoken, lect)
     spoken = read_dot_decimals(spoken, lect)
     spoken = read_currency_before_number(spoken, lect)
     spoken = read_unit_symbols(spoken, text, lect)

@@ -27,6 +27,7 @@ LEFT_AS_WRITTEN = [
     ("1 000–2 000 metro", "1 000–2 000"),
     ("943 123 456", "943 123 456"),
     ("2.5", "2.5"),
+    ("10.30etan", "10.30etan"),
     ("h.d. hori", "h.d."),
     ("kap. 3", "kap."),
     ("lib. 2", "lib."),
@@ -202,6 +203,7 @@ def test_a_telephone_number_after_tel_reads_group_by_group():
     ("16garren postua", "16garren", "hamaseigarren"),
     ("10 000-20 000 lagun", "10 000-20 000", "hamar mila-hogei mila"),
     ("2.5 kilo", "2.5", "bi koma bost"),
+    ("Lasterketa 10.30etan da", "10.30etan", "goizeko hamarrak eta hogeita hamarretan"),
     ("h.d. hori", "h.d.", "hau da"),
     ("Karlos V errege zen", "Karlos V", "Karlos bosgarrena"),
     ("€5eko sarrera", "€5eko", "bost euroko"),
@@ -345,6 +347,37 @@ def test_a_glued_ending_inside_a_form_that_text2spoken_leaves_doubles_the_r():
     assert normalize.normalize_text("Maratoia 2:05:30ean").endswith(":hogeita hamarrean")
 
 
+# Araua 203 p.51: "Koma (edo puntua) erabili da batzuetan orduak eta minutuak
+# bereizteko, baina testu formaletan bi puntu erabili behar dira. [...] minutuak
+# ez dira dezimalak." A clock time with a point and a case ending of the clock
+# (Araua 35 p.184: 15:00etan, 15:00etara, 15:00ak arte, 15:00etatik, 15:01ean,
+# 15:01era, 15:01etik, 15:02an, 15:02ra, 15:02tik) reads as text2spoken reads
+# it with the colon.
+@pytest.mark.parametrize("text,norm_writing", [
+    ("10.30etan", "10:30etan"),
+    ("Lasterketa 10.30etan hasiko da.", "Lasterketa 10:30etan hasiko da."),
+    ("goizeko 10.30etan", "goizeko 10:30etan"),
+    ("9.05ean", "9:05ean"),
+    ("15.00etatik 17.30etara", "15:00etatik 17:30etara"),
+    ("15.00ak arte", "15:00ak arte"),
+    ("15.02ra", "15:02ra"),
+    # A full stop that ends the sentence after the time.
+    ("Bilera 10.30etan.", "Bilera 10:30etan."),
+    ("15.00etatik 17.30etara.", "15:00etatik 17:30etara."),
+])
+def test_a_clock_time_with_a_point_and_a_case_ending_reads_as_with_a_colon(text, norm_writing):
+    assert normalize.text2spoken_reading(text) == text
+    assert normalize.normalize_text(text) == normalize.text2spoken_reading(norm_writing)
+
+
+# No clock time: Araua 35 p.185 writes "bakoitzeko bi zifra", two digits for the
+# hours and two for the minutes, and Araua 203 p.49 counts the minutes "00tik
+# 59ra" and the hours "00tik 24rako".
+@pytest.mark.parametrize("text", ["2.5", "2.5ean", "10.75etan", "25.30etan", "2.5ean.", "10.75etan."])
+def test_a_point_number_that_is_no_clock_time_still_reads_as_a_decimal(text):
+    assert normalize.normalize_text(text) == number_utils.read_dot_decimals(text)
+
+
 @pytest.mark.parametrize("text,spoken", [
     ("Karlos V\neta", "Karlos bosgarrena\neta"),
     ("Karlos  V", "Karlos  bosgarrena"),
@@ -474,6 +507,7 @@ FALLBACK_ISSUES = [
     ("abbreviations", "LEFT_BY_TEXT2SPOKEN", 265),
     ("normalize", "read_bare_clock_times", 267),
     ("normalize", "read_capitalized_abbreviations", 265),
+    ("normalize", "read_point_clock_times", 264),
     ("number_utils", "read_space_grouped_numbers", 295),
     ("number_utils", "read_garren_ordinals", 263),
     ("number_utils", "read_dot_decimals", 264),

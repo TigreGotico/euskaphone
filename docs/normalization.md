@@ -98,6 +98,7 @@ its own form.
 | Clock time with no case ending | `10:30` | goizeko hamarrak eta hogeita hamar | `normalize` |
 | Space-grouped numbers joined by `-`, `–` or `/` | `10 000-20 000 lagun` | hamar mila-hogei mila lagun | `number_utils` |
 | Digits with `-garren` | `16garren` | hamaseigarren | `number_utils` |
+| Clock time with a point and a case ending | `10.30etan` | goizeko hamarrak eta hogeita hamarretan | `normalize` |
 | A point as the decimal mark | `2.5` | bi koma bost | `number_utils` |
 | Currency symbol before the number | `€5eko` | bost euroko | `units` |
 | Unit symbols `dm g mg t ml cl h` | `5 g`, `1 g-ko` | bost gramo, gramo bateko | `units` |
