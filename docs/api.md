@@ -93,11 +93,13 @@ are deprecated: `dates.normalize_dates`, `dates.compose_date`,
 `romans.normalize_romans`, `units.normalize_units`,
 `numverbal.spell_cardinal`, `numverbal.inessive` and
 `numverbal.locative_genitive`. Each call gives a `DeprecationWarning` that names
-the replacement and the release that removes the stage. The replacement of
-`numverbal.spell_cardinal` is `BasqueNumberParser(dialect).cardinal`, and the
-replacement of every other stage is `normalize_text`. The names that
+the release that removes the stage. The replacement of
+`numverbal.spell_cardinal` is `BasqueNumberParser(dialect).cardinal`, the warnings of
+`numverbal.inessive` and `numverbal.locative_genitive` say that text2spoken
+declines the numerals it reads, and the replacement of every other stage is
+`normalize_text`. The names that
 `normalize` and `dates` imported from these modules still resolve there, and
-their warning names the same replacement. See the table in
+their warning is the warning of the original name. See the table in
 [normalization.md](normalization.md#deprecated-stages).
 
 ## Pitch accent: `euskaphone.pitch_accent`

@@ -123,7 +123,7 @@ its own form.
 | A point as the decimal mark | `2.5` | bi koma bost | `number_utils` |
 | Currency symbol before the number | `€5eko` | bost euroko | `units` |
 | Unit symbols `dm g mg t ml cl h` | `5 g`, `1 g-ko` | bost gramo, gramo bateko | `units` |
-| Bare Roman numeral of `I`, `V` and `X` after a name | `Karlos V` | Karlos bosgarrena | `romans` |
+| Bare Roman numeral written with the letters `I`, `V` and `X`, after a name | `Karlos V` | Karlos bosgarrena | `romans` |
 | `h.d. kap. lib. orr.`, and `etab.` and `k.a.` in another case | `h.d.`, `ETAB.` | hau da., eta abar. | `abbreviations` |
 | An abbreviation of the table with a capital, or in capitals | `Jn. Agirre`, `—Jn. Agirre`, `ZK. 5` | Jauna Agirre, —Jauna Agirre, Zenbakia bost | `normalize` |
 | Digits with a glued case ending | `100dik gora` | ehundik gora | `number_utils` |
@@ -164,8 +164,9 @@ source. The fallbacks read their words from these tables.
 ## Deprecated stages
 
 The stages that text2spoken replaces keep their names and their behaviour.
-Each call gives a `DeprecationWarning` that names the replacement and the
-release that removes the stage:
+Each call gives a `DeprecationWarning` that names the release that removes the
+stage. The warnings of `inessive` and `locative_genitive` say that text2spoken
+declines the numerals it reads; every other warning names its replacement:
 
 | Module | Deprecated names | Use in their place |
 |---|---|---|
@@ -175,7 +176,7 @@ release that removes the stage:
 | `euskaphone.romans` | `normalize_romans` | `normalize_text` |
 | `euskaphone.units` | `normalize_units` | `normalize_text` |
 | `euskaphone.numverbal` | `spell_cardinal` | `BasqueNumberParser(dialect).cardinal` |
-| `euskaphone.numverbal` | `inessive`, `locative_genitive` | `normalize_text`: text2spoken declines the numerals it reads |
+| `euskaphone.numverbal` | `inessive`, `locative_genitive` | `normalize_text` (the warning names no function) |
 
 `euskaphone.normalize` and `euskaphone.dates` still give the names they
 imported from these modules. `normalize.normalize_numbers` and the other four
