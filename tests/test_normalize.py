@@ -3,6 +3,7 @@ import pytest
 
 from euskaphone import EuskaPhonemizer
 from euskaphone.normalize import normalize_text
+from tests.text2spoken_gaps import LAPURDI_LECT
 
 
 def test_stage_order_abbrev_then_number():
@@ -25,8 +26,10 @@ def test_percent_currency_units_together():
 
 
 def test_numeric_date_expands():
+    # Araua 203 p.66: a bare date reads the day in the absolutive with the
+    # article («martxoaren zazpia»).
     out = normalize_text("15/01/2024")
-    assert out == "bi mila eta hogeita lauko urtarrilaren hamabostean"
+    assert out == "bi mila eta hogeita lauko urtarrilaren hamabosta"
 
 
 def test_monarch_in_running_text():
@@ -43,10 +46,20 @@ def test_bare_numbers_still_work():
     assert normalize_text("31 katu") == "hogeita hamaika katu"
 
 
+@LAPURDI_LECT
 def test_dialect_threads_through():
     # Lapurdian bortz series reaches the Roman ordinal path
     assert normalize_text("V. kapitulua", "eu-x-lapurtera") == \
         "borzgarren kapitulua"
+
+
+def test_sentence_final_abbreviation_keeps_one_period():
+    # Araua 196 p.31: «Laburdura bat esaldiaren amaieran gertatzen denean,
+    # laburduraren puntua eta esaldiaren amaierako puntua batera gertatzen
+    # dira, eta puntu bakarra idazten da, ez bi.»
+    assert normalize_text("katuak etab.") == "katuak eta abar."
+    assert normalize_text("Liburuak, aldizkariak, etab.") == \
+        "Liburuak, aldizkariak, eta abar."
 
 
 # --- end-to-end: normalization feeds the pronunciation lattice ------------

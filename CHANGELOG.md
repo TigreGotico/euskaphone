@@ -1,168 +1,98 @@
 # Changelog
 
-## [0.2.9a6](https://github.com/TigreGotico/euskaphone/tree/0.2.9a6) (2026-11-15)
+## [0.3.11a2](https://github.com/TigreGotico/euskaphone/tree/0.3.11a2) (2026-11-21)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.9a5...0.2.9a6)
-
-**Merged pull requests:**
-
-- Update actions/checkout action to v7 [\#27](https://github.com/TigreGotico/euskaphone/pull/27) ([renovate[bot]](https://github.com/apps/renovate))
-
-## [0.2.9a5](https://github.com/TigreGotico/euskaphone/tree/0.2.9a5) (2026-11-15)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.9a4...0.2.9a5)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.11a1...0.3.11a2)
 
 **Merged pull requests:**
 
-- Update actions/setup-python action to v7 [\#28](https://github.com/TigreGotico/euskaphone/pull/28) ([renovate[bot]](https://github.com/apps/renovate))
+- docs: sync README and docs with dev [\#101](https://github.com/TigreGotico/euskaphone/pull/101) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 
-## [0.2.9a4](https://github.com/TigreGotico/euskaphone/tree/0.2.9a4) (2026-11-15)
+## [0.3.11a1](https://github.com/TigreGotico/euskaphone/tree/0.3.11a1) (2026-11-19)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.9a3...0.2.9a4)
-
-**Merged pull requests:**
-
-- docs: sync README and docs with dev [\#55](https://github.com/TigreGotico/euskaphone/pull/55) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
-
-## [0.2.9a3](https://github.com/TigreGotico/euskaphone/tree/0.2.9a3) (2026-11-12)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.9a2...0.2.9a3)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.10a1...0.3.11a1)
 
 **Merged pull requests:**
 
-- test: pin the contact default of lattice\_core.phonemize to none [\#51](https://github.com/TigreGotico/euskaphone/pull/51) ([JarbasAl](https://github.com/JarbasAl))
+- fix: look for the word before a point clock time near the time only [\#91](https://github.com/TigreGotico/euskaphone/pull/91) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 
-## [0.2.9a2](https://github.com/TigreGotico/euskaphone/tree/0.2.9a2) (2026-11-12)
+## [0.3.10a1](https://github.com/TigreGotico/euskaphone/tree/0.3.10a1) (2026-11-19)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.9a1...0.2.9a2)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.9a1...0.3.10a1)
 
-## [0.2.9a1](https://github.com/TigreGotico/euskaphone/tree/0.2.9a1) (2026-11-12)
+## [0.3.9a1](https://github.com/TigreGotico/euskaphone/tree/0.3.9a1) (2026-11-19)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.8a1...0.2.9a1)
-
-**Merged pull requests:**
-
-- fix: route code-switched words after normalization [\#50](https://github.com/TigreGotico/euskaphone/pull/50) ([JarbasAl](https://github.com/JarbasAl))
-- docs: explain the WikiPron PER as spirant notation, and th in Northern spelling [\#49](https://github.com/TigreGotico/euskaphone/pull/49) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.2.8a1](https://github.com/TigreGotico/euskaphone/tree/0.2.8a1) (2026-11-12)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.7a1...0.2.8a1)
-
-## [0.2.7a1](https://github.com/TigreGotico/euskaphone/tree/0.2.7a1) (2026-11-12)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.6a1...0.2.7a1)
-
-## [0.2.6a1](https://github.com/TigreGotico/euskaphone/tree/0.2.6a1) (2026-11-12)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.5a2...0.2.6a1)
-
-## [0.2.5a2](https://github.com/TigreGotico/euskaphone/tree/0.2.5a2) (2026-11-12)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.5a1...0.2.5a2)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.8a1...0.3.9a1)
 
 **Merged pull requests:**
 
-- chore: drop the opm.g2p entry point [\#44](https://github.com/TigreGotico/euskaphone/pull/44) ([JarbasAl](https://github.com/JarbasAl))
-- fix: expand an abbreviation only with its period [\#43](https://github.com/TigreGotico/euskaphone/pull/43) ([JarbasAl](https://github.com/JarbasAl))
-- fix: drop ee from the English digraph signal [\#41](https://github.com/TigreGotico/euskaphone/pull/41) ([JarbasAl](https://github.com/JarbasAl))
-- fix: default contact to none, so code-switching is opt-in [\#40](https://github.com/TigreGotico/euskaphone/pull/40) ([JarbasAl](https://github.com/JarbasAl))
+- fix: let BasqueNumberParser take every lect name the registry resolves [\#90](https://github.com/TigreGotico/euskaphone/pull/90) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: read a clock time with a point and a case ending as a time [\#82](https://github.com/TigreGotico/euskaphone/pull/82) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 
-## [0.2.5a1](https://github.com/TigreGotico/euskaphone/tree/0.2.5a1) (2026-11-09)
+## [0.3.8a1](https://github.com/TigreGotico/euskaphone/tree/0.3.8a1) (2026-11-18)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.4a3...0.2.5a1)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.7a1...0.3.8a1)
 
-**Merged pull requests:**
+## [0.3.7a1](https://github.com/TigreGotico/euskaphone/tree/0.3.7a1) (2026-11-18)
 
-- fix: hold the registered lexicon in the lect engine, not the process registry [\#38](https://github.com/TigreGotico/euskaphone/pull/38) ([JarbasAl](https://github.com/JarbasAl))
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.6a1...0.3.7a1)
 
-## [0.2.4a3](https://github.com/TigreGotico/euskaphone/tree/0.2.4a3) (2026-11-06)
+## [0.3.6a1](https://github.com/TigreGotico/euskaphone/tree/0.3.6a1) (2026-11-18)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.4a2...0.2.4a3)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.5a1...0.3.6a1)
 
 **Merged pull requests:**
 
-- refactor: pass the text expansion as Pipeline\(expand=...\) [\#36](https://github.com/TigreGotico/euskaphone/pull/36) ([JarbasAl](https://github.com/JarbasAl))
+- fix: require text2spoken 0.0.2a81 and keep the space-group fallback for ranges [\#84](https://github.com/TigreGotico/euskaphone/pull/84) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: double the r of a numeral before a glued vowel ending [\#83](https://github.com/TigreGotico/euskaphone/pull/83) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: read a clock time with the hour symbol as the time alone [\#81](https://github.com/TigreGotico/euskaphone/pull/81) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 
-## [0.2.4a2](https://github.com/TigreGotico/euskaphone/tree/0.2.4a2) (2026-11-04)
+## [0.3.5a1](https://github.com/TigreGotico/euskaphone/tree/0.3.5a1) (2026-11-18)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.4a1...0.2.4a2)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.4a1...0.3.5a1)
 
-**Merged pull requests:**
+## [0.3.4a1](https://github.com/TigreGotico/euskaphone/tree/0.3.4a1) (2026-11-18)
 
-- test: check the ez sandhi on segments only [\#34](https://github.com/TigreGotico/euskaphone/pull/34) ([JarbasAl](https://github.com/JarbasAl))
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.3a1...0.3.4a1)
 
-## [0.2.4a1](https://github.com/TigreGotico/euskaphone/tree/0.2.4a1) (2026-11-04)
+## [0.3.3a1](https://github.com/TigreGotico/euskaphone/tree/0.3.3a1) (2026-11-18)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.3a1...0.2.4a1)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.2a1...0.3.3a1)
 
-**Merged pull requests:**
+## [0.3.2a1](https://github.com/TigreGotico/euskaphone/tree/0.3.2a1) (2026-11-18)
 
-- fix: score the respell gate on segments, now that eu marks stress [\#32](https://github.com/TigreGotico/euskaphone/pull/32) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.2.3a1](https://github.com/TigreGotico/euskaphone/tree/0.2.3a1) (2026-11-04)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.2a2...0.2.3a1)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.1a1...0.3.2a1)
 
 **Merged pull requests:**
 
-- fix: resolve the Basque lect codes that orthography2ipa renamed [\#30](https://github.com/TigreGotico/euskaphone/pull/30) ([JarbasAl](https://github.com/JarbasAl))
+- fix: keep an abbreviation stop before a capital only after etab. [\#80](https://github.com/TigreGotico/euskaphone/pull/80) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: read a bare Roman numeral as a dynastic ordinal only after a name [\#79](https://github.com/TigreGotico/euskaphone/pull/79) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: read an abbreviation in capitals or after a dialogue dash [\#78](https://github.com/TigreGotico/euskaphone/pull/78) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: name a replacement that is not deprecated in each re-export warning [\#77](https://github.com/TigreGotico/euskaphone/pull/77) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 
-## [0.2.2a2](https://github.com/TigreGotico/euskaphone/tree/0.2.2a2) (2026-09-17)
+## [0.3.1a1](https://github.com/TigreGotico/euskaphone/tree/0.3.1a1) (2026-11-18)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.2a1...0.2.2a2)
-
-**Merged pull requests:**
-
-- test: close the gold files that test\_gold opens [\#23](https://github.com/TigreGotico/euskaphone/pull/23) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
-
-## [0.2.2a1](https://github.com/TigreGotico/euskaphone/tree/0.2.2a1) (2026-09-16)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a5...0.2.2a1)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.0a2...0.3.1a1)
 
 **Merged pull requests:**
 
-- fix: never route a keep-list word to a contact lattice [\#21](https://github.com/TigreGotico/euskaphone/pull/21) ([JarbasAl](https://github.com/JarbasAl))
+- fix: cite text2spoken\#295 for space-grouped Basque numbers [\#76](https://github.com/TigreGotico/euskaphone/pull/76) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 
-## [0.2.1a5](https://github.com/TigreGotico/euskaphone/tree/0.2.1a5) (2026-09-13)
+## [0.3.0a2](https://github.com/TigreGotico/euskaphone/tree/0.3.0a2) (2026-11-18)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a4...0.2.1a5)
-
-**Merged pull requests:**
-
-- test: ez bada keeps intervocalic spirantization \[es̻ paða\] [\#22](https://github.com/TigreGotico/euskaphone/pull/22) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
-
-## [0.2.1a4](https://github.com/TigreGotico/euskaphone/tree/0.2.1a4) (2026-08-02)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a3...0.2.1a4)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.0a1...0.3.0a2)
 
 **Merged pull requests:**
 
-- build: raise orthography2ipa floor to 7.44.0a4 [\#19](https://github.com/TigreGotico/euskaphone/pull/19) ([JarbasAl](https://github.com/JarbasAl))
+- test: fail when a fallback loses its text2spoken issue URL [\#74](https://github.com/TigreGotico/euskaphone/pull/74) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 
-## [0.2.1a3](https://github.com/TigreGotico/euskaphone/tree/0.2.1a3) (2026-07-30)
+## [0.3.0a1](https://github.com/TigreGotico/euskaphone/tree/0.3.0a1) (2026-11-18)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a2...0.2.1a3)
-
-**Merged pull requests:**
-
-- docs: rewrite README in Simplified Technical English [\#17](https://github.com/TigreGotico/euskaphone/pull/17) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.2.1a2](https://github.com/TigreGotico/euskaphone/tree/0.2.1a2) (2026-07-16)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.1a1...0.2.1a2)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.9...0.3.0a1)
 
 **Merged pull requests:**
 
-- fix\(benchmark\): full-set by default; publish the full-set HiTZ figure [\#15](https://github.com/TigreGotico/euskaphone/pull/15) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.2.1a1](https://github.com/TigreGotico/euskaphone/tree/0.2.1a1) (2026-07-16)
-
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.0...0.2.1a1)
-
-**Merged pull requests:**
-
-- docs: complete the feature map and correct stale claims [\#13](https://github.com/TigreGotico/euskaphone/pull/13) ([JarbasAl](https://github.com/JarbasAl))
+- feat: read numbers, dates and abbreviations through text2spoken [\#59](https://github.com/TigreGotico/euskaphone/pull/59) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 
 
 

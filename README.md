@@ -62,7 +62,8 @@ twenty plus ten. The copulative `eta` ("and") contracts to `-ta` on the
 twenties.
 
 ```python
-from euskaphone.number_utils import BasqueNumberParser, normalize_numbers
+from euskaphone.normalize import normalize_text
+from euskaphone.number_utils import BasqueNumberParser
 
 p = BasqueNumberParser("eu")
 p.cardinal(31)     # 'hogeita hamaika'   (20-and-11)
@@ -71,16 +72,16 @@ p.ordinal(16)      # 'hamaseigarren'
 
 # case-suffixed numerals and clock time in running text (declension on the
 # last element of the numeral phrase)
-normalize_numbers("1936ko gerra", "eu")   # '… hogeita hamaseiko gerra'
-normalize_numbers("20:00etan", "eu")      # 'hogeietan'
+normalize_text("1936ko gerra", "eu")   # '… hogeita hamaseiko gerra'
+normalize_text("20:00etan", "eu")      # 'arratsaldeko zortzietan'
 ```
 
 Every base form is cited to **Euskaltzaindia Araua 7** (cardinals) and
-**Araua 18** (ordinals). Each is tagged attested-in-source vs derived-by-rule
-in `euskaphone.number_utils` (the `ATTESTED` / `DERIVED` sets). Araua 7 records
-`bost` (not `bortz`) for Zuberoa and most of Low Navarre, so euskaphone keeps
-`bost` everywhere by default and offers the `bortz` series only for Lapurdian.
-This avoids a wrong dialect swap. See [`docs/numbers.md`](docs/numbers.md).
+**Araua 18** (ordinals). Araua 7 records `bost` (not `bortz`) for Zuberoa and
+most of Low Navarre, so `BasqueNumberParser` keeps `bost` everywhere and spells
+the `bortz` series only for Lapurdian. This avoids a wrong dialect swap.
+text2spoken reads the numbers of running text, and it reads every lect as
+Batua. See [`docs/numbers.md`](docs/numbers.md).
 
 ### 2. Code-switch handling
 
@@ -130,10 +131,11 @@ See [`docs/lexicons.md`](docs/lexicons.md).
 
 ### 4. Orthographic normalization
 
-Before the lattice runs, everything written as a symbol, abbreviation, Roman
-numeral or numeric date is spelled into Basque words
+Before the lattice runs, everything written as a number, a symbol, an
+abbreviation, a Roman numeral or a numeric date is spelled into Basque words
 (`euskaphone.normalize.normalize_text`, wired in as the orthography2ipa
-`normalize` stage):
+`expand` stage). [text2spoken](https://github.com/TigreGotico/text2spoken)
+reads the text first, and euskaphone reads the forms it leaves as written:
 
 ```python
 from euskaphone.normalize import normalize_text
@@ -142,16 +144,18 @@ normalize_text("XX. mendean %20 igo da", "eu")
 # 'hogeigarren mendean ehuneko hogei igo da'
 normalize_text("Luis XIV.a errege zen", "eu")     # '… hamalaugarrena …'
 normalize_text("Sarrera €5eko da", "eu")          # '… bost euroko …'
-normalize_text("15/01/2024", "eu")   # 'bi mila eta hogeita lauko urtarrilaren hamabostean'
+normalize_text("15/01/2024", "eu")   # 'bi mila eta hogeita lauko urtarrilaren hamabosta'
 ```
 
-The stage covers Roman-numeral ordinals (`XX.` → `hogeigarren`) and monarch
-numerals (`Luis XIV.a` → `hamalaugarrena`), a cited abbreviation list
-(`etab.` → `eta abar`), unit/currency/percent symbols with Basque word order
-and declension (`%5` and `5%` both → `ehuneko bost`), and numeric dates. Each
-is cited to Euskaltzaindia (Araua 18/37/196/197) and the EIMA *Ortotipografia*
-guide. The abbreviation and unit tables are expandable data files
-(`euskaphone/data/*.tsv`). See [`docs/normalization.md`](docs/normalization.md).
+text2spoken reads Roman-numeral ordinals (`XX.` → `hogeigarren`) and monarch
+numerals (`Luis XIV.a` → `hamalaugarrena`), abbreviations (`etab.` →
+`eta abar`), unit/currency/percent symbols with Basque word order and
+declension (`%5` and `5%` both → `ehuneko bost`), clock times and numeric dates.
+euskaphone reads what text2spoken leaves as written, such as `€5eko`,
+`16garren`, `Karlos V` and the unit symbol `g`. Each reading is cited to
+Euskaltzaindia (Araua 18/35/196/197/203). The abbreviation and unit tables are
+data files (`euskaphone/data/*.tsv`). See
+[`docs/normalization.md`](docs/normalization.md).
 
 ### 5. Northern Bizkaian pitch accent (opt-in)
 

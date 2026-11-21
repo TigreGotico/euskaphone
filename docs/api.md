@@ -38,18 +38,28 @@ Whether `dialect` names a Basque lect, not the Batua fallback.
 ## Numbers: `euskaphone.number_utils`
 
 `BasqueNumberParser(dialect="eu")` with `.cardinal(n)`, `.ordinal(n)`,
-`.decimal(whole, frac)`, `.year(n)`, `.clock(hour, minute)`.
-`normalize_numbers(text, dialect="eu", strict=False)` rewrites every numeric
-token in running text. Both take a lect code, canonical or older (`eu-x-lapurdi`
-or `eu-x-lapurtera`), and do not resolve an alias such as `labourdin`:
-`BasqueNumberParser` raises `ValueError` for one, and `normalize_numbers` reads it
-as `eu`. `EuskaPhonemizer.phonemize_sentence` resolves aliases before it calls
-them.
+`.decimal(whole, frac)`, `.year(n)`, `.clock(hour, minute)` and
+`.pronounce_token(token, as_ordinal=False)`. It takes every name of a lect
+that `resolve_lect` takes: a canonical or older code (`eu-x-lapurdi` or
+`eu-x-lapurtera`) or an alias such as `labourdin`. A name outside Basque, such
+as `xx`, raises `ValueError`. An `eu` tag with a subtag the registry does not
+know, such as `eu-ES` or `eu-x-foo`, reads as Batua, as `resolve_lect` does.
+
+`read_space_grouped_numbers(text, dialect)`, `read_garren_ordinals(text, dialect)`,
+`read_dot_decimals(text, dialect)` and `read_glued_case_endings(text, dialect)`
+are the fallbacks for `10 000-20 000`, `16garren`, `2.5` and `100dik`, which
+text2spoken leaves as written. text2spoken reads a single space-grouped number,
+`1 000 000`, and leaves two of them joined by a hyphen, an en dash or a slash.
+`read_code_digits(text, dialect)` reads the digits of a code (`B12`). They run
+on text2spoken's output inside `normalize_text`.
+
+`normalize_numbers(text, dialect="eu", strict=False)` is deprecated: use
+`normalize_text`.
 
 Vigesimal cardinal/ordinal composition is delegated to `ovos-number-parser`
 (`pronounce_number` / `pronounce_ordinal`, `lang="eu"`). euskaphone keeps
 only the orthographic layer: written-separator handling, case-suffix
-attachment, clock times, and the Lapurdian `bortz` substitution.
+attachment and the Lapurdian `bortz` substitution.
 
 ## Code-switch: `euskaphone.codeswitch`
 
@@ -61,10 +71,36 @@ orthographic heuristic then takes over).
 
 ## Normalization: `euskaphone.normalize`
 
-`normalize_text(text, dialect="eu")` spells abbreviations, Roman-numeral
-ordinals, unit/currency/percent symbols, and numeric dates into Basque
-words. It runs automatically as the engine's `normalize` stage and is
-callable on its own.
+`normalize_text(text, dialect="eu")` spells numbers, dates, clock times,
+abbreviations, Roman numerals and unit/currency/percent symbols into Basque
+words. text2spoken reads the text first, and the fallbacks read the forms it
+leaves as written. It runs automatically as the engine's `expand` stage and
+is callable on its own. It resolves an alias such as `labourdin`.
+
+`text2spoken_tag(dialect)` gives the language tag text2spoken reads a lect in,
+and `text2spoken_reading(text, dialect)` gives text2spoken's reading with no
+fallback. `read_bare_clock_times(text, dialect)` is the fallback for a clock
+time with no case ending (`10:30`), `read_point_clock_times(text, dialect)` the
+fallback for a clock time with a point and a case ending (`10.30etan`), and
+`read_capitalized_abbreviations(text, dialect)` the fallback for an
+abbreviation with a capital or in capitals (`Jn.`, `ZK.`).
+
+The fallbacks of the other modules are `units.read_currency_before_number`,
+`units.read_unit_symbols`, `romans.read_bare_monarch_numerals` and
+`abbreviations.read_left_abbreviations`. The stages that text2spoken replaces
+are deprecated: `dates.normalize_dates`, `dates.compose_date`,
+`dates.MONTHS_GENITIVE`, `abbreviations.expand_abbreviations`,
+`romans.normalize_romans`, `units.normalize_units`,
+`numverbal.spell_cardinal`, `numverbal.inessive` and
+`numverbal.locative_genitive`. Each call gives a `DeprecationWarning` that names
+the release that removes the stage. The replacement of
+`numverbal.spell_cardinal` is `BasqueNumberParser(dialect).cardinal`, the warnings of
+`numverbal.inessive` and `numverbal.locative_genitive` say that text2spoken
+declines the numerals it reads, and the replacement of every other stage is
+`normalize_text`. The names that
+`normalize` and `dates` imported from these modules still resolve there, and
+their warning is the warning of the original name. See the table in
+[normalization.md](normalization.md#deprecated-stages).
 
 ## Pitch accent: `euskaphone.pitch_accent`
 
