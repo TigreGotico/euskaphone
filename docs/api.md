@@ -83,7 +83,7 @@ fallback. `read_bare_clock_times(text, dialect)` is the fallback for a clock
 time with no case ending (`10:30`), `read_point_clock_times(text, dialect)` the
 fallback for a clock time with a point and a case ending (`10.30etan`), and
 `read_capitalized_abbreviations(text, dialect)` the fallback for an
-abbreviation with a capital (`Jn.`).
+abbreviation with a capital or in capitals (`Jn.`, `ZK.`).
 
 The fallbacks of the other modules are `units.read_currency_before_number`,
 `units.read_unit_symbols`, `romans.read_bare_monarch_numerals` and
@@ -93,9 +93,12 @@ are deprecated: `dates.normalize_dates`, `dates.compose_date`,
 `romans.normalize_romans`, `units.normalize_units`,
 `numverbal.spell_cardinal`, `numverbal.inessive` and
 `numverbal.locative_genitive`. Each call gives a `DeprecationWarning` that names
-the release that removes it. The names that `normalize` and `dates` imported
-from these modules still resolve there. Their warning names the replacement
-that the reader they give names, never another deprecated name.
+the replacement and the release that removes the stage. The replacement of
+`numverbal.spell_cardinal` is `BasqueNumberParser(dialect).cardinal`, and the
+replacement of every other stage is `normalize_text`. The names that
+`normalize` and `dates` imported from these modules still resolve there, and
+their warning names the same replacement. See the table in
+[normalization.md](normalization.md#deprecated-stages).
 
 ## Pitch accent: `euskaphone.pitch_accent`
 
