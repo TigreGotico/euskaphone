@@ -1,11 +1,16 @@
 # API
 
-## `EuskaPhonemizer`
+<!-- agent-hint
+covers: every public name of euskaphone with its signature and default
+source: euskaphone/__init__.py, euskaphone/registry.py, euskaphone/lattice_core.py, euskaphone/number_utils.py, euskaphone/normalize.py, euskaphone/codeswitch.py, euskaphone/accent.py, euskaphone/pitch_accent.py, euskaphone/plugin.py
+generated: no
+verify: .venv/bin/python scripts/check_docs_examples.py docs/api.md
+see: quickstart.md, architecture.md
+-->
 
-```python
-from euskaphone import EuskaPhonemizer
-ph = EuskaPhonemizer()
-```
+This page lists every public name of euskaphone, grouped by module, with its signature and default.
+
+## `EuskaPhonemizer`
 
 `EuskaPhonemizer(toponyms=True, lexicon=None)` registers the built-in lexicons
 for `eu`. `toponyms=False` leaves out the toponym seed, and `lexicon="hitz"`
@@ -22,7 +27,21 @@ marks (Biscayan only, see [pitch_accent.md](pitch_accent.md)).
 
 ### `is_supported(dialect) -> bool`
 
-Whether `dialect` names a Basque lect, not the Batua fallback.
+A static method. It tells whether `dialect` names a Basque lect, not the Batua fallback.
+
+The signatures below come from `inspect`:
+
+```python
+import inspect
+from euskaphone import EuskaPhonemizer
+
+str(inspect.signature(EuskaPhonemizer.__init__))
+# '(self, toponyms: bool = True, lexicon: Optional[str] = None) -> None'
+str(inspect.signature(EuskaPhonemizer.phonemize_sentence))
+# "(self, sentence: str, dialect: str = 'eu', contact: str = 'none', pitch_accent: bool = False) -> str"
+EuskaPhonemizer.is_supported("souletin"), EuskaPhonemizer.is_supported("xx")
+# (True, False)
+```
 
 ## Registry: `euskaphone.registry`
 
@@ -34,12 +53,13 @@ Whether `dialect` names a Basque lect, not the Batua fallback.
 | `is_continental(lect)` | whether `lect` is an Iparralde (France-side) dialect |
 | `default_contact(lect)` | `"fr"` for continental, `"es"` otherwise |
 | `is_supported(dialect)` | strict membership test |
+| `normalize_dialect_code(name)` | the lower-cased and trimmed name, used for the lookup |
 
 ## Numbers: `euskaphone.number_utils`
 
 `BasqueNumberParser(dialect="eu")` with `.cardinal(n)`, `.ordinal(n)`,
 `.decimal(whole, frac)`, `.year(n)`, `.clock(hour, minute)` and
-`.pronounce_token(token, as_ordinal=False)`. It takes every name of a lect
+`.pronounce_token(token, as_ordinal=False)`, which returns `None` for a token it cannot read. It takes every name of a lect
 that `resolve_lect` takes: a canonical or older code (`eu-x-lapurdi` or
 `eu-x-lapurtera`) or an alias such as `labourdin`. A name outside Basque, such
 as `xx`, raises `ValueError`. An `eu` tag with a subtag the registry does not
@@ -54,7 +74,9 @@ text2spoken leaves as written. text2spoken reads a single space-grouped number,
 on text2spoken's output inside `normalize_text`.
 
 `normalize_numbers(text, dialect="eu", strict=False)` is deprecated: use
-`normalize_text`.
+`normalize_text`. `numverbal.spell_token(token, dialect="eu")` and
+`numverbal.spell_ordinal(n, dialect="eu")` spell a numeric token and an ordinal through
+the same parser.
 
 Vigesimal cardinal/ordinal composition is delegated to `ovos-number-parser`
 (`pronounce_number` / `pronounce_ordinal`, `lang="eu"`). euskaphone keeps
@@ -63,11 +85,17 @@ attachment and the Lapurdian `bortz` substitution.
 
 ## Code-switch: `euskaphone.codeswitch`
 
-`is_contact_word(token)`, `transcribe_contact(word, contact, keep_y=False)`,
-`split_runs(text, contact, default_side="es")`. The statistical per-word language detector
+`is_contact_word(token)` is the orthographic heuristic. `detect_contact_word(token)` asks the
+statistical detector first and uses the heuristic as backstop.
+`contact_language(token, default_side="es")` classifies a contact token as `"en"`, `"fr"` or
+`"es"`. `route_token(token, contact, default_side="es")` gives the language that a token
+routes through, or `None` for Basque. `transcribe_contact(word, contact, keep_y=False)`
+nativizes one word, and `split_runs(text, contact, default_side="es")` splits a text into
+Basque and contact runs. The statistical per-word language detector
 behind `contact="auto"` is `euskaphone.langdetect.get_detector()` (returns
 `None` when the optional `markovonnx` models are not installed; the
-orthographic heuristic then takes over).
+orthographic heuristic then takes over). `langdetect` also holds
+`MarkovLangDetector(models)`, `is_keep_word(word)`, `BASQUE_KEEP` and `DEFAULT_MARGIN`.
 
 ## Normalization: `euskaphone.normalize`
 
@@ -85,6 +113,7 @@ fallback for a clock time with a point and a case ending (`10.30etan`), and
 `read_capitalized_abbreviations(text, dialect)` the fallback for an
 abbreviation with a capital or in capitals (`Jn.`, `ZK.`).
 
+`romans.roman_to_int(s)` and `romans.monarch_ordinal(n, dialect="eu")` read a Roman numeral.
 The fallbacks of the other modules are `units.read_currency_before_number`,
 `units.read_unit_symbols`, `romans.read_bare_monarch_numerals` and
 `abbreviations.read_left_abbreviations`. The stages that text2spoken replaces
@@ -105,28 +134,33 @@ their warning is the warning of the original name. See the table in
 ## Pitch accent: `euskaphone.pitch_accent`
 
 `default_lexicon(area="northern_bizkaian")` loads the cited Northern Bizkaian
-accent lexicon.
-`lookup(word)` returns an entry with `accent_class`
+accent lexicon as a `PitchAccentLexicon`, which has `entries()`, `lookup(word)` and
+`from_tsv`. `lookup(word)` returns an `AccentEntry` with `accent_class`
 (`ACCENTED` / `UNACCENTED` / `UNKNOWN`), `accent_syllable`, `gloss`,
-`source`.
+`source`. `mark_ipa(ipa_word, syllable)`, `annotate(word_orth, ipa_word, lexicon=None)` and
+`annotate_sentence(sentence, transcribe_word, *, lexicon=None)` write the mark.
 
 ## Accent forcing: `euskaphone.accent`
 
-`force_accent(text, dialect, mode="ipa"|"respell")` and
-`respell_report(text, dialect)`, which returns a `RespellResult` (fields
+`force_accent(text, dialect, mode="ipa")` with `mode` set to `"ipa"` or `"respell"`, and
+`respell_report(text, dialect, rules=None, eps=1e-09)`, which returns a `RespellResult`
+(`RespellRule` describes one rule; fields
 `source`, `respelled`, `target_ipa`, `base_ipa`, `respelled_ipa`, `per_before`,
 `per_after`, `accepted`, and the `gain` property). See [accent_forcing.md](accent_forcing.md).
 
 ## Lexicon: `euskaphone.register_lexicon`
 
-```python
-from euskaphone import register_lexicon
-register_lexicon("eu", "path/or/url/or/hf://id")   # word<TAB>ipa
-```
+`register_lexicon(dialect, source)` takes a path, a URL or an `hf://` id of a
+`word<TAB>ipa` table. `lexicon_source(dialect)` returns the source registered for a lect, or
+`None`, and `clear_caches()` drops the cache of per-lect engines.
 
 `euskaphone.register_toponyms(dialect="eu", *, force=False)` and
 `euskaphone.register_hitz_overlay(dialect="eu")` register the two built-in
-lexicons by hand.
+lexicons by hand. `lexicons.hitz_overlay_words()` returns the keys of the overlay, and
+`lexicons.apply_builtins(toponyms=True, lexicon=None, dialect="eu")` applies the constructor flags.
+
+`lattice_core.phonemize(text, dialect="eu", contact="none")` is the function behind
+`EuskaPhonemizer.phonemize_sentence`.
 
 ## G2P wrapper: `euskaphone.plugin.EuskaphoneG2PPlugin`
 
@@ -136,4 +170,4 @@ the same values as `phonemize_sentence`. euskaphone declares no entry point, so
 no plugin manager discovers this class: construct it yourself.
 
 ---
-[← Accent forcing](accent_forcing.md) · [Home](../README.md) · [Architecture →](architecture.md)
+[← Accent forcing](accent_forcing.md) · [Index](index.md) · [Architecture →](architecture.md)

@@ -1,7 +1,15 @@
 # Dialects
 
+<!-- agent-hint
+covers: which dialects euskaphone selects and how a name resolves to a lect code
+source: euskaphone/registry.py, orthography2ipa/data/eu*.json
+generated: no
+verify: .venv/bin/python scripts/check_docs_examples.py docs/dialects.md
+see: quickstart.md, codeswitch.md, api.md
+-->
+
 A euskaphone dialect is an orthography2ipa Basque lect spec. Selecting a
-dialect selects that spec. The spec's grapheme table, allophony, and sandhi
+dialect selects that spec. The grapheme table, the allophony and the sandhi of the spec
 produce the dialect's phonology directly, so there are no post-hoc accent
 transforms.
 
@@ -20,17 +28,30 @@ The code column is the code orthography2ipa keys each spec by, and the one
 `list_dialects()` and `resolve_lect()` return. The older `eu-x-*` codes in the
 alias column still resolve to the same spec.
 
+```python
+from euskaphone.registry import list_dialects, resolve_lect
+
+list_dialects()
+# ['eu', 'eu-biscayan', 'eu-x-gipuzkoa', 'eu-x-lapurdi', 'eu-x-nafarra-beherea', 'eu-x-nafarra-garaia', 'eu-x-roncal', 'eu-x-zuberera']
+resolve_lect("vizcaino")
+# 'eu-biscayan'
+resolve_lect("eu-x-lapurtera")
+# 'eu-x-lapurdi'
+```
+
 **Sides.** *Hegoalde* (peninsular, Spain) dialects default their code-switch
 contact language to Spanish. *Iparralde* (continental, France) dialects
 default to French. Resolution is case-insensitive and pops trailing subtags,
 so an unknown `eu-x-*` falls back to Batua.
 
 ```python
-from euskaphone.registry import resolve_lect, default_contact
-resolve_lect("souletin")        # 'eu-x-zuberera'
-default_contact("souletin")     # 'fr'
-default_contact("biscayan")     # 'es'
+from euskaphone.registry import default_contact
+
+default_contact("souletin")
+# 'fr'
+default_contact("biscayan")
+# 'es'
 ```
 
 ---
-[← Quickstart](quickstart.md) · [Home](../README.md) · [Numbers →](numbers.md)
+[← Quickstart](quickstart.md) · [Index](index.md) · [Numbers →](numbers.md)

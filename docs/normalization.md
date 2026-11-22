@@ -1,5 +1,13 @@
 # Orthographic normalization
 
+<!-- agent-hint
+covers: how text becomes Basque words before the lattice runs, and which stage reads each form
+source: euskaphone/normalize.py, euskaphone/number_utils.py, euskaphone/units.py, euskaphone/romans.py, euskaphone/abbreviations.py, euskaphone/data/abbreviations.tsv, euskaphone/data/units.tsv
+generated: no
+verify: .venv/bin/python scripts/check_docs_examples.py docs/normalization.md
+see: numbers.md, api.md
+-->
+
 The pronunciation lattice reads Basque **letters**. A number, a date, a clock
 time, an abbreviation, a Roman numeral, a unit or a currency symbol must first
 become Basque words. `euskaphone.normalize.normalize_text` does this before the
@@ -158,8 +166,8 @@ xfail test holds the `bortz` reading until text2spoken reads it.
 ## The data tables
 
 The abbreviation table (`euskaphone/data/abbreviations.tsv`) and the unit
-table (`euskaphone/data/units.tsv`) are data, not code. Each row names its
-source. The fallbacks read their words from these tables.
+table (`euskaphone/data/units.tsv`) are data, not code. The header of each
+file names its sources. The fallbacks read their words from these tables.
 
 ## Deprecated stages
 
@@ -197,4 +205,4 @@ The PDFs are at `https://www.euskaltzaindia.eus/dok/arauak/Araua_NNNN.pdf`. A
 page number is the PDF page.
 
 ---
-[← Numbers](numbers.md) · [Home](../README.md) · [Code-switch →](codeswitch.md)
+[← Numbers](numbers.md) · [Index](index.md) · [Code-switch →](codeswitch.md)

@@ -1,5 +1,13 @@
 # Lexicons
 
+<!-- agent-hint
+covers: how to register a pronunciation lexicon and what the two shipped lexicons hold
+source: euskaphone/lexicons.py, euskaphone/lattice_core.py, euskaphone/data/lexicons/, scripts/build_lexicons.py
+generated: no
+verify: .venv/bin/python scripts/check_docs_examples.py docs/lexicons.md
+see: benchmarks.md, api.md
+-->
+
 A euskaphone lexicon is a word-keyed `word<TAB>ipa` table in the
 orthography2ipa lexicon format, registered with one source per lect code. The
 lect's engine holds it in its `Pipeline(lexicon=...)`, so another
@@ -12,7 +20,7 @@ ship with euskaphone. Both are validated
 
 ## Registering your own
 
-```python
+```text
 from euskaphone import register_lexicon
 register_lexicon("eu", "/path/to/lexicon.tsv")          # local file
 register_lexicon("eu", "hf://ORG/repo/eu.tsv")          # Hugging Face
@@ -32,10 +40,20 @@ A curated seed of about 130 of the most important Basque toponyms and
 respelled exonyms in their **Euskaltzaindia normative** forms. It registers
 for the standard `eu` code automatically when you construct the phonemizer:
 
+Without the seed, `Hollywood` reads from its Basque letters. With it, the entry gives the
+Basque-adapted pronunciation:
+
 ```python
-EuskaPhonemizer()                 # toponym seed registered (default)
-EuskaPhonemizer(toponyms=False)   # opt out
+from euskaphone import EuskaPhonemizer
+
+EuskaPhonemizer(toponyms=False).phonemize_sentence("Hollywood")
+# 'oˈʎooð'
+EuskaPhonemizer().phonemize_sentence("Hollywood")
+# 'oˈliu̯ud'
 ```
+
+The lexicon registry belongs to the process. Once a phonemizer has registered the seed, a later
+`EuskaPhonemizer(toponyms=False)` in the same process still reads it.
 
 For a regular normative spelling the IPA pins the Batua lattice reading of
 that spelling (the entry documents and freezes the normative
@@ -58,8 +76,13 @@ An overlay of about 40 proper nouns (place and person names) drawn from the
 HiTZ/EHU `wikipedia_basque_ipa` set.
 
 ```python
-EuskaPhonemizer(lexicon="hitz")   # opt in; overrides the code's lexicon
+from euskaphone.lexicons import hitz_overlay_words
+
+len(hitz_overlay_words())
+# 40
 ```
+
+`EuskaPhonemizer(lexicon="hitz")` registers the overlay and overrides the lexicon of the code.
 
 **Circularity caveat.** That HiTZ set is also euskaphone's independent
 cross-engine benchmark ([`benchmarks.md`](benchmarks.md) section 3). Folding
@@ -85,4 +108,4 @@ python scripts/build_lexicons.py --hitz   # also the HiTZ overlay (network)
 ```
 
 ---
-[← Code-switch](codeswitch.md) · [Home](../README.md) · [Pitch accent →](pitch_accent.md)
+[← Code-switch](codeswitch.md) · [Index](index.md) · [Pitch accent →](pitch_accent.md)
