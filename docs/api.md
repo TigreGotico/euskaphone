@@ -151,8 +151,9 @@ accent lexicon as a `PitchAccentLexicon`, which has `entries()`, `lookup(word)` 
 ## Lexicon: `euskaphone.register_lexicon`
 
 `register_lexicon(dialect, source)` takes a path, a URL or an `hf://` id of a
-`word<TAB>ipa` table. `lexicon_source(dialect)` returns the source registered for a lect, or
-`None`, and `clear_caches()` drops the cache of per-lect engines.
+`word<TAB>ipa` table. `lattice_core.lexicon_source(dialect)` returns the source registered for a lect, or
+`None`, and `lattice_core.clear_caches()` drops the cache of per-lect engines. Both live in
+`euskaphone.lattice_core` and are not exported by the package.
 
 `euskaphone.register_toponyms(dialect="eu", *, force=False)` and
 `euskaphone.register_hitz_overlay(dialect="eu")` register the two built-in
