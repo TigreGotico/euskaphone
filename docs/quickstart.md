@@ -1,37 +1,56 @@
 # Quickstart
 
+<!-- agent-hint
+covers: how to install euskaphone and phonemize a sentence in Batua, in a dialect, with numbers and with code-switching
+source: pyproject.toml, euskaphone/__init__.py, euskaphone/lattice_core.py
+generated: no
+verify: .venv/bin/python scripts/check_docs_examples.py docs/quickstart.md
+see: dialects.md, numbers.md, codeswitch.md, api.md
+-->
+
+Install euskaphone and turn a Basque sentence into IPA. Each step shows its real output.
+
 ```bash
-pip install euskaphone
+pip install --pre euskaphone
 ```
+
+The `--pre` flag selects the alpha line that these pages describe. Create one phonemizer and call
+`phonemize_sentence`. Without a dialect, it reads Standard Basque (Batua):
 
 ```python
 from euskaphone import EuskaPhonemizer
 
 ph = EuskaPhonemizer()
-
-# Standard Batua (default)
-ph.phonemize_sentence("Kaixo, mundua.")            # 'kai̯ˈʃo munˈdua'
-
-# a dialect, by code or alias
-ph.phonemize_sentence("Hotza egiten du.", "souletin")
-ph.phonemize_sentence("Hotza egiten du.", "eu-x-zuberera")   # same thing
-
-# numbers are verbalized (hogeita hamaika) before the lattice runs
-ph.phonemize_sentence("31 katu.")                  # 'oˈɣei̯ta aˈmai̯ka kaˈtu'
-
-# code-switching is opt-in: contact="auto" detects, routes and nativizes
-# embedded Spanish/French/English words
-ph.phonemize_sentence("Plaza Mayor ikusi dut.", "eu", contact="auto")
-# 'plaˈs̻a majoɾ iˈkus̺i ˈdut'   (Mayor routed to Spanish)
+ph.phonemize_sentence("Kaixo, mundua.")
+# 'kai̯ˈʃo munˈdua'
 ```
 
-Output is space-separated IPA, one group per word.
+The output is space-separated IPA, one group per word. Pass a dialect as the second argument, by
+lect code or by alias. Both names below select the same spec:
 
-See [dialects.md](dialects.md), [numbers.md](numbers.md),
-[normalization.md](normalization.md), [codeswitch.md](codeswitch.md),
-[lexicons.md](lexicons.md), [pitch_accent.md](pitch_accent.md),
-[accent_forcing.md](accent_forcing.md), [api.md](api.md),
-[architecture.md](architecture.md), [benchmarks.md](benchmarks.md).
+```python
+ph.phonemize_sentence("Hotza egiten du.", "souletin")
+# 'ˈhots̻a eˈɣiten ˈdu'
+ph.phonemize_sentence("Hotza egiten du.", "eu-x-zuberera")
+# 'ˈhots̻a eˈɣiten ˈdu'
+```
+
+Numbers become Basque words before the lattice runs. Here `31` reads as `hogeita hamaika`:
+
+```python
+ph.phonemize_sentence("31 katu.")
+# 'oˈɣei̯ta aˈmai̯ka kaˈtu'
+```
+
+Code-switching is off by default, so a Spanish word reads as Basque. With `contact="auto"`,
+euskaphone detects the embedded word, routes it to the Spanish lattice and nativizes the result:
+
+```python
+ph.phonemize_sentence("Plaza Mayor ikusi dut.", "eu")
+# 'plaˈs̻a maˈor iˈkus̺i ˈdut'
+ph.phonemize_sentence("Plaza Mayor ikusi dut.", "eu", contact="auto")
+# 'plaˈs̻a majoɾ iˈkus̺i ˈdut'
+```
 
 ---
-[Home](../README.md) · [Dialects →](dialects.md)
+[Index](index.md) · [Dialects →](dialects.md)
