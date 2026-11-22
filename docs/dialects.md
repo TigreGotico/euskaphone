@@ -2,7 +2,7 @@
 
 <!-- agent-hint
 covers: which dialects euskaphone selects and how a name resolves to a lect code
-source: euskaphone/registry.py, orthography2ipa/data/eu*.json
+source: euskaphone/registry.py
 generated: no
 verify: .venv/bin/python scripts/check_docs_examples.py docs/dialects.md
 see: quickstart.md, codeswitch.md, api.md

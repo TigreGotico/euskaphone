@@ -2,7 +2,7 @@
 
 <!-- agent-hint
 covers: the stages of the pipeline, which module owns each and the sandhi that the lect spec supplies
-source: euskaphone/lattice_core.py, euskaphone/normalize.py, euskaphone/codeswitch.py, orthography2ipa/data/eu.json
+source: euskaphone/lattice_core.py, euskaphone/normalize.py, euskaphone/codeswitch.py
 generated: no
 verify: .venv/bin/python scripts/check_docs_examples.py docs/architecture.md && grep -oP '^\| \x60\Keuskaphone\.\w+(?=\x60)' docs/architecture.md | xargs -I{} .venv/bin/python -I -c 'import {}'
 see: api.md, benchmarks.md
