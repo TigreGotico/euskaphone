@@ -1,5 +1,13 @@
 # Accent forcing
 
+<!-- agent-hint
+covers: how force_accent turns Batua text into a target dialect, and where the respeller stops
+source: euskaphone/accent.py, scripts/respell_gains.py
+generated: no
+verify: .venv/bin/python scripts/check_docs_examples.py docs/accent_forcing.md && diff <(.venv/bin/python scripts/respell_gains.py 2>/dev/null | grep -oP '^eu\S*\s+\K[0-9.]+\s+[0-9.]+\s+[0-9.]+' | tr -s ' ' | sort) <(grep -oP '^\| \x60eu[^\x60]*\x60 \| \K[0-9.]+ \| [0-9.]+ \| \**[0-9.]+' docs/accent_forcing.md | tr -d '*|' | tr -s ' ' | sort)
+see: dialects.md, api.md
+-->
+
 `force_accent(text, dialect, mode=...)` pushes Batua text toward a target
 lect in one of two modes.
 
@@ -8,10 +16,13 @@ lect in one of two modes.
 The text is transcribed straight through the target lect's lattice, so the
 return is the target dialect's own IPA, the "IPA delta" against Batua.
 
+In Biscayan seseo, the laminal `/s̻/` has merged into the apical `/s̺/`:
+
 ```python
 from euskaphone.accent import force_accent
+
 force_accent("Zazpi katu zuri", "biscayan", mode="ipa")
-# 's̺as̺pi katu s̺uɾi'   (Biscayan seseo: laminal /s̻/ has merged into apical /s̺/)
+# 's̺as̺pi katu s̺uɾi'
 ```
 
 ## `mode="respell"`: the verification-gated respeller
@@ -27,13 +38,26 @@ rounding). Every candidate edit is **verification-gated**:
 > base (Batua) lattice* moves the result measurably closer (lower PER) to
 > the target lect's own IPA.
 
+The edit `z` to `s` survives the gate, because a Batua reading of the respelled text
+matches Biscayan:
+
 ```python
 force_accent("Zazpi katu zuri", "biscayan", mode="respell")
-# 'Zaspi katu suri'   (z→s survives the gate: a Batua reading now matches Biscayan)
+# 'Zaspi katu suri'
 ```
 
 The `respell_report(...)` call exposes the full accounting, `per_before`,
-`per_after`, `gain`, and which rules the gate `accepted`, for benchmarking.
+`per_after`, `gain`, and which rules the gate `accepted`, for benchmarking:
+
+```python
+from euskaphone.accent import respell_report
+
+report = respell_report("Zazpi katu zuri", "biscayan")
+report.accepted
+# ['seseo_z_to_s']
+round(report.per_before, 4), round(report.per_after, 4)
+# (0.1875, 0.0625)
+```
 
 ## Why the gate matters: the honest ceiling
 
@@ -69,4 +93,4 @@ python scripts/respell_gains.py
 ```
 
 ---
-[← Pitch accent](pitch_accent.md) · [Home](../README.md) · [API →](api.md)
+[← Pitch accent](pitch_accent.md) · [Index](index.md) · [API →](api.md)

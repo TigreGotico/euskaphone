@@ -1,5 +1,13 @@
 # Orthographic normalization
 
+<!-- agent-hint
+covers: how text becomes Basque words before the lattice runs, and which stage reads each form
+source: euskaphone/normalize.py, euskaphone/number_utils.py, euskaphone/units.py, euskaphone/romans.py, euskaphone/abbreviations.py, euskaphone/data/abbreviations.tsv, euskaphone/data/units.tsv
+generated: no
+verify: .venv/bin/python scripts/check_docs_examples.py docs/normalization.md
+see: numbers.md, api.md
+-->
+
 The pronunciation lattice reads Basque **letters**. A number, a date, a clock
 time, an abbreviation, a Roman numeral, a unit or a currency symbol must first
 become Basque words. `euskaphone.normalize.normalize_text` does this before the
@@ -75,6 +83,18 @@ reads it:
 ```
 Bilera 10:30 da  -> Bilera goizeko hamarrak eta hogeita hamar da
 12:00            -> eguerdiko hamabiak
+12:00 h          -> eguerdiko hamabiak
+```
+
+The hour symbol `h` after a clock time adds no word. Araua 203 (p. 51) calls
+it redundant: «Itsasgorak: 05:49 h eta 18:07 h» is «erredundantea».
+
+A point between the hour and the minutes, with a case ending of the clock,
+also gives a clock time. Araua 203 (p. 51) says that minutes are not decimals.
+A fallback reads the time as text2spoken reads it with a colon:
+
+```
+Bilera 10.30etan  -> Bilera goizeko hamarrak eta hogeita hamarretan
 ```
 
 An **abbreviation at the end of a sentence** keeps one period, because its
@@ -82,6 +102,15 @@ period also ends the sentence (Araua 196, p. 31):
 
 ```
 katuak etab.  -> katuak eta abar.
+```
+
+A capital after the period starts a name or a sentence (Araua 196, p. 30). So
+the period stays before a capital only after `etab.`, the abbreviation that
+ends a list. After the other abbreviations, the period goes:
+
+```
+katuak etab. Gero etorri  -> katuak eta abar. Gero etorri
+h.d. Euskal Herrian       -> hau da Euskal Herrian
 ```
 
 Where the norm gives two readings, euskaphone follows text2spoken: `3,14` reads
@@ -102,9 +131,9 @@ its own form.
 | A point as the decimal mark | `2.5` | bi koma bost | `number_utils` |
 | Currency symbol before the number | `€5eko` | bost euroko | `units` |
 | Unit symbols `dm g mg t ml cl h` | `5 g`, `1 g-ko` | bost gramo, gramo bateko | `units` |
-| Bare Roman numeral after a name | `Karlos V` | Karlos bosgarrena | `romans` |
+| Bare Roman numeral written with the letters `I`, `V` and `X`, after a name | `Karlos V` | Karlos bosgarrena | `romans` |
 | `h.d. kap. lib. orr.`, and `etab.` and `k.a.` in another case | `h.d.`, `ETAB.` | hau da., eta abar. | `abbreviations` |
-| An abbreviation of the table with a capital | `Jn. Agirre` | Jauna Agirre | `normalize` |
+| An abbreviation of the table with a capital, or in capitals | `Jn. Agirre`, `—Jn. Agirre`, `ZK. 5` | Jauna Agirre, —Jauna Agirre, Zenbakia bost | `normalize` |
 | Digits with a glued case ending | `100dik gora` | ehundik gora | `number_utils` |
 
 Last, euskaphone reads the digits that are still in the text. text2spoken
@@ -117,6 +146,11 @@ The fallbacks keep the whitespace of the text, newlines and tabs included.
 The number fallbacks spell with `BasqueNumberParser`. The unit fallback keeps
 the number that text2spoken read and reads only the symbol. A unit symbol is a
 unit only right after digits, so `g letra` stays as written.
+
+A bare Roman numeral reads as an ordinal only after a name. Araua 203 (p. 7)
+says that a Roman numeral is a cardinal, and its dynastic numerals use the
+letters `I`, `V` and `X` only. So `Ikastola D eredua` and `Musika CD bat` stay
+as written. A name ends in a letter, so the `V` of `Zk. V` stays too.
 
 Some forms get no reading. `ad.` stays as written: Araua 196 lists it as
 `aditza`, not `adibidez`. `e.a.` and `at.` stay as written, because no source
@@ -132,25 +166,31 @@ xfail test holds the `bortz` reading until text2spoken reads it.
 ## The data tables
 
 The abbreviation table (`euskaphone/data/abbreviations.tsv`) and the unit
-table (`euskaphone/data/units.tsv`) are data, not code. Each row names its
-source. The fallbacks read their words from these tables.
+table (`euskaphone/data/units.tsv`) are data, not code. The header of each
+file names its sources. The fallbacks read their words from these tables.
 
 ## Deprecated stages
 
-The stages that text2spoken replaces keep their names and their behaviour, and
-each call gives a `DeprecationWarning` that names the release that removes
-them:
+The stages that text2spoken replaces keep their names and their behaviour.
+Each call gives a `DeprecationWarning` that names the release that removes the
+stage. The warnings of `inessive` and `locative_genitive` say that text2spoken
+declines the numerals it reads; every other warning names its replacement:
 
-| Module | Deprecated names |
-|---|---|
-| `euskaphone.number_utils` | `normalize_numbers` |
-| `euskaphone.dates` | `normalize_dates`, `compose_date`, `MONTHS_GENITIVE` |
-| `euskaphone.abbreviations` | `expand_abbreviations` |
-| `euskaphone.romans` | `normalize_romans` |
-| `euskaphone.units` | `normalize_units` |
-| `euskaphone.numverbal` | `spell_cardinal`, `inessive`, `locative_genitive` |
+| Module | Deprecated names | Use in their place |
+|---|---|---|
+| `euskaphone.number_utils` | `normalize_numbers` | `normalize_text` |
+| `euskaphone.dates` | `normalize_dates`, `compose_date`, `MONTHS_GENITIVE` | `normalize_text` |
+| `euskaphone.abbreviations` | `expand_abbreviations` | `normalize_text` |
+| `euskaphone.romans` | `normalize_romans` | `normalize_text` |
+| `euskaphone.units` | `normalize_units` | `normalize_text` |
+| `euskaphone.numverbal` | `spell_cardinal` | `BasqueNumberParser(dialect).cardinal` |
+| `euskaphone.numverbal` | `inessive`, `locative_genitive` | `normalize_text` (the warning names no function) |
 
-Use `normalize_text` in their place.
+`euskaphone.normalize` and `euskaphone.dates` still give the names they
+imported from these modules. `normalize.normalize_numbers` and the other four
+names of `normalize` name `normalize_text`. `dates.spell_cardinal`,
+`dates.inessive` and `dates.locative_genitive` name the replacement of their
+`numverbal` row.
 
 ## Sources
 
@@ -165,4 +205,4 @@ The PDFs are at `https://www.euskaltzaindia.eus/dok/arauak/Araua_NNNN.pdf`. A
 page number is the PDF page.
 
 ---
-[← Numbers](numbers.md) · [Home](../README.md) · [Code-switch →](codeswitch.md)
+[← Numbers](numbers.md) · [Index](index.md) · [Code-switch →](codeswitch.md)
