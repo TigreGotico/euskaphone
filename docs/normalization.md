@@ -119,6 +119,11 @@ Where the norm gives two readings, euskaphone follows text2spoken: `3,14` reads
 
 ## The fallbacks
 
+Before text2spoken reads the text, digits that two commas or more group in
+threes are grouped by spaces (`1,000,000` → `1 000 000`). text2spoken reads that
+writing with the currency or unit beside it: `€1,000,000` reads `milioi bat
+euro`.
+
 The fallbacks run on text2spoken's output, in this order. Each one reads only
 its own form.
 

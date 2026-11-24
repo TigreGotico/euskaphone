@@ -73,6 +73,11 @@ text2spoken leaves as written. text2spoken reads a single space-grouped number,
 `read_code_digits(text, dialect)` reads the digits of a code (`B12`). They run
 on text2spoken's output inside `normalize_text`.
 
+`comma_groups_as_spaces(text)` groups by spaces the digits that two commas or
+more group in threes: `1,000,000` becomes `1 000 000`. It runs before
+text2spoken inside `normalize_text`, so text2spoken reads the number with the
+currency or unit beside it: `€1,000,000` reads `milioi bat euro`.
+
 `normalize_numbers(text, dialect="eu", strict=False)` is deprecated: use
 `normalize_text`. `numverbal.spell_token(token, dialect="eu")` and
 `numverbal.spell_ordinal(n, dialect="eu")` spell a numeric token and an ordinal through

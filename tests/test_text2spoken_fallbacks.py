@@ -15,6 +15,7 @@ from pathlib import Path
 import pytest
 
 from euskaphone import normalize, number_utils
+from tests.text2spoken_gaps import TELEPHONE
 
 ROOT = Path(__file__).parent.parent
 TODO = "TODO(text2spoken issue"
@@ -26,6 +27,7 @@ LEFT_AS_WRITTEN = [
     ("2 500/3 000", "2 500/3 000"),
     ("1 000–2 000 metro", "1 000–2 000"),
     ("943 123 456", "943 123 456"),
+    ("1,000,000", "1,000,000"),
     ("2.5", "2.5"),
     ("10.30etan", "10.30etan"),
     ("h.d. hori", "h.d."),
@@ -164,6 +166,35 @@ def test_text2spoken_reads_a_number_grouped_by_spaces(text, period_writing, spok
         assert normalize.normalize_text(text) == spoken
 
 
+# Araua 203 p.14: "Euskaraz, koma da markatzaile dezimala": a Basque decimal
+# has one comma. Araua 203 p.11: in the United Kingdom, the United States and
+# Australia "koma, berriz, milakoen markatzailea da". Two commas or more, each
+# before three digits, group thousands, and the number reads as the same digits
+# grouped by spaces, the writing of Araua 203 p.12 ("1 000 000").
+@pytest.mark.parametrize("text,space_writing", [
+    ("1,000,000", "1 000 000"),
+    ("2,500,000 euro", "2 500 000 euro"),
+    ("12,345,678 lagun", "12 345 678 lagun"),
+    ("1,000,000,000", "1 000 000 000"),
+    ("€1,000,000", "€1 000 000"),
+    ("1,000,000 €", "1 000 000 €"),
+    ("$1,000,000", "$1 000 000"),
+    ("1,000,000 km", "1 000 000 km"),
+])
+def test_digits_grouped_by_commas_read_as_the_digits_grouped_by_spaces(text, space_writing):
+    assert normalize.text2spoken_reading(text) == text
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", DeprecationWarning)
+        assert normalize.normalize_text(text) == normalize.text2spoken_reading(space_writing)
+
+
+# One comma is the decimal mark, so its reading stays text2spoken's.
+@pytest.mark.parametrize("text", ["1,000", "3,14", "10,000 metro", "4 712,395"])
+def test_one_comma_stays_the_decimal_mark(text):
+    assert " koma " in normalize.text2spoken_reading(text)
+    assert normalize.normalize_text(text) == normalize.text2spoken_reading(text)
+
+
 # Two space-grouped numbers joined by a hyphen, an en dash or a slash: each
 # number reads as text2spoken reads it alone, and the mark stays.
 @pytest.mark.parametrize("left,mark,right,tail", [
@@ -181,15 +212,22 @@ def test_each_number_of_a_space_grouped_range_reads_as_text2spoken_reads_it_alon
 # text2spoken leaves three groups of three digits as written, because Araua 203,
 # note 12, groups a telephone number in that shape: "zenbakiak binaka edo
 # hirunaka ere zatitu daitezke: Telefonoa: +34 944 15 81 55 / +34 944 158 155".
-# The fallback reads the groups as one number, and an abbreviation before them
-# then reads with the number after it.
-@pytest.mark.parametrize("text,spoken", [
-    ("943 123 456", "bederatziehun eta berrogeita hiru milioi ehun eta hogeita hiru mila laurehun eta berrogeita hamasei"),
-    ("Tel. 943 123 456", "Telefonoa bederatziehun eta berrogeita hiru milioi ehun eta hogeita hiru mila laurehun eta berrogeita hamasei"),
-])
-def test_three_groups_of_three_digits_read_as_one_number(text, spoken):
+# With no telephone word before it, the run is also a quantity in the writing of
+# Araua 203 p.13, "(egokia) 12 578 936", so the fallback reads the groups as one
+# number.
+def test_three_groups_of_three_digits_read_as_one_number():
+    text = "943 123 456"
     assert normalize.text2spoken_reading(text) == text
-    assert normalize.normalize_text(text) == spoken
+    assert normalize.normalize_text(text) == normalize.text2spoken_reading("943.123.456")
+
+
+# After "Tel." the run is the telephone number of note 12. No Araua gives its
+# spoken form, so text2spoken#339 asks for the shared telephone reading: one digit
+# at a time, as text2spoken reads a telephone number in es, pt, en and de.
+@TELEPHONE
+def test_a_telephone_number_after_tel_reads_digit_by_digit():
+    digits = [normalize.text2spoken_reading(digit) for digit in "943123456"]
+    assert normalize.normalize_text("Tel. 943 123 456") == " ".join(["Telefonoa", *digits])
 
 
 @pytest.mark.parametrize("text,form,reading", [
@@ -513,6 +551,7 @@ FALLBACK_ISSUES = [
     ("normalize", "read_capitalized_abbreviations", 265),
     ("normalize", "read_point_clock_times", 264),
     ("number_utils", "read_space_grouped_numbers", 295),
+    ("number_utils", "comma_groups_as_spaces", 338),
     ("number_utils", "read_garren_ordinals", 263),
     ("number_utils", "read_dot_decimals", 264),
     ("number_utils", "read_glued_case_endings", 273),
