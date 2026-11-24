@@ -1,8 +1,36 @@
 # Changelog
 
+## [0.3.11a3](https://github.com/TigreGotico/euskaphone/tree/0.3.11a3) (2026-11-22)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.11a2...0.3.11a3)
+
+**Merged pull requests:**
+
+- docs: README, docs index, navigation and agent hints [\#103](https://github.com/TigreGotico/euskaphone/pull/103) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
+## [0.3.11a2](https://github.com/TigreGotico/euskaphone/tree/0.3.11a2) (2026-11-21)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.11a1...0.3.11a2)
+
+**Merged pull requests:**
+
+- docs: sync README and docs with dev [\#101](https://github.com/TigreGotico/euskaphone/pull/101) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
+## [0.3.11a1](https://github.com/TigreGotico/euskaphone/tree/0.3.11a1) (2026-11-19)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.10a1...0.3.11a1)
+
+**Merged pull requests:**
+
+- fix: look for the word before a point clock time near the time only [\#91](https://github.com/TigreGotico/euskaphone/pull/91) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.3.10a1](https://github.com/TigreGotico/euskaphone/tree/0.3.10a1) (2026-11-19)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.8a1...0.3.10a1)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.9a1...0.3.10a1)
+
+## [0.3.9a1](https://github.com/TigreGotico/euskaphone/tree/0.3.9a1) (2026-11-19)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.8a1...0.3.9a1)
 
 **Merged pull requests:**
 

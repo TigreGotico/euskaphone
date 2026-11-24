@@ -1,5 +1,13 @@
 # Northern Bizkaian pitch accent
 
+<!-- agent-hint
+covers: what the Northern Bizkaian pitch accent layer marks and how to switch it on
+source: euskaphone/pitch_accent.py, euskaphone/data/pitch_accent/northern_bizkaian.tsv
+generated: no
+verify: .venv/bin/python scripts/check_docs_examples.py docs/pitch_accent.md
+see: dialects.md, api.md
+-->
+
 Standard Batua has predictable, post-lexical word prominence. The
 **Northern Bizkaian** dialects of Biscayan, the varieties of
 Getxo-Gernika and Lekeitio-Ondarroa-Markina, do not: they draw a *lexical*
@@ -49,19 +57,25 @@ claim about stress or F0 shape.
 
 ## Usage
 
+In the first example, `amuma` is accented and the other words stay unmarked. `mahaia` is not
+attested, so its class is `UNKNOWN`.
+
 ```python
-from euskaphone import EuskaPhonemizer, default_lexicon, AccentClass
+from euskaphone import EuskaPhonemizer, default_lexicon
 
 ph = EuskaPhonemizer()
-ph.phonemize_sentence("Amuma etxean dago.", "biscayan",
-                      contact="none", pitch_accent=True)
-# 'aˈmuma etʃean daɣo'   (amúma accented; the rest unmarked)
+ph.phonemize_sentence("Amuma etxean dago.", "biscayan", contact="none", pitch_accent=True)
+# 'aˈmuma etʃean daɣo'
 
 lex = default_lexicon()
-lex.lookup("kipula").accent_class        # AccentClass.ACCENTED
-lex.lookup("kipula").accent_syllable     # 2
-lex.lookup("lagun").accent_class         # AccentClass.UNACCENTED
-lex.lookup("mahaia").accent_class        # AccentClass.UNKNOWN (not attested)
+lex.lookup("kipula").accent_class.name
+# 'ACCENTED'
+lex.lookup("kipula").accent_syllable
+# 2
+lex.lookup("lagun").accent_class.name
+# 'UNACCENTED'
+lex.lookup("mahaia").accent_class.name
+# 'UNKNOWN'
 ```
 
 `pitch_accent=True` is defined **only** for Biscayan (`eu-biscayan`, also
@@ -73,7 +87,21 @@ surfacing the lexical accent per word.
 
 The shipped lexicon documents only attested, cited words of the Northern
 Bizkaian sub-area: 76 entries (62 accented, 14 unaccented), each naming its
-source. The Getxo-Gernika items come from Egurtzegi & Elordieta and Hualde
+source:
+
+```python
+from euskaphone.pitch_accent import AccentClass
+
+entries = default_lexicon().entries()
+len(entries)
+# 76
+sum(e.accent_class is AccentClass.ACCENTED for e in entries)
+# 62
+sum(e.accent_class is AccentClass.UNACCENTED for e in entries)
+# 14
+```
+
+The Getxo-Gernika items come from Egurtzegi & Elordieta and Hualde
 (1997, 1999), and the Lekeitio items come from Hualde, Elordieta &
 Elordieta (1994) section 2.8.1 (loanword accent, compounds, and the
 singular/plural minimal pairs). Everything else is unmarked by default and
@@ -81,4 +109,4 @@ reported as `UNKNOWN`. The lexicon is a seed to extend from the primary
 sources, not a claim of full coverage.
 
 ---
-[← Lexicons](lexicons.md) · [Home](../README.md) · [Accent forcing →](accent_forcing.md)
+[← Lexicons](lexicons.md) · [Index](index.md) · [Accent forcing →](accent_forcing.md)
