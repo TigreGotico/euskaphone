@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.12a1](https://github.com/TigreGotico/euskaphone/tree/0.3.12a1) (2026-11-24)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.11a3...0.3.12a1)
+
+**Merged pull requests:**
+
+- test: expect a telephone number after Tel. to read digit by digit [\#96](https://github.com/TigreGotico/euskaphone/pull/96) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: read digits grouped by two commas or more as one number [\#93](https://github.com/TigreGotico/euskaphone/pull/93) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.3.11a3](https://github.com/TigreGotico/euskaphone/tree/0.3.11a3) (2026-11-22)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.11a2...0.3.11a3)
