@@ -1,5 +1,13 @@
 # Number verbalization (vigesimal)
 
+<!-- agent-hint
+covers: how euskaphone reads numbers in Basque, from cardinals to clock times
+source: euskaphone/number_utils.py, euskaphone/normalize.py, euskaphone/numverbal.py
+generated: no
+verify: .venv/bin/python scripts/check_docs_examples.py docs/numbers.md
+see: normalization.md, api.md
+-->
+
 Basque cardinals are **base-20**. Numbers become Basque words *before* the
 pronunciation lattice runs, so spelled-out numbers flow through allophony,
 sandhi and stress like any other word. text2spoken reads the numbers of running
@@ -20,11 +28,22 @@ The copulative `eta` ("and") contracts to `-ta` on the twenty head, but the
 "ten" component always stays a **separate word** (Araua 7: `hogeita hamar`,
 never `*hogeitamar`):
 
-```
-21  hogeita bat          31  hogeita hamaika       75  hirurogeita hamabost
-100 ehun                 101 ehun eta bat          200 berrehun
-1000 mila                1200 mila eta berrehun    1202 mila berrehun eta bi
-1936 mila bederatziehun eta hogeita hamasei
+```python
+from euskaphone.number_utils import BasqueNumberParser
+
+p = BasqueNumberParser("eu")
+for n in (21, 31, 75, 100, 101, 200, 1000, 1200, 1202, 1936):
+    print(n, p.cardinal(n))
+# 21 hogeita bat
+# 31 hogeita hamaika
+# 75 hirurogeita hamabost
+# 100 ehun
+# 101 ehun eta bat
+# 200 berrehun
+# 1000 mila
+# 1200 mila eta berrehun
+# 1202 mila berrehun eta bi
+# 1936 mila bederatziehun eta hogeita hamasei
 ```
 
 `eta` links only the last two chunks and **drops** when a lower remainder
@@ -36,16 +55,26 @@ This is the rule Araua 7 states verbatim.
 The suffix is `-garren`, attached to the last element. 1st is suppletive
 (`lehen`/`lehenengo`), and 5th drops the `t` (`bosgarren`, not `*bostgarren`).
 
-```
-1  lehenengo   2  bigarren   5  bosgarren   16 hamaseigarren   20 hogeigarren
+```python
+for n in (1, 2, 5, 16, 20):
+    print(n, p.ordinal(n))
+# 1 lehenengo
+# 2 bigarren
+# 5 bosgarren
+# 16 hamaseigarren
+# 20 hogeigarren
 ```
 
 The norm writes an ordinal in digits with a period (Araua 203: `2.`, `3.a`).
-text2spoken reads it: `16. kapitulua` gives `hamaseigarren kapitulua`, and
-`1. kapitulua` gives `lehen kapitulua`. Araua 203 marks the writing `2garren` as
-wrong, but its reading is clear, so a fallback reads it with
-`BasqueNumberParser`: `16garren` gives `hamaseigarren`, and `1garren` gives
-`lehenengo`.
+text2spoken reads it. Araua 203 marks the writing `2garren` as wrong, but its
+reading is clear, so a fallback reads it with `BasqueNumberParser`:
+
+```
+16. kapitulua  -> hamaseigarren kapitulua
+1. kapitulua   -> lehen kapitulua
+16garren       -> hamaseigarren
+1garren        -> lehenengo
+```
 
 ## Case-suffixed numerals and clock time
 
@@ -75,6 +104,13 @@ text2spoken reads every Basque lect as Batua, so running text in Lapurdian
 reads `bost`. A strict xfail test holds the `bortz` reading until text2spoken
 reads it.
 
+```python
+BasqueNumberParser("eu-x-lapurdi").cardinal(15)
+# 'hamabortz'
+BasqueNumberParser("eu-x-zuberera").cardinal(15)
+# 'hamabost'
+```
+
 ## Separators
 
 The written form of a digit token is mapped onto an integer or decimal by the
@@ -86,7 +122,15 @@ not form a 1–3 + 3-digit grouping (`2.5`, `2.53`) falls back to a decimal poin
 
 text2spoken reads `2,5`, `1.000.000`, `1 000 000` and `2.500`. It leaves `2.5`
 as written, and two space-grouped numbers joined by a hyphen, an en dash or a
-slash (`10 000-20 000`). The fallbacks read them by this convention.
+slash (`10 000-20 000`). The fallbacks read them by this convention:
+
+```
+2,5                  -> bi koma bost
+1.000.000            -> milioi bat
+2.500                -> bi mila eta bostehun
+2.5                  -> bi koma bost
+10 000-20 000 lagun  -> hamar mila-hogei mila lagun
+```
 
 ## Where the composition lives
 
@@ -105,4 +149,4 @@ Both arauak are deposited in the papers library
 (`papers/iberian/euskaltzaindia_araua07_*.pdf`, `…araua18_*.pdf`).
 
 ---
-[← Dialects](dialects.md) · [Home](../README.md) · [Normalization →](normalization.md)
+[← Dialects](dialects.md) · [Index](index.md) · [Normalization →](normalization.md)

@@ -1,23 +1,36 @@
 # euskaphone
 
-euskaphone is a dialect-aware Basque (Euskara) text-to-IPA phonemizer. It is a
-TTS frontend built on the shared
-[orthography2ipa](https://github.com/TigreGotico/orthography2ipa) pronunciation
-lattice. euskaphone is the Basque sibling of
-[tugaphone](https://github.com/TigreGotico/tugaphone) (Portuguese). It
-is an open, inspectable, source-cited pipeline for the Basque research and
-speech-technology community.
+<!-- agent-hint
+covers: what euskaphone does, how to install it, a first phonemization in each dialect and where each feature is documented
+source: pyproject.toml, euskaphone/__init__.py, euskaphone/lattice_core.py, euskaphone/registry.py
+generated: no
+verify: .venv/bin/python scripts/check_docs_examples.py README.md
+see: docs/index.md, docs/quickstart.md, AGENTS.md
+-->
+
+euskaphone turns Basque (Euskara) text into IPA for eight dialects. It drives the shared
+[orthography2ipa](https://github.com/TigreGotico/orthography2ipa) pronunciation lattice and adds
+the stages that orthography2ipa leaves to the caller: number and date reading, code-switch handling,
+lexicons, pitch accent and accent forcing.
+
+euskaphone is the Basque sibling of [tugaphone](https://github.com/TigreGotico/tugaphone)
+(Portuguese). Every rule and every number form cites its source, so researchers and
+speech-technology teams can inspect the pipeline.
 
 A dialect is an orthography2ipa Basque lect spec. The spec's grapheme table,
 allophony, and cross-word sandhi produce the dialect's phonology directly: the
 apical/laminal sibilant contrast, the affricates, Souletin aspiration, and
-`/y/`. euskaphone adds only the stages orthography2ipa leaves to the caller.
+`/y/`. The documentation starts at [docs/index.md](docs/index.md).
 
 ## Install
 
 ```bash
-pip install euskaphone
+pip install --pre euskaphone
 ```
+
+The `--pre` flag selects the alpha line that these pages describe. The `langdetect` extra
+(`pip install --pre "euskaphone[langdetect]"`) adds the statistical code-switch detector, and the
+`test` extra adds the test dependencies.
 
 ## Quickstart
 
@@ -25,13 +38,18 @@ pip install euskaphone
 from euskaphone import EuskaPhonemizer
 
 ph = EuskaPhonemizer()
-ph.phonemize_sentence("Zazpi katu zuri ikusi ditut.")          # Batua (default)
+ph.phonemize_sentence("Zazpi katu zuri ikusi ditut.")
 # 's̻as̻ˈpi kaˈtu s̻uˈɾi iˈkus̺i diˈtut'
+```
 
+The [quickstart](docs/quickstart.md) walks through each option. Without a dialect, the phonemizer reads Standard Basque (Batua). Souletin keeps the aspirated
+`h`, and a written `ü` gives `/y/`:
+
+```python
 ph.phonemize_sentence("Hotza egiten du gaur mendian.", "souletin")
-# 'ˈhots̻a eˈɣiten ˈdu ˈɡau̯r menˈdian'   (Souletin keeps the aspirated h)
+# 'ˈhots̻a eˈɣiten ˈdu ˈɡau̯r menˈdian'
 ph.phonemize_sentence("Hotza egiten dü.", "souletin")
-# 'ˈhots̻a eˈɣiten ˈdy'   (/y/ comes from a written ü)
+# 'ˈhots̻a eˈɣiten ˈdy'
 ```
 
 ## Dialects
@@ -66,14 +84,21 @@ from euskaphone.normalize import normalize_text
 from euskaphone.number_utils import BasqueNumberParser
 
 p = BasqueNumberParser("eu")
-p.cardinal(31)     # 'hogeita hamaika'   (20-and-11)
-p.cardinal(1936)   # 'mila bederatziehun eta hogeita hamasei'
-p.ordinal(16)      # 'hamaseigarren'
+p.cardinal(31)
+# 'hogeita hamaika'
+p.cardinal(1936)
+# 'mila bederatziehun eta hogeita hamasei'
+p.ordinal(16)
+# 'hamaseigarren'
+```
 
-# case-suffixed numerals and clock time in running text (declension on the
-# last element of the numeral phrase)
-normalize_text("1936ko gerra", "eu")   # '… hogeita hamaseiko gerra'
-normalize_text("20:00etan", "eu")      # 'arratsaldeko zortzietan'
+In running text, the case ending goes on the last element of the numeral phrase:
+
+```python
+normalize_text("1936ko gerra", "eu")
+# 'mila bederatziehun eta hogeita hamaseiko gerra'
+normalize_text("20:00etan", "eu")
+# 'arratsaldeko zortzietan'
 ```
 
 Every base form is cited to **Euskaltzaindia Araua 7** (cardinals) and
@@ -104,15 +129,17 @@ routes out of Basque only when a foreign model beats the Basque model by a
 clear margin. Short, plausibly-native words also need orthographic
 corroboration, so a weak signal never misroutes a native word.
 
+Spanish `Mayor` is routed to the Spanish lattice and nativized, so it carries no stress mark.
+English `Streaming` goes onto the five-vowel system. A continental dialect such as Souletin
+routes to French by default.
+
 ```python
 ph.phonemize_sentence("Madrilen Plaza Mayor ikusi dut.", "eu", contact="auto")
-# 'maˈðɾilen plaˈs̻a majoɾ iˈkus̺i ˈdut'  (Mayor routed to Spanish + nativized: no stress)
-
+# 'maˈðɾilen plaˈs̻a majoɾ iˈkus̺i ˈdut'
 ph.phonemize_sentence("Streaming plataforma berria erabili dugu.", contact="auto")
-# 'strimin platafoɾma …'  (English routed + nativized onto the 5-vowel system)
-
+# 'strimin platafoɾma beˈria eˈɾaβili duˈɣu'
 ph.phonemize_sentence("Maison Rouge etxean.", "souletin", contact="auto")
-# continental dialect → French contact by default
+# 'mes̻o ˈrowɣe eˈtʃean'
 ```
 
 See [`docs/codeswitch.md`](docs/codeswitch.md).
@@ -142,9 +169,12 @@ from euskaphone.normalize import normalize_text
 
 normalize_text("XX. mendean %20 igo da", "eu")
 # 'hogeigarren mendean ehuneko hogei igo da'
-normalize_text("Luis XIV.a errege zen", "eu")     # '… hamalaugarrena …'
-normalize_text("Sarrera €5eko da", "eu")          # '… bost euroko …'
-normalize_text("15/01/2024", "eu")   # 'bi mila eta hogeita lauko urtarrilaren hamabosta'
+normalize_text("Luis XIV.a errege zen", "eu")
+# 'Luis hamalaugarrena errege zen'
+normalize_text("Sarrera €5eko da", "eu")
+# 'Sarrera bost euroko da'
+normalize_text("15/01/2024", "eu")
+# 'bi mila eta hogeita lauko urtarrilaren hamabosta'
 ```
 
 text2spoken reads Roman-numeral ordinals (`XX.` → `hogeigarren`) and monarch
@@ -169,8 +199,7 @@ a distinct class: "not in the lexicon" never masquerades as "known
 unaccented".
 
 ```python
-ph.phonemize_sentence("Amuma etxean dago.", "biscayan",
-                      contact="none", pitch_accent=True)
+ph.phonemize_sentence("Amuma etxean dago.", "biscayan", contact="none", pitch_accent=True)
 # 'aˈmuma etʃean daɣo'
 ```
 
@@ -198,8 +227,10 @@ is a scope decision, documented so it is not mistaken for a gap.
 
 ```python
 from euskaphone.plugin import EuskaphoneG2PPlugin
-EuskaphoneG2PPlugin("souletin").transcribe("kaixo mundua")   # 'ˈkai̯ʃo munˈdua'
-EuskaphoneG2PPlugin("souletin", contact="auto")              # code-switching on
+EuskaphoneG2PPlugin("souletin").transcribe("kaixo mundua")
+# 'ˈkai̯ʃo munˈdua'
+EuskaphoneG2PPlugin("souletin", contact="auto").transcribe("Maison Rouge etxean.")
+# 'mes̻o ˈrowɣe eˈtʃean'
 ```
 
 `EuskaphoneG2PPlugin(lang="eu", contact="none")` is a class with the
