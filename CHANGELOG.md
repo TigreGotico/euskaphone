@@ -1,8 +1,20 @@
 # Changelog
 
+## [0.3.14a1](https://github.com/TigreGotico/euskaphone/tree/0.3.14a1) (2026-11-24)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.13a1...0.3.14a1)
+
+**Merged pull requests:**
+
+- test: expect a day-first date with a Roman month to read as a date [\#97](https://github.com/TigreGotico/euskaphone/pull/97) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.3.13a1](https://github.com/TigreGotico/euskaphone/tree/0.3.13a1) (2026-11-24)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.11a3...0.3.13a1)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.12a1...0.3.13a1)
+
+## [0.3.12a1](https://github.com/TigreGotico/euskaphone/tree/0.3.12a1) (2026-11-24)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.11a3...0.3.12a1)
 
 **Merged pull requests:**
 
