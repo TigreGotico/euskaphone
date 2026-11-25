@@ -1,11 +1,12 @@
 # Changelog
 
-## [0.3.21a2](https://github.com/TigreGotico/euskaphone/tree/0.3.21a2) (2026-11-25)
+## [0.3.21a3](https://github.com/TigreGotico/euskaphone/tree/0.3.21a3) (2026-11-25)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.20a3...0.3.21a2)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.20a3...0.3.21a3)
 
 **Merged pull requests:**
 
+- chore: pin linguatag\>=0.4.5a1 [\#145](https://github.com/TigreGotico/euskaphone/pull/145) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 - test: strict xfail for \#142 \(detector routes native ñ words off Basque\) [\#144](https://github.com/TigreGotico/euskaphone/pull/144) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 - test: strict xfail for \#139 \(Spanish ñ words take Basque stress\) [\#143](https://github.com/TigreGotico/euskaphone/pull/143) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 - fix: keep ñ words on the Basque route under contact=auto \(\#133\) [\#140](https://github.com/TigreGotico/euskaphone/pull/140) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
