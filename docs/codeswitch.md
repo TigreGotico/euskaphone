@@ -14,7 +14,7 @@ French, and the modern tech/music/media register on both sides embeds
 English (proper names, loans, quoted fragments, product and band names).
 euskaphone detects that material at the word level, classifies each contact
 word among `es`/`fr`/`en`, transcribes it through the orthography2ipa
-`es-ES`/`fr-FR`/`en-US` lattice, and **nativizes** the result onto the
+`es-ES`/`fr-FR`/`en-GB` lattice, and **nativizes** the result onto the
 Basque phoneme inventory.
 
 ## Total nativization
