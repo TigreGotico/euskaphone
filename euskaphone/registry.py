@@ -134,13 +134,19 @@ def normalize_dialect_code(name: str) -> str:
 def resolve_lect(dialect: str = DEFAULT_DIALECT) -> str:
     """Resolve ``dialect`` (a code or a human-readable alias) to an eu lect code.
 
-    Resolution order: a code this package documents, then an alias, then the
+    Resolution order: a code this package documents, then an alias, each
+    matched with trailing subtags removed one at a time, down to but not
+    including ``eu`` (``eu-x-bizkaiera-foo`` → ``eu-x-bizkaiera``). Then the
     nearest canonical lect (``eu-x-unknown`` → ``eu``). An unresolved name
     falls back to ``eu`` (Standard Batua).
     """
     tag = standardize_lang((dialect or "").strip())
-    return (_CODES.get(tag) or _ALIASES.get(tag)
-            or closest_lang(tag, _CANONICAL, lects="standard") or DEFAULT_DIALECT)
+    key = tag
+    while key and key != DEFAULT_DIALECT:
+        if lect := _CODES.get(key) or _ALIASES.get(key):
+            return lect
+        key = key.rpartition("-")[0]
+    return closest_lang(tag, _CANONICAL, lects="standard") or DEFAULT_DIALECT
 
 
 def is_supported(dialect: str) -> bool:
