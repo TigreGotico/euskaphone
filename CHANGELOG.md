@@ -2,7 +2,11 @@
 
 ## [0.3.20a1](https://github.com/TigreGotico/euskaphone/tree/0.3.20a1) (2026-11-25)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.18a5...0.3.20a1)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.19a1...0.3.20a1)
+
+## [0.3.19a1](https://github.com/TigreGotico/euskaphone/tree/0.3.19a1) (2026-11-25)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.18a5...0.3.19a1)
 
 **Merged pull requests:**
 
