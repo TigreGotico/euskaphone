@@ -21,7 +21,7 @@ text
   │     fallbacks: the forms text2spoken leaves as written
   │
   ├─ code-switch routing         euskaphone.codeswitch    (outside the engine)
-  │     detect es/fr/en words → es-ES/fr-FR/en-US lattice → nativize to Basque
+  │     detect es/fr/en words → es-ES/fr-FR/en-GB lattice → nativize to Basque
   │
   ├─ Basque runs → G2P(lect)     orthography2ipa lattice
   │     grapheme table + allophony + cross-word sandhi = the dialect's phonology

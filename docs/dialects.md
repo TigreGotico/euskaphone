@@ -41,7 +41,7 @@ resolve_lect("eu-x-lapurtera")
 
 **Sides.** *Hegoalde* (peninsular, Spain) dialects default their code-switch
 contact language to Spanish. *Iparralde* (continental, France) dialects
-default to French. Resolution is case-insensitive and pops trailing subtags,
+default to French. Resolution is case-insensitive and takes the nearest lect,
 so an unknown `eu-x-*` falls back to Batua.
 
 ```python

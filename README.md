@@ -114,7 +114,7 @@ Real Basque text embeds Spanish (Hegoalde), French (Iparralde), and, in the
 tech/music/media register, English. Word-level detection identifies the
 embedded material, classifies each contact word **per word** among
 `es`/`fr`/`en`, and routes it through the orthography2ipa
-`es-ES`/`fr-FR`/`en-US` lattice. It then **nativizes** the result onto the
+`es-ES`/`fr-FR`/`en-GB` lattice. It then **nativizes** the result onto the
 Basque inventory: every foreign phone projects onto its nearest Basque phone,
 never dropped, always projected. The `contact` parameter is `none` (the
 default, no switching), `auto` (per-word detection), `es`, `fr` or `en`.

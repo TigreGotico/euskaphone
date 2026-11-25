@@ -28,22 +28,22 @@ code. Resolution is case-insensitive and tolerant of trailing subtags
 """
 from __future__ import annotations
 
+import functools
+import warnings
 from typing import Dict, List
 
+from linguatag import closest_lang, lang_matches, standardize_lang
+from linguatag.bcp47 import parse
 from orthography2ipa import available_codes, resolve
 
-#: Basque-family lect prefixes orthography2ipa ships.
-_EU_PREFIXES = ("eu", "eu-")
+from euskaphone.version import VERSION_MAJOR
 
 #: The default dialect: Standard Basque (Euskara Batua).
 DEFAULT_DIALECT = "eu"
 
 
 def _canonical_codes() -> List[str]:
-    return sorted(
-        c for c in available_codes()
-        if c == "eu" or c.startswith("eu-")
-    )
+    return sorted(c for c in available_codes() if parse(c).language == "eu")
 
 
 _CANONICAL: List[str] = _canonical_codes()
@@ -57,8 +57,6 @@ _NAMES: Dict[str, str] = {
     "batua": "eu",
     "euskara-batua": "eu",
     "standard": "eu",
-    "eu-es": "eu",
-    "eu-fr": "eu",
     # Biscayan
     "bizkaiera": "eu-x-bizkaiera",
     "biscayan": "eu-x-bizkaiera",
@@ -117,44 +115,42 @@ _CONTINENTAL = {
 
 
 def normalize_dialect_code(name: str) -> str:
-    """Lower-case and trim a dialect name/code for lookup."""
+    """Deprecated: lower-case and trim a dialect name or code.
+
+    .. deprecated::
+        :func:`resolve_lect` reads a name or tag in any spelling. Use
+        :func:`linguatag.standardize_lang` for the canonical form of a tag.
+    """
+    warnings.warn(
+        "normalize_dialect_code() is deprecated; use linguatag.standardize_lang(). "
+        f"It will be removed in euskaphone {VERSION_MAJOR + 1}.0.0.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return (name or "").strip().lower()
 
 
+@functools.lru_cache(maxsize=4096)
 def resolve_lect(dialect: str = DEFAULT_DIALECT) -> str:
     """Resolve ``dialect`` (a code or a human-readable alias) to an eu lect code.
 
-    Resolution order: exact canonical code (case-insensitive), then a code
-    this package documents, then an alias, then a progressive pop of trailing subtags (``eu-x-zuberera-foo`` →
-    ``eu-x-zuberera`` → ``eu``). An unresolved name falls back to ``eu``
-    (Standard Batua).
+    Resolution order: a code this package documents, then an alias, then the
+    nearest canonical lect (``eu-x-unknown`` → ``eu``). An unresolved name
+    falls back to ``eu`` (Standard Batua).
     """
-    key = normalize_dialect_code(dialect)
-    while key:
-        for code in _CANONICAL:
-            if code.lower() == key:
-                return code
-        if key in _CODES:
-            return _CODES[key]
-        if key in _ALIASES:
-            return _ALIASES[key]
-        if "-" not in key:
-            break
-        key = key.rsplit("-", 1)[0]
-    return DEFAULT_DIALECT
+    tag = standardize_lang((dialect or "").strip())
+    return (_CODES.get(tag) or _ALIASES.get(tag)
+            or closest_lang(tag, _CANONICAL, lects="standard") or DEFAULT_DIALECT)
 
 
 def is_supported(dialect: str) -> bool:
     """Whether ``dialect`` names a Basque lect (not just the Batua fallback).
 
     ``resolve_lect`` always falls back to ``eu``, so it cannot answer this; a
-    name is "supported" only if its language subtag is ``eu`` or it is a known
-    human-readable alias.
+    name is "supported" only if it is Basque or a known human-readable alias.
     """
-    key = normalize_dialect_code(dialect)
-    if not key:
-        return False
-    return key.split("-", 1)[0] == "eu" or key in _ALIASES
+    tag = standardize_lang((dialect or "").strip())
+    return tag in _ALIASES or lang_matches(tag, "eu")
 
 
 def list_dialects() -> List[str]:
