@@ -348,8 +348,9 @@ def read_space_grouped_numbers(text: str, dialect: str = "eu") -> str:
         lambda m: parser.pronounce_token(m.group().replace(" ", "")), text)
 
 
-#: Digits grouped in threes by two commas or more: ``1,000,000``.
-_COMMA_GROUPS = re.compile(r"(?<![\w.,])\d{1,3}(?:,\d{3}){2,}(?!\w|[.,]\d)")
+#: Digits grouped in threes by two commas or more, the first group without a
+#: leading zero: ``1,000,000``.
+_COMMA_GROUPS = re.compile(r"(?<![\w.,])[1-9]\d{0,2}(?:,\d{3}){2,}(?!\w|[.,]\d)")
 
 
 def comma_groups_as_spaces(text: str) -> str:
