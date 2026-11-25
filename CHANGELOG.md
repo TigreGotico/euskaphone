@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.21a6](https://github.com/TigreGotico/euskaphone/tree/0.3.21a6) (2026-11-25)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.21a5...0.3.21a6)
+
+**Merged pull requests:**
+
+- refactor: import orthography2ipa names from its public package [\#154](https://github.com/TigreGotico/euskaphone/pull/154) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.3.21a5](https://github.com/TigreGotico/euskaphone/tree/0.3.21a5) (2026-11-25)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.21a4...0.3.21a5)
@@ -251,10 +259,6 @@
 ## [0.2.9a6](https://github.com/TigreGotico/euskaphone/tree/0.2.9a6) (2026-11-15)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.9a5...0.2.9a6)
-
-**Merged pull requests:**
-
-- Update actions/checkout action to v7 [\#27](https://github.com/TigreGotico/euskaphone/pull/27) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [0.2.9a5](https://github.com/TigreGotico/euskaphone/tree/0.2.9a5) (2026-11-15)
 
