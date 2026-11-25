@@ -32,8 +32,7 @@ import functools
 import warnings
 from typing import Dict, List
 
-from linguatag import closest_lang, lang_matches, standardize_lang
-from linguatag.bcp47 import parse
+from linguatag import closest_lang, lang_matches, parse_tag, standardize_lang
 from orthography2ipa import available_codes, resolve
 
 from euskaphone.version import VERSION_MAJOR
@@ -43,7 +42,7 @@ DEFAULT_DIALECT = "eu"
 
 
 def _canonical_codes() -> List[str]:
-    return sorted(c for c in available_codes() if parse(c).language == "eu")
+    return sorted(c for c in available_codes() if parse_tag(c).language == "eu")
 
 
 _CANONICAL: List[str] = _canonical_codes()
