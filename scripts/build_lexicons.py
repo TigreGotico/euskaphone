@@ -32,7 +32,7 @@ overlay, which needs network access to the HiTZ dataset).
 import argparse
 import os
 
-from orthography2ipa.lexicon import validate_lexicon_text
+from orthography2ipa import validate_lexicon_text
 from euskaphone import EuskaPhonemizer
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
