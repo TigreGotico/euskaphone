@@ -6,13 +6,13 @@ from orthography2ipa import available_codes
 from euskaphone import resolve_lect
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="euskaphone#118: resolve_lect falls back to eu for an "
-           "orthography2ipa key followed by extra subtags")
-@pytest.mark.parametrize("key", [
-    "eu-x-lapurdi", "eu-x-gipuzkoa", "eu-x-roncal", "eu-biscayan",
-])
+_KEYS = ["eu-x-lapurdi", "eu-x-gipuzkoa", "eu-x-roncal", "eu-biscayan"]
+
+
+def test_keys_are_listed():
+    assert set(_KEYS) <= set(available_codes())
+
+
+@pytest.mark.parametrize("key", _KEYS)
 def test_key_with_extra_subtags_keeps_its_lect(key):
-    assert key in available_codes()
     assert resolve_lect(f"{key}-foo") == key
