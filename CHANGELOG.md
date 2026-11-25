@@ -1,8 +1,21 @@
 # Changelog
 
+## [0.3.19a1](https://github.com/TigreGotico/euskaphone/tree/0.3.19a1) (2026-11-25)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.18a5...0.3.19a1)
+
+**Merged pull requests:**
+
+- fix: treat an acute e as a non-Basque letter in the contact test [\#131](https://github.com/TigreGotico/euskaphone/pull/131) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: let a canonical orthography2ipa key match when subtags follow it [\#129](https://github.com/TigreGotico/euskaphone/pull/129) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.3.18a5](https://github.com/TigreGotico/euskaphone/tree/0.3.18a5) (2026-11-25)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.18a3...0.3.18a5)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.18a4...0.3.18a5)
+
+## [0.3.18a4](https://github.com/TigreGotico/euskaphone/tree/0.3.18a4) (2026-11-25)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.18a3...0.3.18a4)
 
 **Merged pull requests:**
 
