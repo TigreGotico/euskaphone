@@ -1,8 +1,10 @@
 """Language tags reach a lect through linguatag, in every spelling."""
 import pytest
+from linguatag import closest_lang, standardize_lang
 from orthography2ipa import resolve
 
 from euskaphone import EuskaPhonemizer, resolve_lect
+from euskaphone.registry import _ALIASES, _CODES, list_dialects
 from euskaphone.codeswitch import _contact_engine
 
 
@@ -39,19 +41,37 @@ def test_normalize_dialect_code_is_deprecated_and_keeps_its_value():
         assert normalize_dialect_code("  Eu-X-Zuberera ") == "eu-x-zuberera"
 
 
-@pytest.mark.xfail(strict=True, reason="TigreGotico/linguatag#69: every private-use subtag drops at once; "
-                   "RFC 4647 §3.4 removes one subtag at a time")
 def test_an_unnamed_subtag_after_a_lect_keeps_the_lect():
     assert resolve_lect("eu-x-zuberera-foo") == "eu-x-zuberera"
 
 
-@pytest.mark.xfail(strict=True, reason="TigreGotico/euskaphone#112: the alias table reads the whole tag only")
 @pytest.mark.parametrize("tag,lect", [
     ("eu-x-bizkaiera-foo", "eu-biscayan"),
     ("souletin-foo", "eu-x-zuberera"),
 ])
 def test_an_unnamed_subtag_after_an_alias_keeps_its_lect(tag, lect):
     assert resolve_lect(tag) == lect
+
+
+@pytest.mark.parametrize("name", sorted(_ALIASES))
+def test_every_alias_keeps_its_lect_after_unnamed_subtags(name):
+    assert resolve_lect(f"{name}-foo") == _ALIASES[name]
+    assert resolve_lect(f"{name}-foo-bar") == _ALIASES[name]
+
+
+@pytest.mark.parametrize("code", sorted(_CODES))
+def test_a_documented_code_keeps_its_lect_after_an_unnamed_subtag(code):
+    assert resolve_lect(f"{code}-x-foo") == _CODES[code]
+
+
+@pytest.mark.parametrize("tag", ["eu-x-nafarra-foo", "eu-x-unknown-foo", "eu-ES-x-foo", "es-x-foo"])
+def test_a_tag_that_truncation_leaves_unnamed_takes_the_nearest_lect(tag):
+    nearest = closest_lang(standardize_lang(tag), list_dialects(), lects="standard")
+    assert resolve_lect(tag) == (nearest or "eu")
+
+
+def test_resolve_lect_is_cached():
+    assert resolve_lect.cache_info().maxsize == 4096
 
 
 def test_normalize_dialect_code_warns_on_every_call():

@@ -195,6 +195,38 @@ def test_one_comma_stays_the_decimal_mark(text):
     assert normalize.normalize_text(text) == normalize.text2spoken_reading(text)
 
 
+# CLDR writes a leading zero only for a value below 1, and that value has no
+# grouping mark. So a first group of 0 or with a leading zero is no thousands
+# group, and each digit run reads on its own.
+@pytest.mark.parametrize("text,spoken", [
+    ("0,000,001", "zero,zero,bat"),
+    ("012,345,678", "hamabi,hirurehun eta berrogeita bost,seiehun eta hirurogeita hemezortzi"),
+    ("0,5", "zero koma bost"),
+    ("012,345", "hamabi koma hirurehun eta berrogeita bost"),
+    ("00,001", "zero koma zero zero bat"),
+])
+def test_leading_zero_first_group_is_no_thousands_group(text, spoken):
+    assert number_utils.comma_groups_as_spaces(text) == text
+    assert normalize.normalize_text(text) == spoken
+
+
+@pytest.mark.parametrize("text,space_writing,spoken", [
+    ("1,000,000", "1 000 000", "milioi bat"),
+    ("12,345,678", "12 345 678",
+     "hamabi milioi hirurehun eta berrogeita bost mila seiehun eta hirurogeita hemezortzi"),
+    ("999,999,999", "999 999 999",
+     "bederatziehun eta laurogeita hemeretzi milioi bederatziehun eta laurogeita hemeretzi mila "
+     "bederatziehun eta laurogeita hemeretzi"),
+])
+def test_thousands_groups_keep_their_reading(text, space_writing, spoken):
+    assert number_utils.comma_groups_as_spaces(text) == space_writing
+    assert normalize.normalize_text(text) == spoken
+
+
+def test_one_comma_group_of_three_stays_the_decimal_mark():
+    assert normalize.normalize_text("12,345") == "hamabi koma hirurehun eta berrogeita bost"
+
+
 # Two space-grouped numbers joined by a hyphen, an en dash or a slash: each
 # number reads as text2spoken reads it alone, and the mark stays.
 @pytest.mark.parametrize("left,mark,right,tail", [
