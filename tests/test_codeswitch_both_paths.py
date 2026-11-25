@@ -78,10 +78,10 @@ def test_default_contact_reads_basque_as_basque(word):
 
 def test_lattice_core_default_contact_reads_basque_as_basque(classifier):
     # Every public entry point calls lattice_core.phonemize, so its own
-    # default must be "none" too. "Andereñoak" has a ñ, which "auto" routes
-    # to the Spanish lattice; read as Basque it matches o2i gold eu-010.
+    # default must be "none" too. "corazón" has letters that "auto" routes
+    # to the Spanish lattice; "Andereñoak" read as Basque matches o2i gold eu-010.
     from euskaphone.lattice_core import phonemize
-    assert phonemize("Andereñoak", contact="auto") != "anˈdeɾeɲoak"
+    assert phonemize("corazón", contact="auto") != phonemize("corazón")
     assert phonemize("Andereñoak") == "anˈdeɾeɲoak"
 
 
