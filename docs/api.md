@@ -53,6 +53,7 @@ EuskaPhonemizer.is_supported("souletin"), EuskaPhonemizer.is_supported("xx")
 | `is_continental(lect)` | whether `lect` is an Iparralde (France-side) dialect |
 | `default_contact(lect)` | `"fr"` for continental, `"es"` otherwise |
 | `is_supported(dialect)` | strict membership test |
+| `normalize_dialect_code(name)` | **deprecated**: the lower-cased and trimmed name; use `linguatag.standardize_lang`. It warns with the removal release |
 
 ## Numbers: `euskaphone.number_utils`
 

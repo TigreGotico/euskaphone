@@ -29,17 +29,21 @@ code. Resolution is case-insensitive and tolerant of trailing subtags
 from __future__ import annotations
 
 import functools
+import warnings
 from typing import Dict, List
 
 from linguatag import closest_lang, lang_matches, standardize_lang
+from linguatag.bcp47 import parse
 from orthography2ipa import available_codes, resolve
+
+from euskaphone.version import VERSION_MAJOR
 
 #: The default dialect: Standard Basque (Euskara Batua).
 DEFAULT_DIALECT = "eu"
 
 
 def _canonical_codes() -> List[str]:
-    return sorted(c for c in available_codes() if lang_matches(c, "eu"))
+    return sorted(c for c in available_codes() if parse(c).language == "eu")
 
 
 _CANONICAL: List[str] = _canonical_codes()
@@ -111,6 +115,22 @@ _CONTINENTAL = {
 
 
 @functools.lru_cache(maxsize=4096)
+def normalize_dialect_code(name: str) -> str:
+    """Deprecated: lower-case and trim a dialect name or code.
+
+    .. deprecated::
+        :func:`resolve_lect` reads a name or tag in any spelling. Use
+        :func:`linguatag.standardize_lang` for the canonical form of a tag.
+    """
+    warnings.warn(
+        "normalize_dialect_code() is deprecated; use linguatag.standardize_lang(). "
+        f"It will be removed in euskaphone {VERSION_MAJOR + 1}.0.0.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return (name or "").strip().lower()
+
+
 def resolve_lect(dialect: str = DEFAULT_DIALECT) -> str:
     """Resolve ``dialect`` (a code or a human-readable alias) to an eu lect code.
 
