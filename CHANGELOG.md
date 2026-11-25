@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.15a1](https://github.com/TigreGotico/euskaphone/tree/0.3.15a1) (2026-11-25)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.14a1...0.3.15a1)
+
+**Merged pull requests:**
+
+- fix: read language tags through linguatag [\#110](https://github.com/TigreGotico/euskaphone/pull/110) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.3.14a1](https://github.com/TigreGotico/euskaphone/tree/0.3.14a1) (2026-11-24)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.13a1...0.3.14a1)
