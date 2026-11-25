@@ -175,5 +175,14 @@ lexicons by hand. `lexicons.hitz_overlay_words()` returns the keys of the overla
 the same values as `phonemize_sentence`. euskaphone declares no entry point, so
 no plugin manager discovers this class: construct it yourself.
 
+```python
+from euskaphone.plugin import EuskaphoneG2PPlugin
+
+EuskaphoneG2PPlugin("souletin").transcribe("kaixo mundua")
+# 'ˈkai̯ʃo munˈdua'
+EuskaphoneG2PPlugin("souletin", contact="auto").transcribe("Maison Rouge etxean.")
+# 'mes̻o ˈrowɣe eˈtʃean'
+```
+
 ---
 [← Accent forcing](accent_forcing.md) · [Index](index.md) · [Architecture →](architecture.md)

@@ -10,7 +10,11 @@ see: api.md, benchmarks.md
 
 euskaphone phonemizes by driving the shared **orthography2ipa** candidate
 lattice and layering on only the concerns orthography2ipa leaves to the
-caller.
+caller: number and date reading, code-switch handling, lexicons, pitch accent and accent forcing.
+
+euskaphone is the Basque sibling of [tugaphone](https://github.com/TigreGotico/tugaphone)
+(Portuguese). Every rule and every number form cites its source, so researchers and
+speech-technology teams can inspect the pipeline.
 
 ```
 text
