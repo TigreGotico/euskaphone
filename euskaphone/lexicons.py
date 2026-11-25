@@ -93,7 +93,7 @@ def hitz_overlay_words() -> FrozenSet[str]:
     row whose text contains one of these words, so the overlay is never graded
     against the data it was drawn from.
     """
-    from orthography2ipa.lexicon import parse_lexicon_text
+    from orthography2ipa import parse_lexicon_text
     if not os.path.isfile(HITZ_OVERLAY_LEXICON):
         return frozenset()
     with open(HITZ_OVERLAY_LEXICON, encoding="utf-8") as fh:
