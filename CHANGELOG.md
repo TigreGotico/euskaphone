@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.3.20a3](https://github.com/TigreGotico/euskaphone/tree/0.3.20a3) (2026-11-25)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.20a2...0.3.20a3)
+
+**Merged pull requests:**
+
+- test: strict xfail for \#139 \(Spanish ñ words take Basque stress\) [\#143](https://github.com/TigreGotico/euskaphone/pull/143) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- docs: keep the README short and move the details into docs/ [\#141](https://github.com/TigreGotico/euskaphone/pull/141) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: keep ñ words on the Basque route under contact=auto \(\#133\) [\#140](https://github.com/TigreGotico/euskaphone/pull/140) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
+## [0.3.20a2](https://github.com/TigreGotico/euskaphone/tree/0.3.20a2) (2026-11-25)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.20a1...0.3.20a2)
+
+**Merged pull requests:**
+
+- test: strict xfail for stress-marked Souletin words under contact=auto [\#138](https://github.com/TigreGotico/euskaphone/pull/138) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.3.20a1](https://github.com/TigreGotico/euskaphone/tree/0.3.20a1) (2026-11-25)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.19a1...0.3.20a1)
