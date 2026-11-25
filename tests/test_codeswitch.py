@@ -187,3 +187,30 @@ def test_basque_ee_is_read_as_basque_under_auto(word, source):
     ph = EuskaPhonemizer()
     assert ph.phonemize_sentence(word, contact="auto") == \
         ph.phonemize_sentence(word, contact="none")
+
+
+# Native Basque forms that the char-Markov models rate slightly English or
+# Romance (margin 0.27 to 0.33) and that no orthographic signal backs.
+@pytest.mark.parametrize("word", [
+    "Andereak", "airean", "boterean", "mesedetan", "kideek",
+])
+def test_auto_keeps_weakly_foreign_native_words_basque(word):
+    assert split_runs(word, "auto", "es") == [(None, word)]
+
+
+@pytest.mark.parametrize("word", [
+    "streaming", "weekend", "feedback", "football", "influencer", "twitter",
+    "facebook", "playlist", "online", "airbag", "design", "reggae",
+    "shopping", "selfie",
+])
+def test_auto_keeps_english_loans_on_the_english_route(word):
+    assert split_runs(word, "auto", "es") == [("en", word)]
+
+
+def test_auto_reads_a_roncalese_sentence_as_contact_none_does():
+    # orthography2ipa spain_romance_tts/eu-x-roncal.tsv, row eu-x-erronkariera-010
+    ph = EuskaPhonemizer(toponyms=False)
+    expected = "andeˈɾeak iˈpui̯na konˈtatu ˈdaku"
+    text = "Andereak ipuina kontatu daku."
+    assert ph.phonemize_sentence(text, "eu-x-roncal", contact="none") == expected
+    assert ph.phonemize_sentence(text, "eu-x-roncal", contact="auto") == expected

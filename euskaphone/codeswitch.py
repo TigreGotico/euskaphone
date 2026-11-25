@@ -64,7 +64,7 @@ from typing import List, Optional, Tuple
 
 from linguatag import with_default_region
 
-from euskaphone.langdetect import is_keep_word
+from euskaphone.langdetect import DEFAULT_MARGIN, is_keep_word
 
 # ---------------------------------------------------------------------------
 # Orthographic detection (backstop when the char-Markov detector is absent).
@@ -249,6 +249,12 @@ def _nativize(ipa: str, keep_y: bool = False, english: bool = False) -> str:
 #: orthographic corroboration (short native Basque words score foreign easily).
 _MIN_DETECTOR_LEN = 6
 
+#: Margin (nats per character) a foreign verdict needs when no orthographic
+#: signal backs it. Native Basque words that the models rate only slightly
+#: foreign (``andereak``, ``airean``, ``kideek``) fall in the band between the
+#: detector's default margin and this one.
+_UNCORROBORATED_MARGIN = 0.35
+
 
 @functools.lru_cache(maxsize=None)
 def _contact_engine(contact: str):
@@ -306,17 +312,19 @@ def route_token(token: str, contact: str,
     from euskaphone.langdetect import get_detector
     detector = get_detector()
     if detector is not None:
-        lang = detector.detect(token)[0]
+        corroborated = is_contact_word(token)
+        lang = detector.detect(
+            token, DEFAULT_MARGIN if corroborated else _UNCORROBORATED_MARGIN)[0]
         # The char-Markov detector is over-eager on *short* words — "jan",
         # "bada" and other native forms score foreign on 3-4 characters. Accept
         # its foreign verdict only when the token is long enough to be reliable
         # or the orthographic heuristic corroborates it; short, plausibly-native
         # words stay Basque (null beats wrong).
         if lang != "eu" and (len(_strip(token)) >= _MIN_DETECTOR_LEN
-                             or is_contact_word(token)):
+                             or corroborated):
             return lang
         # detector says Basque (or was gated) — orthographic backstop for loans
-        if is_contact_word(token):
+        if corroborated:
             return contact_language(token, default_side)
         return None
     if is_contact_word(token):
