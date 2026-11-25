@@ -71,7 +71,7 @@ from euskaphone.langdetect import DEFAULT_MARGIN, is_keep_word
 # ---------------------------------------------------------------------------
 
 #: Letters not used natively in Basque orthography (loans/proper names only).
-_NON_BASQUE_LETTERS = set("cqvwyñçáéíóúàâèêîïôùäëö")
+_NON_BASQUE_LETTERS = set("cqvwyçáéíóúàâèêîïôùäëö")
 
 #: Letters/accents that point specifically at Spanish.
 _SPANISH_LETTERS = set("ñáíóú")
