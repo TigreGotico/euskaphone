@@ -114,7 +114,6 @@ _CONTINENTAL = {
 }
 
 
-@functools.lru_cache(maxsize=4096)
 def normalize_dialect_code(name: str) -> str:
     """Deprecated: lower-case and trim a dialect name or code.
 
@@ -131,6 +130,7 @@ def normalize_dialect_code(name: str) -> str:
     return (name or "").strip().lower()
 
 
+@functools.lru_cache(maxsize=4096)
 def resolve_lect(dialect: str = DEFAULT_DIALECT) -> str:
     """Resolve ``dialect`` (a code or a human-readable alias) to an eu lect code.
 

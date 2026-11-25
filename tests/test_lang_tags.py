@@ -42,4 +42,20 @@ def test_normalize_dialect_code_is_deprecated_and_keeps_its_value():
 @pytest.mark.xfail(strict=True, reason="TigreGotico/linguatag#69: every private-use subtag drops at once; "
                    "RFC 4647 §3.4 removes one subtag at a time")
 def test_an_unnamed_subtag_after_a_lect_keeps_the_lect():
-    assert resolve_lect("eu-x-bizkaiera-foo") == "eu-x-bizkaiera"
+    assert resolve_lect("eu-x-zuberera-foo") == "eu-x-zuberera"
+
+
+@pytest.mark.xfail(strict=True, reason="TigreGotico/euskaphone#112: the alias table reads the whole tag only")
+@pytest.mark.parametrize("tag,lect", [
+    ("eu-x-bizkaiera-foo", "eu-biscayan"),
+    ("souletin-foo", "eu-x-zuberera"),
+])
+def test_an_unnamed_subtag_after_an_alias_keeps_its_lect(tag, lect):
+    assert resolve_lect(tag) == lect
+
+
+def test_normalize_dialect_code_warns_on_every_call():
+    from euskaphone.registry import normalize_dialect_code
+    for _ in range(2):
+        with pytest.warns(DeprecationWarning):
+            normalize_dialect_code("eu-ES")
