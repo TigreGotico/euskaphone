@@ -1,11 +1,12 @@
 # Changelog
 
-## [0.3.18a2](https://github.com/TigreGotico/euskaphone/tree/0.3.18a2) (2026-11-25)
+## [0.3.18a3](https://github.com/TigreGotico/euskaphone/tree/0.3.18a3) (2026-11-25)
 
-[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.18a1...0.3.18a2)
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.18a1...0.3.18a3)
 
 **Merged pull requests:**
 
+- test: pin euskaphone\#121 with a strict xfail [\#127](https://github.com/TigreGotico/euskaphone/pull/127) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 - test: pin euskaphone\#120 with a strict xfail [\#126](https://github.com/TigreGotico/euskaphone/pull/126) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 - test: pin euskaphone\#119 with a strict xfail [\#125](https://github.com/TigreGotico/euskaphone/pull/125) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
 - test: pin euskaphone\#118 with a strict xfail [\#124](https://github.com/TigreGotico/euskaphone/pull/124) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
