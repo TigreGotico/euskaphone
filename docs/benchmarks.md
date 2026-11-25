@@ -38,7 +38,7 @@ circular.
 
 ## 2. WikiPron `eus_latn` (broad), independent word gold
 
-Wiktionary-derived pronunciations, about 20k entries. WikiPron marks no
+[WikiPron](https://github.com/CUNY-CL/wikipron) holds Wiktionary-derived pronunciations, about 20k entries. WikiPron marks no
 stress, so stress is stripped from the hypothesis. The run also scores bare
 orthography2ipa `eu` on the same words.
 
@@ -67,7 +67,7 @@ raise.
 
 ## 3. HiTZ/EHU `wikipedia_basque_ipa`, independent cross-engine
 
-The University of the Basque Country (HiTZ) Wikipedia G2P gold, 836k
+The [University of the Basque Country (HiTZ) Wikipedia G2P gold](https://huggingface.co/datasets/HiTZ/wikipedia_basque_ipa), 836k
 sentences. The two engines use different conventions (HiTZ `ʂ` for the
 coronal sibilants, apostrophe stress), so the comparison folds
 `{s̺,s̻,ʂ}→s`, `{ts̺,ts̻,tʂ}→ts` and strips stress before scoring.

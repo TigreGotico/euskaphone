@@ -19,7 +19,18 @@ from euskaphone.normalize import normalize_text
 
 normalize_text("XX. mendean %20 igo da", "eu")
 # 'hogeigarren mendean ehuneko hogei igo da'
+normalize_text("Luis XIV.a errege zen", "eu")
+# 'Luis hamalaugarrena errege zen'
+normalize_text("Sarrera €5eko da", "eu")
+# 'Sarrera bost euroko da'
+normalize_text("15/01/2024", "eu")
+# 'bi mila eta hogeita lauko urtarrilaren hamabosta'
 ```
+
+text2spoken reads the Roman-numeral ordinals (`XX.` gives `hogeigarren`), the monarch
+numerals (`Luis XIV.a` gives `hamalaugarrena`), the numeric dates, and the unit, currency and
+percent symbols with Basque word order and declension. euskaphone reads what text2spoken
+leaves as written, such as `€5eko`.
 
 ## How the text is read
 

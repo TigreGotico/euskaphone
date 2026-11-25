@@ -14,7 +14,9 @@ Install euskaphone and turn a Basque sentence into IPA. Each step shows its real
 pip install --pre euskaphone
 ```
 
-The `--pre` flag selects the alpha line that these pages describe. Create one phonemizer and call
+The `--pre` flag selects the alpha line that these pages describe. The `langdetect` extra
+(`pip install --pre "euskaphone[langdetect]"`) adds the statistical code-switch detector, and the
+`test` extra adds the test dependencies. Create one phonemizer and call
 `phonemize_sentence`. Without a dialect, it reads Standard Basque (Batua):
 
 ```python
@@ -33,6 +35,17 @@ ph.phonemize_sentence("Hotza egiten du.", "souletin")
 # 'ˈhots̻a eˈɣiten ˈdu'
 ph.phonemize_sentence("Hotza egiten du.", "eu-x-zuberera")
 # 'ˈhots̻a eˈɣiten ˈdu'
+```
+
+A written `ü` selects `/y/` in Souletin, and Souletin keeps the aspirated `h`:
+
+```python
+ph.phonemize_sentence("Hotza egiten du gaur mendian.", "souletin")
+# 'ˈhots̻a eˈɣiten ˈdu ˈɡau̯r menˈdian'
+ph.phonemize_sentence("Hotza egiten dü.", "souletin")
+# 'ˈhots̻a eˈɣiten ˈdy'
+ph.phonemize_sentence("Zazpi katu zuri ikusi ditut.")
+# 's̻as̻ˈpi kaˈtu s̻uˈɾi iˈkus̺i diˈtut'
 ```
 
 Numbers become Basque words before the lattice runs. Here `31` reads as `hogeita hamaika`:

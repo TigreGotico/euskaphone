@@ -9,7 +9,9 @@ see: quickstart.md, codeswitch.md, api.md
 -->
 
 A euskaphone dialect is an orthography2ipa Basque lect spec. Selecting a
-dialect selects that spec. The grapheme table, the allophony and the sandhi of the spec
+dialect selects that spec. There are eight lects, and each one is selectable by its BCP-47 code
+or by a human-readable alias. The spec's grapheme table also fixes the apical/laminal sibilant
+contrast, the affricates, Souletin aspiration and `/y/`. The grapheme table, the allophony and the sandhi of the spec
 produce the dialect's phonology directly, so there are no post-hoc accent
 transforms.
 
