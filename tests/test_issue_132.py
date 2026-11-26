@@ -3,7 +3,7 @@
 import warnings
 
 import pytest
-from orthography2ipa.exceptions import UnmappedGraphemeWarning
+from orthography2ipa import UnmappedGraphemeWarning
 
 from euskaphone import EuskaPhonemizer
 
