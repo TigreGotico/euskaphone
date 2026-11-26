@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.21a8](https://github.com/TigreGotico/euskaphone/tree/0.3.21a8) (2026-11-26)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.21a7...0.3.21a8)
+
+**Merged pull requests:**
+
+- test: strict xfails fail only on their assertion [\#158](https://github.com/TigreGotico/euskaphone/pull/158) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.3.21a7](https://github.com/TigreGotico/euskaphone/tree/0.3.21a7) (2026-11-26)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.21a6...0.3.21a7)
@@ -351,10 +359,6 @@
 ## [0.2.4a1](https://github.com/TigreGotico/euskaphone/tree/0.2.4a1) (2026-11-04)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.3a1...0.2.4a1)
-
-**Merged pull requests:**
-
-- fix: score the respell gate on segments, now that eu marks stress [\#32](https://github.com/TigreGotico/euskaphone/pull/32) ([JarbasAl](https://github.com/JarbasAl))
 
 ## [0.2.3a1](https://github.com/TigreGotico/euskaphone/tree/0.2.3a1) (2026-11-04)
 
