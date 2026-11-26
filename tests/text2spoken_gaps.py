@@ -9,7 +9,7 @@ import pytest
 
 
 def _misreading(reason: str):
-    return pytest.mark.xfail(strict=True, reason=reason)
+    return pytest.mark.xfail(strict=True, reason=reason, raises=AssertionError)
 
 
 LAPURDI_LECT = _misreading(

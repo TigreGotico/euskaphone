@@ -9,7 +9,7 @@ from euskaphone import EuskaPhonemizer
 
 @pytest.mark.xfail(
     strict=True,
-    reason="euskaphone#119: Miguel stays on the Basque route and keeps its silent u")
+    reason="euskaphone#119: Miguel stays on the Basque route and keeps its silent u", raises=AssertionError)
 def test_gue_has_a_silent_u():
     ipa = EuskaPhonemizer().phonemize_sentence(
         "Miguel Indurain txirrindularia da.", contact="auto")

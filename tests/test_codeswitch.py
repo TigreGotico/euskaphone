@@ -180,7 +180,7 @@ _DETECTOR_READS_AS_ENGLISH = {"kodeek", "unitateekin"}
 @pytest.mark.parametrize("word,source", [
     pytest.param(w, s, marks=pytest.mark.xfail(
         get_detector() is not None, strict=True,
-        reason="the char-Markov detector scores it English"))
+        reason="the char-Markov detector scores it English", raises=AssertionError))
     if w in _DETECTOR_READS_AS_ENGLISH else (w, s)
     for w, s in _BASQUE_EE])
 def test_basque_ee_is_read_as_basque_under_auto(word, source):

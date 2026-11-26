@@ -19,7 +19,7 @@ _BASQUE = ["Iñaki", "Begoña", "andereño"]
 @pytest.mark.xfail(
     strict=True,
     reason="https://github.com/TigreGotico/euskaphone/issues/139: Spanish words "
-           "with ñ take the Basque route under contact=auto")
+           "with ñ take the Basque route under contact=auto", raises=AssertionError)
 def test_spanish_ñ_words_take_the_spanish_route_and_basque_ones_do_not(classifier):
     phonemizer = EuskaPhonemizer()
     for word in _SPANISH:
