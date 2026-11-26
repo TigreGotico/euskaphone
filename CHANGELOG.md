@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.21a7](https://github.com/TigreGotico/euskaphone/tree/0.3.21a7) (2026-11-26)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.21a6...0.3.21a7)
+
+**Merged pull requests:**
+
+- refactor: public orthography2ipa imports for the \#2637 names [\#156](https://github.com/TigreGotico/euskaphone/pull/156) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.3.21a6](https://github.com/TigreGotico/euskaphone/tree/0.3.21a6) (2026-11-25)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.21a5...0.3.21a6)
@@ -264,10 +272,6 @@
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.9a4...0.2.9a5)
 
-**Merged pull requests:**
-
-- Update actions/setup-python action to v7 [\#28](https://github.com/TigreGotico/euskaphone/pull/28) ([renovate[bot]](https://github.com/apps/renovate))
-
 ## [0.2.9a4](https://github.com/TigreGotico/euskaphone/tree/0.2.9a4) (2026-11-15)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.9a3...0.2.9a4)
@@ -355,10 +359,6 @@
 ## [0.2.3a1](https://github.com/TigreGotico/euskaphone/tree/0.2.3a1) (2026-11-04)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.2a2...0.2.3a1)
-
-**Merged pull requests:**
-
-- fix: resolve the Basque lect codes that orthography2ipa renamed [\#30](https://github.com/TigreGotico/euskaphone/pull/30) ([JarbasAl](https://github.com/JarbasAl))
 
 ## [0.2.2a2](https://github.com/TigreGotico/euskaphone/tree/0.2.2a2) (2026-09-17)
 
