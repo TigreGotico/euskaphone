@@ -10,7 +10,7 @@ from euskaphone.codeswitch import route_token
 
 @pytest.mark.xfail(
     strict=True,
-    reason="euskaphone#121: smartphone stays off the English route and reads ph as p")
+    reason="euskaphone#121: smartphone stays off the English route and reads ph as p", raises=AssertionError)
 def test_smartphone_takes_the_english_route():
     assert route_token("smartphone", "auto") == "en"
     ipa = EuskaPhonemizer().phonemize_sentence("smartphone", contact="auto")

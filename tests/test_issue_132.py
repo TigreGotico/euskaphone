@@ -13,7 +13,7 @@ SOULETIN = "eu-x-zuberera"
 @pytest.mark.xfail(
     strict=True,
     reason="euskaphone#132: stress-marked Souletin words take the French route "
-           "under contact=auto and lose /ɡ/, final /n/ and /h/")
+           "under contact=auto and lose /ɡ/, final /n/ and /h/", raises=AssertionError)
 @pytest.mark.parametrize("word", ["lagünék", "ginén", "héri"])
 def test_stress_marked_souletin_word_stays_on_the_basque_route(classifier, word):
     ph = EuskaPhonemizer(toponyms=False)

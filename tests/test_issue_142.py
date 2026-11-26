@@ -15,7 +15,7 @@ _DETECTOR_ONLY = ["gobierno", "mañana"]
 @pytest.mark.xfail(
     strict=True,
     reason="https://github.com/TigreGotico/euskaphone/issues/142: the detector "
-           "sends native ñ words off the Basque route")
+           "sends native ñ words off the Basque route", raises=AssertionError)
 def test_detector_keeps_native_ñ_words_on_the_basque_route():
     phonemizer = EuskaPhonemizer()
     for word in _NATIVE:
