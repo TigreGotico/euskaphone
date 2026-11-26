@@ -26,7 +26,7 @@ classifiers = [
 ]
 dependencies = [
     "linguatag>=0.6.0a1",
-    "orthography2ipa>=7.130.1a2",
+    "orthography2ipa>=7.131.0a2",
     # BasqueNumberParser spells numbers with it: the fallbacks for the forms
     # that text2spoken leaves as written, and the deprecated number stage.
     "ovos-number-parser>=0.6.0a1",

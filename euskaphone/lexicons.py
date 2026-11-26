@@ -54,7 +54,7 @@ BUILTIN_CODE = "eu"
 
 def _already_registered(code: str) -> bool:
     """Whether *code* already has a caller-registered lexicon (do not clobber)."""
-    from orthography2ipa.lexicon import lexicon_path
+    from orthography2ipa import lexicon_path
     from euskaphone.lattice_core import lexicon_source
     return lexicon_source(code) is not None or lexicon_path(code) is not None
 
