@@ -135,19 +135,31 @@ def resolve_lect(dialect: str = DEFAULT_DIALECT) -> str:
 
     Resolution order: a code this package documents, then an alias, each
     matched with trailing subtags removed one at a time, down to but not
-    including ``eu`` (``eu-x-bizkaiera-foo`` → ``eu-x-bizkaiera``). A key
+    including ``eu`` (``eu-x-bizkaiera-foo`` → ``eu-x-bizkaiera``), and
+    again without a region before the lect (``eu-FR-x-zuberera`` →
+    ``eu-x-zuberera``). A key
     orthography2ipa lists matches the same way. Then the nearest canonical lect
     (``eu-x-unknown`` → ``eu``). An unresolved name falls back to ``eu``
     (Standard Batua).
     """
     tag = standardize_lang((dialect or "").strip())
-    key = tag
-    while key and key != DEFAULT_DIALECT:
-        if lect := _CODES.get(key) or _ALIASES.get(key):
-            return lect
-        if key in _CANONICAL:
-            return key
-        key = key.rpartition("-")[0]
+    # a region before the private-use lect ("eu-FR-x-zuberera") does not
+    # name another lect: the lect is matched with and without it, since
+    # trailing subtags are removed one at a time (RFC 4647 §3.4) and the
+    # region would otherwise drop only after the lect
+    parts = tag.split("-")
+    candidates = [tag]
+    if (len(parts) > 3 and parts[2] == "x"
+            and (len(parts[1]) == 2 and parts[1].isalpha() or len(parts[1]) == 3 and parts[1].isdigit())):
+        candidates.append("-".join([parts[0], *parts[2:]]))
+    for candidate in candidates:
+        key = candidate
+        while key and key != DEFAULT_DIALECT:
+            if lect := _CODES.get(key) or _ALIASES.get(key):
+                return lect
+            if key in _CANONICAL:
+                return key
+            key = key.rpartition("-")[0]
     return closest_lang(tag, _CANONICAL, lects="standard") or DEFAULT_DIALECT
 
 
