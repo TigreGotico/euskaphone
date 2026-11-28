@@ -12,7 +12,7 @@ from euskaphone.lexicons import (
     register_hitz_overlay, register_toponyms,
 )
 from orthography2ipa import G2P
-from orthography2ipa.lexicon import load_lexicon, parse_lexicon_text, validate_lexicon_text
+from orthography2ipa import load_lexicon, parse_lexicon_text, validate_lexicon_text
 
 
 def _clear_process_lexicons():

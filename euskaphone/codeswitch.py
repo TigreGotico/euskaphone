@@ -13,7 +13,7 @@ euskaphone takes arbtok's **total-nativization** stance — *never drop a segmen
 always project it onto the target inventory* — but keeps the machinery far
 simpler than arbtok. A word-level step decides whether a token is Basque or
 contact-language and, if contact, which language; a detected contact word is
-transcribed through the orthography2ipa ``es-ES`` / ``fr-FR`` / ``en-US`` lattice,
+transcribed through the orthography2ipa ``es-ES`` / ``fr-FR`` / ``en-GB`` lattice,
 and every phone in that result is projected onto the Basque phoneme inventory.
 There is no sub-word alignment.
 
@@ -62,14 +62,16 @@ from __future__ import annotations
 import functools
 from typing import List, Optional, Tuple
 
-from euskaphone.langdetect import is_keep_word
+from linguatag import with_default_region
+
+from euskaphone.langdetect import DEFAULT_MARGIN, is_keep_word
 
 # ---------------------------------------------------------------------------
 # Orthographic detection (backstop when the char-Markov detector is absent).
 # ---------------------------------------------------------------------------
 
 #: Letters not used natively in Basque orthography (loans/proper names only).
-_NON_BASQUE_LETTERS = set("cqvwyñçáíóúàâèêîïôùäëö")
+_NON_BASQUE_LETTERS = set("cqvwyçáéíóúàâèêîïôùäëö")
 
 #: Letters/accents that point specifically at Spanish.
 _SPANISH_LETTERS = set("ñáíóú")
@@ -243,18 +245,22 @@ def _nativize(ipa: str, keep_y: bool = False, english: bool = False) -> str:
 # The contact transcriber.
 # ---------------------------------------------------------------------------
 
-_CONTACT_CODE = {"es": "es-ES", "fr": "fr-FR", "en": "en-US"}
-
 #: Below this length the char-Markov detector's foreign verdict needs
 #: orthographic corroboration (short native Basque words score foreign easily).
 _MIN_DETECTOR_LEN = 6
+
+#: Margin (nats per character) a foreign verdict needs when no orthographic
+#: signal backs it. Native Basque words that the models rate only slightly
+#: foreign (``andereak``, ``airean``, ``kideek``) fall in the band between the
+#: detector's default margin and this one.
+_UNCORROBORATED_MARGIN = 0.35
 
 
 @functools.lru_cache(maxsize=None)
 def _contact_engine(contact: str):
     """A cached orthography2ipa engine for the contact lattice."""
     from orthography2ipa import G2P
-    return G2P(_CONTACT_CODE[contact])
+    return G2P(with_default_region(contact))
 
 
 def transcribe_contact(word: str, contact: str, keep_y: bool = False) -> str:
@@ -300,23 +306,25 @@ def route_token(token: str, contact: str,
     """
     if contact == "none":
         return None
-    if contact in _CONTACT_CODE:  # forced es / fr / en
+    if contact in ("es", "fr", "en"):
         return contact if detect_contact_word(token) else None
 
     from euskaphone.langdetect import get_detector
     detector = get_detector()
     if detector is not None:
-        lang = detector.detect(token)[0]
+        corroborated = is_contact_word(token)
+        lang = detector.detect(
+            token, DEFAULT_MARGIN if corroborated else _UNCORROBORATED_MARGIN)[0]
         # The char-Markov detector is over-eager on *short* words — "jan",
         # "bada" and other native forms score foreign on 3-4 characters. Accept
         # its foreign verdict only when the token is long enough to be reliable
         # or the orthographic heuristic corroborates it; short, plausibly-native
         # words stay Basque (null beats wrong).
         if lang != "eu" and (len(_strip(token)) >= _MIN_DETECTOR_LEN
-                             or is_contact_word(token)):
+                             or corroborated):
             return lang
         # detector says Basque (or was gated) — orthographic backstop for loans
-        if is_contact_word(token):
+        if corroborated:
             return contact_language(token, default_side)
         return None
     if is_contact_word(token):

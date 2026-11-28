@@ -1,12 +1,20 @@
 # Code-switch handling
 
+<!-- agent-hint
+covers: how euskaphone detects, routes and nativizes Spanish, French and English words inside Basque text
+source: euskaphone/codeswitch.py, euskaphone/langdetect.py, scripts/train_langdetect.py
+generated: no
+verify: .venv/bin/python scripts/check_docs_examples.py docs/codeswitch.md
+see: dialects.md, api.md, benchmarks.md
+-->
+
 Real Basque text is bilingual, and increasingly trilingual: peninsular
 (Hegoalde) writing embeds Spanish, continental (Iparralde) writing embeds
 French, and the modern tech/music/media register on both sides embeds
 English (proper names, loans, quoted fragments, product and band names).
 euskaphone detects that material at the word level, classifies each contact
 word among `es`/`fr`/`en`, transcribes it through the orthography2ipa
-`es-ES`/`fr-FR`/`en-US` lattice, and **nativizes** the result onto the
+`es-ES`/`fr-FR`/`en-GB` lattice, and **nativizes** the result onto the
 Basque phoneme inventory.
 
 ## Total nativization
@@ -41,12 +49,24 @@ in the same notation as the surrounding Basque.
 | `"auto"` | detect contact words and classify each **per word** among `es`/`fr`/`en`; unclassified words fall to the dialect's side (peninsular→`es`, continental→`fr`) |
 | `"es"` / `"fr"` / `"en"` | force that contact lattice for detected words |
 
+In the first example `Mayor` routes to Spanish. `Streaming` routes to English. The third
+sentence carries Spanish, French and English words, and the fourth routes `Maison Rouge` to
+French. The last call keeps the default `contact="none"`, so every word reads as Basque.
+
 ```python
-ph.phonemize_sentence("Madrilen Plaza Mayor ikusi dut.", "eu", contact="auto")      # es
-ph.phonemize_sentence("Streaming plataforma berria erabili dugu.", contact="auto")  # en
-ph.phonemize_sentence("Plaza Mayor eta le weekend.", "eu", contact="auto")          # es + fr + en
-ph.phonemize_sentence("Maison Rouge etxean.", "souletin", contact="auto")           # fr
-ph.phonemize_sentence("Plaza Mayor.", "eu")                                         # all Basque
+from euskaphone import EuskaPhonemizer
+
+ph = EuskaPhonemizer()
+ph.phonemize_sentence("Madrilen Plaza Mayor ikusi dut.", "eu", contact="auto")
+# 'maˈðɾilen plaˈs̻a majoɾ iˈkus̺i ˈdut'
+ph.phonemize_sentence("Streaming plataforma berria erabili dugu.", contact="auto")
+# 'strimin platafoɾma beˈria eˈɾaβili duˈɣu'
+ph.phonemize_sentence("Plaza Mayor eta le weekend.", "eu", contact="auto")
+# 'plaˈs̻a majoɾ eˈta le u̯ikend'
+ph.phonemize_sentence("Maison Rouge etxean.", "souletin", contact="auto")
+# 'mes̻o ˈrowɣe eˈtʃean'
+ph.phonemize_sentence("Plaza Mayor.", "eu")
+# 'plaˈs̻a maˈor'
 ```
 
 ## The detection heuristic (and its limits)
@@ -121,13 +141,23 @@ where **total nativization** projects them back onto the Basque inventory
 anyway, so either outcome is safe. The margin only guarantees the decision
 is never taken on a weak signal.
 
+`get_detector()` returns `None` when `markovonnx` or the models are unavailable. The first
+element of a `detect` result is the winning language. `ayuntamiento` routes to Spanish and gets
+nativized. `dut` is a native grammar word and stays Basque. `radio` sits inside the margin band
+and stays Basque too.
+
 ```python
 from euskaphone.langdetect import get_detector
-d = get_detector()                 # None if markovonnx/models unavailable
-d.detect("ayuntamiento")           # ('es', {...})  -> routed and nativized
-d.detect("dut")                    # ('eu', {})     -> native grammar word, kept
-d.detect("radio")                  # ('eu', {...})  -> inside the margin band
-d.is_contact("monsieur")           # True
+
+d = get_detector()
+d.detect("ayuntamiento")[0]
+# 'es'
+d.detect("dut")[0]
+# 'eu'
+d.detect("radio")[0]
+# 'eu'
+d.is_contact("monsieur")
+# True
 ```
 
 ### How the models were built, and how they measure up
@@ -159,4 +189,4 @@ dominated by the expected Spanish/French/English overlap (shared
 Romance/Latin alphabet). Basque separates cleanly from all three.
 
 ---
-[← Normalization](normalization.md) · [Home](../README.md) · [Lexicons →](lexicons.md)
+[← Normalization](normalization.md) · [Index](index.md) · [Lexicons →](lexicons.md)
