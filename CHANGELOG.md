@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.22a2](https://github.com/TigreGotico/euskaphone/tree/0.3.22a2) (2026-11-28)
+
+[Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.22a1...0.3.22a2)
+
+**Merged pull requests:**
+
+- test: a region before the private-use lect keeps the lect [\#163](https://github.com/TigreGotico/euskaphone/pull/163) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+- fix: a region before the private-use lect keeps the lect \(linguatag 0.13\) [\#160](https://github.com/TigreGotico/euskaphone/pull/160) ([goldyfruit](https://github.com/goldyfruit))
+
 ## [0.3.22a1](https://github.com/TigreGotico/euskaphone/tree/0.3.22a1) (2026-11-27)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.3.21a8...0.3.22a1)
@@ -351,10 +360,6 @@
 ## [0.2.4a3](https://github.com/TigreGotico/euskaphone/tree/0.2.4a3) (2026-11-06)
 
 [Full Changelog](https://github.com/TigreGotico/euskaphone/compare/0.2.4a2...0.2.4a3)
-
-**Merged pull requests:**
-
-- refactor: pass the text expansion as Pipeline\(expand=...\) [\#36](https://github.com/TigreGotico/euskaphone/pull/36) ([JarbasAl](https://github.com/JarbasAl))
 
 ## [0.2.4a2](https://github.com/TigreGotico/euskaphone/tree/0.2.4a2) (2026-11-04)
 
